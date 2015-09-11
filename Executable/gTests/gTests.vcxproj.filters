@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\CodeMetrics">
+      <UniqueIdentifier>{432c9751-7a9f-470f-be24-9c8606079a99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MidiParser">
+      <UniqueIdentifier>{a8d42ef9-4342-4bbb-9491-19f1674f91af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MidiParser\Struct">
+      <UniqueIdentifier>{b6d7f16e-2ff3-4f50-87aa-5cdfe513cafa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MidiParser\Parser">
+      <UniqueIdentifier>{8ad1ae2b-e685-4192-9336-01044a5db4b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CurrentFileName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeMetrics_test.cpp">
+      <Filter>Source Files\CodeMetrics</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiStruct_test.cpp">
+      <Filter>Source Files\MidiParser\Struct</Filter>
+    </ClCompile>
+    <ClCompile Include="NoteNames_test.cpp">
+      <Filter>Source Files\MidiParser\Struct</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParser_test.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiParser_test.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
