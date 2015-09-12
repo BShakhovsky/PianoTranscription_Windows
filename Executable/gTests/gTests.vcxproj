@@ -214,15 +214,14 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="CurrentFileName.h" />
+    <ClInclude Include="FileParser_Mock.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeMetrics_test.cpp" />
+    <ClCompile Include="FileParser_Mock.cpp" />
     <ClCompile Include="FileParser_test.cpp" />
     <ClCompile Include="MidiParser_test.cpp" />
     <ClCompile Include="MidiStruct_test.cpp" />
@@ -233,6 +232,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SystemEvent_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">

@@ -3,7 +3,7 @@
 # include "MidiStruct.h"
 # include "FileParser.h"
 
-using std::make_shared;
+using namespace std;
 using boost::serialization::singleton;
 using namespace Model::MidiParser;
 using MidiStruct::EventChunk;
@@ -26,6 +26,8 @@ Event& Event::Init(const char statusByte)
 Event& Event::GetInstance(FileParser_ file)
 {
 	if (file) fileParser_ = file;
+	else if (!fileParser_) throw std::runtime_error("INPUT FILE HAS NOT BEEN SET YET");
+
 	const auto status = fileParser_->ReadByte();
 	if ((status & 0x0'F0) == 0xF0)	// 0xF0 is negative ==> 0x0F0 is positive
 		if (status == -1) /* 0xFF */	return MetaEvent::GetInstance().Init(status);
@@ -41,10 +43,8 @@ Event::EventChunk_ Event::Read()
 	return eventChunk_;
 }
 
-void Event::SkipMsg(const char *msg) const
+void Event::Skip() const
 {
-	eventChunk_->metaText += msg;
-	eventChunk_->metaText += " -> ";
-	fileParser_->SkipData(eventChunk_->length = fileParser_->ReadVarLenFormat());
-	eventChunk_->metaText += (boost::format{ "%1% bytes skipped\n" } % eventChunk_->length).str();
+	eventChunk_->length = fileParser_->ReadVarLenFormat();
+	fileParser_->SkipData(eventChunk_->length);
 }

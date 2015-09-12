@@ -29,11 +29,11 @@ namespace View
 	private:
 		virtual void Init_impl() const = 0
 		{
-			assert(!"PURE VIRTUAL FUNCTION IKeyboard::Init_impl() SHOULD NEVER BE CALLED");
+			PURE_VIRTUAL;
 		}
 		virtual void Update_impl() const = 0
 		{
-			assert(!"PURE VIRTUAL FUNCTION IKeyboard::Update_impl() SHOULD NEVER BE CALLED");
+			PURE_VIRTUAL;
 		}
 	};
 }

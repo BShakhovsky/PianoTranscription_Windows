@@ -9,9 +9,9 @@ namespace Model
 			class EventChunk;
 		}
 
-		class Event : private boost::noncopyable
+		class Event abstract : private boost::noncopyable
 		{
-			typedef std::shared_ptr<class FileParser> FileParser_;
+			typedef std::shared_ptr<class IFileParser> FileParser_;
 			typedef std::shared_ptr<MidiStruct::EventChunk> EventChunk_;
 
 			static FileParser_ fileParser_;
@@ -23,7 +23,7 @@ namespace Model
 		protected:
 			Event();
 			Event& Init(char statusByte);
-			void SkipMsg(const char *msg) const;
+			void Skip() const;
 
 			FileParser_ GetInputFile() const
 			{
@@ -36,7 +36,7 @@ namespace Model
 		private:
 			virtual void Read_impl() = 0
 			{
-				assert(!"PURE VIRTUAL Read_impl() MUST NEVER BE CALLED");
+				PURE_VIRTUAL;
 			}
 		};
 	}

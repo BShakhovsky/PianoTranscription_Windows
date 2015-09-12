@@ -143,9 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\Keyboard.h" />
     <ClInclude Include="..\KeyboardConsole.h" />
     <ClInclude Include="..\KeyboardWin32.h" />

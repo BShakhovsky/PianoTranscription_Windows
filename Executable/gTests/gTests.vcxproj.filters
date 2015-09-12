@@ -25,9 +25,9 @@
     <Filter Include="Source Files\MidiParser\Parser">
       <UniqueIdentifier>{8ad1ae2b-e685-4192-9336-01044a5db4b9}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <Filter Include="Source Files\MidiParser\Event">
+      <UniqueIdentifier>{bf8fb3be-2309-4725-bd3d-08a3219444d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -37,6 +37,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CurrentFileName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileParser_Mock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -57,6 +60,12 @@
       <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
     <ClCompile Include="MidiParser_test.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemEvent_test.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParser_Mock.cpp">
       <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
   </ItemGroup>

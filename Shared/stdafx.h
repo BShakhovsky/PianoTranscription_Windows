@@ -35,3 +35,13 @@
 # pragma warning(pop)
 
 # pragma warning(disable:4514)	// unreferenced inline functions are removed
+
+
+# ifdef _DEBUG
+#	define BORIS_ASSERT(BORIS_MSG) { std::cerr << "Assertion failed: " << BORIS_MSG << std::endl; assert(false); }
+# elif defined NDEBUG
+#	define BORIS_ASSERT(BORIS_MSG)
+# else
+#	"WRONG SOLUTION CONFIGURATION";
+# endif
+# define PURE_VIRTUAL BORIS_ASSERT(!"PURE VIRTUAL FUNCTION " __FUNCTION__ " MUST NEVER BE CALLED");

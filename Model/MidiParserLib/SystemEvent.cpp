@@ -14,12 +14,10 @@ void SystemEvent::Read_impl()
 {
 	switch (GetChunk()->status)
 	{
-	case -16:/* 0xF0 */	case -9: /* 0xF7 */
-		SkipMsg("System exclusive event");	break;
-	case -15:/* 0xF1 */ case -14:/* 0xF2 */ case -13:/* 0xF3 */ case -10:/* 0xF6 */
-		SkipMsg("System common event");		break;
-	case -8: /* 0xF8 */ case -6: /* 0xFA */ case -5: /* 0xFB */ case -4: /* 0xFC */ case -2:/* 0xFE */
-		SkipMsg("System real-time event");	break;
-	default: assert("!WRONG STATUS BYTE");
+	case -16:/*F0*/ case -9: /*F7*/													// Exclusive event,	Ok
+	case -15:/*F1*/ case -14:/*F2*/ case -13:/*F3*/ case -10:/*F6*/					// Common event,	Ok
+	case -8: /*F8*/ case -6: /*FA*/ case -5: /*FB*/ case -4: /*FC*/ case -2:/*FE*/	// Real-time event,	Ok
+		break; default: assert(!"WRONG STATUS BYTE");								// Not Ok
 	}
+	Skip();
 }

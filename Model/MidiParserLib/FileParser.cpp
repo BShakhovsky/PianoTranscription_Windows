@@ -1,13 +1,48 @@
 # include "stdafx.h"
 # include "FileParser.h"
+# include "FileCounter.h"
 # include "MidiStruct.h"
 
-using std::shared_ptr;
+using namespace std;
 using namespace Model;
 using namespace MidiParser;
 using MidiStruct::Bytes;
 
-unsigned FileParser::ReadInverse(unsigned nBytes, bool checkBytesRemained)
+FileParser::FileParser(const char *fileName) :
+	IFileParser(),
+	inputFile_(fileName, std::ifstream::binary),
+	bytesRemained_(make_shared<FileCounter>())
+{}
+FileParser::~FileParser() {}
+
+int FileParser::GetBytesRemained_impl() const
+{
+	return bytesRemained_->Get();
+}
+void FileParser::SetBytesRemained_impl(const int value) const
+{
+	bytesRemained_->Set(value);
+}
+
+char FileParser::ReadByte_impl()
+{
+	char result('\0');
+	inputFile_.get(result);
+	bytesRemained_->Reduce(1);
+	return result;
+}
+void FileParser::ReadData_impl(char* data, const std::streamsize count)
+{
+	inputFile_.read(data, count);
+	bytesRemained_->Reduce(static_cast<int>(count), false);
+}
+void FileParser::SkipData_impl(const std::streamoff offset)
+{
+	inputFile_.seekg(offset, std::ifstream::cur);
+	bytesRemained_->Reduce(static_cast<int>(offset));
+}
+
+unsigned FileParser::ReadInverse_impl(unsigned nBytes, const bool toCheck)
 // Inverse from little-endian to big-endian format
 {
 	if (nBytes > sizeof(int32_t))
@@ -21,12 +56,10 @@ unsigned FileParser::ReadInverse(unsigned nBytes, bool checkBytesRemained)
 		result <<= MidiStruct::Bytes::byteSize;
 		result |= inputFile_.get();
 	}
-	bytesRemained_ -= nBytes;
-	if (checkBytesRemained) CheckBytesRemained();
+	bytesRemained_->Reduce(static_cast<signed>(nBytes), toCheck);
 	return result;
 }
-
-unsigned FileParser::ReadVarLenFormat()
+unsigned FileParser::ReadVarLenFormat_impl()
 {
 	unsigned result(NULL);
 	char anotherByte('\0');
@@ -35,7 +68,7 @@ unsigned FileParser::ReadVarLenFormat()
 	{
 		anotherByte = ReadByte();
 		if (++totalBytes > Bytes::varLengthSize)
-			throw std::length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
+			throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
 		result <<= Bytes::byteSize;
 		result |= static_cast<unsigned char>(anotherByte);
 	} while (anotherByte < 0);	// ends when the most significant bit is unset
@@ -45,10 +78,9 @@ unsigned FileParser::ReadVarLenFormat()
 
 uint32_t MidiParser::ReadWord(shared_ptr<FileParser> fileParser)
 {
-	return fileParser->ReadInverse(sizeof uint32_t);
+	return fileParser->ReadInverse(sizeof uint32_t, false);
 }
-
 uint16_t MidiParser::ReadDWord(shared_ptr<FileParser> fileParser)
 {
-	return static_cast<uint16_t>(fileParser->ReadInverse(sizeof uint16_t));
+	return static_cast<uint16_t>(fileParser->ReadInverse(sizeof uint16_t, false));
 }

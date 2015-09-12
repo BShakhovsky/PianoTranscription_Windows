@@ -86,8 +86,21 @@ TEST_F(FileParser_F, SkipData)
 TEST_F(FileParser_F, ReadInverse)
 {
 # ifdef _DEBUG
-	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof(int32_t) + 1), "NUMBER OF BYTES TO READ > SIZEOF INT");
-	const auto result = file.ReadInverse(sizeof(int32_t));
+	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof int32_t), assertMsg);
+# endif
+	file.SetBytesRemained(1);
+# ifdef _DEBUG
+	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof int32_t), assertMsg);
+# endif
+	ASSERT_NO_FATAL_FAILURE(file.ReadInverse(sizeof int32_t, false));
+	file.SetBytesRemained(sizeof int32_t);
+	ASSERT_NO_FATAL_FAILURE(file.ReadInverse(sizeof int32_t));
+
+	file.SkipData(NULL - static_cast<signed>(sizeof int32_t) * 2);
+
+# ifdef _DEBUG
+	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof(int32_t) + 1, false), "NUMBER OF BYTES TO READ > SIZEOF INT");
+	const auto result = file.ReadInverse(sizeof(int32_t), false);
 # elif defined NDEBUG
 	srand(static_cast<unsigned>(time(NULL)));
 	const auto result = file.ReadInverse(sizeof(int32_t) + rand());
@@ -128,33 +141,25 @@ TEST_F(FileParser_F, ReadInverse)
 	two.ch[1] = 'd';
 	two.ch[0] = 'e';
 	
-	ASSERT_EQ(four.num, result)					<< "result = " << 589'326'702;
-	ASSERT_EQ(NULL - sizeof(int32_t), file.GetBytesRemained());
+	ASSERT_EQ(four.num, result)						<< "result = " << 589'326'702;
+	ASSERT_EQ(sizeof int32_t, file.GetBytesRemained());
 	ASSERT_EQ('c', file.PeekByte());
 
-	ASSERT_EQ(three.num, file.ReadInverse(3))	<< "result = " << 6'515'829;
-	ASSERT_EQ(NULL - sizeof(int32_t) - 3, file.GetBytesRemained());
+	ASSERT_EQ(three.num, file.ReadInverse(3))		<< "result = " << 6'515'829;
+	ASSERT_EQ(sizeof int32_t - 3, file.GetBytesRemained());
 	ASSERT_EQ('d', file.PeekByte());
 
-	ASSERT_EQ(two.num, file.ReadInverse(2))		<< "result = " << 25'701;
-	ASSERT_EQ(NULL - sizeof(int32_t) - 3 - 2, file.GetBytesRemained());
+	ASSERT_EQ(two.num, file.ReadInverse(2, false))	<< "result = " << 25'701;
+	ASSERT_EQ(sizeof int32_t - 3 - 2, file.GetBytesRemained());
 	ASSERT_EQ(' ', file.PeekByte());
 
-	ASSERT_EQ(' ', file.ReadInverse(1))			<< "result = " << 32;
-	ASSERT_EQ(NULL - sizeof(int32_t) - 3 - 2 - 1, file.GetBytesRemained());
+	ASSERT_EQ(' ', file.ReadInverse(1, false))		<< "result = " << 32;
+	ASSERT_EQ(sizeof int32_t - 3 - 2 - 1, file.GetBytesRemained());
 	ASSERT_EQ('\"', file.PeekByte());
 
-	ASSERT_EQ(NULL, file.ReadInverse(NULL))		<< "result is zero";
-	ASSERT_EQ(NULL - sizeof(int32_t) - 3 - 2 - 1 - NULL, file.GetBytesRemained());
+	ASSERT_EQ(NULL, file.ReadInverse(NULL, false))	<< "result is zero";
+	ASSERT_EQ(sizeof int32_t - 3 - 2 - 1 - NULL, file.GetBytesRemained());
 	ASSERT_EQ('\"', file.PeekByte());
-
-	file.SetBytesRemained(1);
-# ifdef _DEBUG
-	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof(int32_t), true), assertMsg);
-# endif
-	ASSERT_NO_FATAL_FAILURE(file.ReadInverse(sizeof(int32_t)));
-	file.SetBytesRemained(sizeof(int32_t));
-	ASSERT_NO_FATAL_FAILURE(file.ReadInverse(sizeof(int32_t), true));
 }
 
 TEST_F(FileParser_F, ReadVarLenFormat)

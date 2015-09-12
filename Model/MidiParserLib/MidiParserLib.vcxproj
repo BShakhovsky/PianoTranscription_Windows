@@ -136,12 +136,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\MidiTracksCompiler.h" />
     <ClInclude Include="Event.h" />
+    <ClInclude Include="FileCounter.h" />
     <ClInclude Include="FileParser.h" />
+    <ClInclude Include="IFileParser.h" />
     <ClInclude Include="MetaEvent.h" />
     <ClInclude Include="MidiEvent.h" />
     <ClInclude Include="MidiChunksReader.h" />
