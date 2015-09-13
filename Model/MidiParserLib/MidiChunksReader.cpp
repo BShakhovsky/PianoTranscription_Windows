@@ -58,7 +58,7 @@ void MidiChunksReader::ReadTrackChunks()
 		if (tracks_.back().intro.type != ChunkIntro::TRACK)
 		{
 			pImpl_->GetInputFile()->SkipData(tracks_.back().intro.length);
-			cout << "\nWARNING: Corrupted MIDI Track Header, " << tracks_.back().intro.length << "bytes skipped" << endl;
+			cout << "WARNING: Corrupted MIDI Track Header, " << tracks_.back().intro.length << "bytes skipped" << endl;
 		}
 		else
 		{

@@ -46,22 +46,24 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
-# include "IEvent_F.h"
+# include "IEvent_Fixture.h"
 
 using namespace std;
 using namespace Model::MidiParser;
 using MidiStruct::EventChunk;
-using gTest::IEvent_F;
+using gTest::IEvent_Fixture;
 
-class MidiEvent_F : public IEvent_F
+class MidiEvent_F : public IEvent_Fixture
 {
 public:
 	MidiEvent_F() :
-		IEvent_F("WRONG STATUS BYTE", dynamic_cast<Event&>(MidiEvent::GetInstance()))
+		IEvent_Fixture(CURRENT_FILE_NAME)
 	{}
+	virtual ~MidiEvent_F() override = default;
+
 	virtual void SetUp() override final
 	{
-		INIT;
+		IEvent_Fixture::SetUp();
 	}
 	virtual void TearDown() override final {}
 };
@@ -73,9 +75,9 @@ public:
 													ASSERT_EQ((VELOC),	result->velocity)	<< (MESSG);	}
 TEST_F(MidiEvent_F, Read_impl)
 {
-	CHECK_TYPE(Syst, "3rd line (F0)");
-	CHECK_TYPE(Syst, "4th line (F5)");
-	CHECK_TYPE(Meta, "5th line (FF)");
+	Event::GetInstance();		// 3rd line (F0) = system event
+	Event::GetInstance();		// 4th line (F5) = system event
+	file_->SkipData(1);			// 5th line (FF) = meta event
 
 	CHECK_THROW("Empty line");
 

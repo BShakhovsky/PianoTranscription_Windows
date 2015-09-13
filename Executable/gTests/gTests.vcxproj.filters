@@ -48,7 +48,7 @@
     <ClInclude Include="CurrentFileName.h">
       <Filter>Header Files\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="IEvent_F.h">
+    <ClInclude Include="IEvent_Fixture.h">
       <Filter>Header Files\Event</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="MidiEvent_test.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
     </ClCompile>
-    <ClCompile Include="IEvent_F.cpp">
+    <ClCompile Include="IEvent_Fixture.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
     </ClCompile>
   </ItemGroup>

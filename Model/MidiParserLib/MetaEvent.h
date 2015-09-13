@@ -5,18 +5,27 @@ namespace Model
 {
 	namespace MidiParser
 	{
-		class MetaEvent : public Event
+		class MetaEvent abstract : public Event
 		{
 		public:
-			static MetaEvent& GetInstance();
 			virtual ~MetaEvent() override = default;
 		protected:
 			MetaEvent() = default;
+			MetaEvent& MetaInit(char metaTypeByte);
 		private:
-			virtual void Read_impl() override final;	// may throw std::runtime_error
+			virtual void Read_impl() override = 0	// may throw std::runtime_error
+			{
+				PURE_VIRTUAL;
+			}
 
-			void ReadText(const char *eventMsg) const;	// may throw std::length_error
-			void ReadKeySignature() const;
+			static MetaEvent& GetInstance();
+			friend class Event;
 		};
 	}
 }
+
+# include "MetaEvent_Text.h"
+# include "MetaEvent_Skip.h"
+# include "MetaEvent_EndTrack.h"
+# include "MetaEvent_Tempo.h"
+# include "MetaEvent_KeySign.h"

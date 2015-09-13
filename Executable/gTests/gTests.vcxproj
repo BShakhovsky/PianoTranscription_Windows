@@ -216,7 +216,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
   <ItemGroup>
     <ClInclude Include="CurrentFileName.h" />
     <ClInclude Include="FileParser_Mock.h" />
-    <ClInclude Include="IEvent_F.h" />
+    <ClInclude Include="IEvent_Fixture.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -224,7 +224,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
     <ClCompile Include="CodeMetrics_test.cpp" />
     <ClCompile Include="FileParser_Mock.cpp" />
     <ClCompile Include="FileParser_test.cpp" />
-    <ClCompile Include="IEvent_F.cpp" />
+    <ClCompile Include="IEvent_Fixture.cpp" />
     <ClCompile Include="MidiEvent_test.cpp" />
     <ClCompile Include="MidiParser_test.cpp" />
     <ClCompile Include="MidiStruct_test.cpp" />

@@ -10,7 +10,6 @@ namespace Model
 			char runStatus_;
 			char UNUSED[3];	// 3 padding bytes
 		public:
-			static MidiEvent& GetInstance();
 			virtual ~MidiEvent() override = default;
 		protected:
 			MidiEvent() :
@@ -20,6 +19,9 @@ namespace Model
 			virtual void Read_impl() override final;
 
 			void PrintMidiEvent() const;
+
+			static MidiEvent& GetInstance();
+			friend class Event;
 		};
 	}
 }

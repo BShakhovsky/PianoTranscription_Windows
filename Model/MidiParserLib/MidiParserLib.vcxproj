@@ -141,7 +141,12 @@
     <ClInclude Include="FileCounter.h" />
     <ClInclude Include="FileParser.h" />
     <ClInclude Include="IFileParser.h" />
+    <ClInclude Include="MetaEvent_EndTrack.h" />
     <ClInclude Include="MetaEvent.h" />
+    <ClInclude Include="MetaEvent_KeySign.h" />
+    <ClInclude Include="MetaEvent_Skip.h" />
+    <ClInclude Include="MetaEvent_Tempo.h" />
+    <ClInclude Include="MetaEvent_Text.h" />
     <ClInclude Include="MidiEvent.h" />
     <ClInclude Include="MidiChunksReader.h" />
     <ClInclude Include="MidiParser.h" />
@@ -154,7 +159,12 @@
   <ItemGroup>
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="MetaEvent_EndTrack.cpp" />
     <ClCompile Include="MetaEvent.cpp" />
+    <ClCompile Include="MetaEvent_KeySign.cpp" />
+    <ClCompile Include="MetaEvent_Skip.cpp" />
+    <ClCompile Include="MetaEvent_Tempo.cpp" />
+    <ClCompile Include="MetaEvent_Text.cpp" />
     <ClCompile Include="MidiEvent.cpp" />
     <ClCompile Include="MidiChunksReader.cpp" />
     <ClCompile Include="MidiParser.cpp" />

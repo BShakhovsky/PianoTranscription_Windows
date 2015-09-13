@@ -28,7 +28,7 @@ Event& Event::GetInstance(FileParser_ file)
 	if (file) fileParser_ = file;
 	else if (!fileParser_) throw std::runtime_error("INPUT FILE HAS NOT BEEN SET YET");
 
-	const auto status = fileParser_->ReadByte();
+	const auto status(fileParser_->ReadByte());
 	if ((status & 0x0'F0) == 0xF0)	// 0xF0 is negative ==> 0x0F0 is positive
 		if (status == -1) /* 0xFF */	return MetaEvent::GetInstance().Init(status);
 		else							return SystemEvent::GetInstance().Init(status);

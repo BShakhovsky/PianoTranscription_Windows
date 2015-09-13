@@ -8,12 +8,14 @@ namespace Model
 		class SystemEvent : public Event
 		{
 		public:
-			static SystemEvent& GetInstance();
 			virtual ~SystemEvent() override = default;
 		protected:
 			SystemEvent() = default;
 		private:
 			virtual void Read_impl() override final;
+
+			static SystemEvent& GetInstance();
+			friend class Event;
 		};
 	}
 }

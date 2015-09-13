@@ -19,23 +19,11 @@
     <Filter Include="Header Files\Event">
       <UniqueIdentifier>{b819372e-d5ef-440d-bb47-88f6b612c436}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Event\System Event">
-      <UniqueIdentifier>{c8f689a7-eabd-46e0-b35b-68f9ffed94d3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Event\Meta Event">
       <UniqueIdentifier>{9676fcf4-c9d1-49e2-965e-6237fec5199d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Event\Midi Event">
-      <UniqueIdentifier>{cb56d6cf-7711-41b1-a6be-166bc0d68d03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Event\Midi Event">
-      <UniqueIdentifier>{77c949d1-5f96-4f67-b36c-c87c6917d489}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Event\Meta Event">
       <UniqueIdentifier>{f21e0249-a59c-469f-9bb2-9f794185cb89}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Event\System Event">
-      <UniqueIdentifier>{c058e88c-d778-471c-95d3-15d8e7d887e4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Parser">
       <UniqueIdentifier>{43671130-d3f7-4457-902c-7bf7588dde21}</UniqueIdentifier>
@@ -69,15 +57,6 @@
     <ClInclude Include="Event.h">
       <Filter>Header Files\Event</Filter>
     </ClInclude>
-    <ClInclude Include="SystemEvent.h">
-      <Filter>Header Files\Event\System Event</Filter>
-    </ClInclude>
-    <ClInclude Include="MidiEvent.h">
-      <Filter>Header Files\Event\Midi Event</Filter>
-    </ClInclude>
-    <ClInclude Include="MetaEvent.h">
-      <Filter>Header Files\Event\Meta Event</Filter>
-    </ClInclude>
     <ClInclude Include="..\MidiTracksCompiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,6 +72,30 @@
     <ClInclude Include="FileCounter.h">
       <Filter>Header Files\Parser</Filter>
     </ClInclude>
+    <ClInclude Include="MidiEvent.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemEvent.h">
+      <Filter>Header Files\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent_EndTrack.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent_KeySign.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent_Skip.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent_Tempo.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaEvent_Text.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -101,17 +104,8 @@
     <ClCompile Include="Event.cpp">
       <Filter>Source Files\Event</Filter>
     </ClCompile>
-    <ClCompile Include="MetaEvent.cpp">
-      <Filter>Source Files\Event\Meta Event</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiEvent.cpp">
-      <Filter>Source Files\Event\Midi Event</Filter>
-    </ClCompile>
     <ClCompile Include="MidiStruct.cpp">
       <Filter>Source Files\Struct</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemEvent.cpp">
-      <Filter>Source Files\Event\System Event</Filter>
     </ClCompile>
     <ClCompile Include="NoteNames.cpp">
       <Filter>Source Files\Struct</Filter>
@@ -127,6 +121,30 @@
     </ClCompile>
     <ClCompile Include="FileParser.cpp">
       <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiEvent.cpp">
+      <Filter>Source Files\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemEvent.cpp">
+      <Filter>Source Files\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_Text.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_Tempo.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_Skip.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_KeySign.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_EndTrack.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

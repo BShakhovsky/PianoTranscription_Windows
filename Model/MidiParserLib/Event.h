@@ -25,7 +25,7 @@ namespace Model
 			Event& Init(char statusByte);
 			void SkipEvent() const;
 
-			FileParser_ GetInputFile() const
+			static FileParser_ GetInputFile()
 			{
 				return fileParser_;
 			}
