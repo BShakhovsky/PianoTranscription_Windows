@@ -2,9 +2,8 @@
 # include "MidiEvent.h"
 # include "MidiStruct.h"
 # include "FileParser.h"
-# include "NoteNames.h"
 
-using std::runtime_error;
+using namespace std;
 using namespace boost;
 using serialization::singleton;
 using Model::MidiParser::MidiEvent;
@@ -29,33 +28,25 @@ void MidiEvent::Read_impl()
 	}
 	GetChunk()->velocity = GetInputFile()->ReadByte();
 
-	PrintMsg();
+	PrintMidiEvent();
 }
 
-# define FORMAT_MSG(MSG1, VALUE) GetChunk()->metaText += (format{ MSG1##" = %1%" } % GetChunk()->VALUE).str();
-# define PRINT_MSG1(MSG1) FORMAT_MSG(MSG1, note);
-# define PRINT_MSG2(MSG1, MSG2) PRINT_MSG1(MSG1); FORMAT_MSG(MSG2, velocity);
-# define PRINT_NOTE(MESSAGE) GetChunk()->metaText += (format{ MESSAGE##"Note %1% (%2% %3%)" }			\
-														% GetChunk()->note								\
-														% NoteNames::GetOctaveNumber(GetChunk()->note)	\
-														% NoteNames::GetNoteName(GetChunk()->note)).str();
-void MidiEvent::PrintMsg() const
+void MidiEvent::PrintMidiEvent() const
 {
-	GetChunk()->metaText.clear();
 	switch (GetChunk()->status & 0x0'F0)	// 0xF0 is negative ==> 0x0F0 is positive
 	{
-	case 0x090: if (GetChunk()->velocity) {	// else velocity = 0 == > "note-off" event
-				PRINT_NOTE("");														break; }
-	case 0x080: PRINT_NOTE("Note off (key is released) : ");						break;
+	case 0x090: if (GetChunk()->velocity) {	cout << ' ' << GetChunk()->note;	// else velocity = 0 ==> "note-off" event
+				break; }
+	case 0x080: break;	// Note off (key is released)
 
-	case 0x0A0: PRINT_MSG2("Key after-touch : Note number", ", Velocity");			break;
-	case 0x0B0: PRINT_MSG2("Control change : Controller number", ", New value");	break;
-	case 0x0C0: PRINT_MSG1("New program (patch) number");							break;
-	case 0x0D0: PRINT_MSG1("Channel after-touch number");							break;
+	case 0x0A0: break;	// Key after-touch : Note number, Velocity
+	case 0x0B0:	break;	// Control change : Controller number, New value
+	case 0x0C0: break;	// New program (patch) number
+	case 0x0D0: break;	// Channel after-touch number
 
-	case 0x0E0: PRINT_MSG2("Pitch wheel change(2'000H is normal or no change) : \
-							\n\t\tBottom(least significant) 7 bits of value",
-							"\n\t\tTop (most significant) 7 bits of value");		break;
+	case 0x0E0: break;	// Pitch wheel change(2'000H is normal or no change) : \
+						//	Bottom(least significant) 7 bits of value,
+						//	Top (most significant) 7 bits of value
 	default: assert(!"MIDI RUNNING STATUS");
 	}
 }

@@ -8,11 +8,15 @@ using namespace Model;
 using namespace MidiParser;
 using MidiStruct::Bytes;
 
+# pragma warning(push)
+# pragma warning(disable:4711)	// automatic inline expansion
 FileParser::FileParser(const char *fileName) :
 	IFileParser(),
 	inputFile_(fileName, std::ifstream::binary),
 	bytesRemained_(make_shared<FileCounter>())
 {}
+# pragma warning(pop)
+
 FileParser::~FileParser() {}
 
 int FileParser::GetBytesRemained_impl() const

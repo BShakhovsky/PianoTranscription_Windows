@@ -33,9 +33,9 @@ void MetaEvent::Read_impl()
 	case 0x07:	ReadText("Cue point");				break;
 
 	case 0x20: if (1 != GetInputFile()->PeekByte()) cout << "\nWARNING: Wrong MIDI channel chunk length" << endl;
-		Skip(/*"MIDI channel prefix assignment"*/);	break;
+		SkipEvent(/*"MIDI channel prefix assignment"*/);	break;
 	case 0x21: if (1 != GetInputFile()->PeekByte()) cout << "\nWARNING: Wrong MIDI port chunk length" << endl;
-		Skip(/*"MIDI port"*/);						break;
+		SkipEvent(/*"MIDI port"*/);					break;
 	case 0x2F: assert("SOMETHING IS WRONG IN PROGRAM ARITHMETICS" && 1 == GetInputFile()->GetBytesRemained());
 		if (GetInputFile()->ReadByte()) cout << "\nWARNING: Corrupted MIDI's end of track";
 		break;
@@ -47,13 +47,13 @@ void MetaEvent::Read_impl()
 		break;
 
 	case 0x54: if (5 != GetInputFile()->PeekByte()) cout << "\nWARNING: Wrong SMPTE offset chunk length" << endl;
-		Skip(/*"SMPTE offset"*/);					break;
+		SkipEvent(/*"SMPTE offset"*/);				break;
 	case 0x58: if (4 != GetInputFile()->PeekByte()) cout << "\nWARNING: Wrong time signature chunk length" << endl;
-		Skip(/*"Time signature"*/);					break;
+		SkipEvent(/*"Time signature"*/);			break;
 
 	case 0x59: ReadKeySignature();					break;
 
-	case 0x7F: Skip(/*"Sequencer specific event"*/);break;
+	case 0x7F: SkipEvent(/*"Sequencer specific event"*/);break;
 
 	default: throw runtime_error("WRONG META TYPE");
 	}

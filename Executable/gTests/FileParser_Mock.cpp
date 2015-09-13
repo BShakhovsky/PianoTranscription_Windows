@@ -62,12 +62,9 @@ unsigned FileParser_Mock::ReadVarLenFormat_impl()
 		totalBytes(NULL);
 	auto anotherByte('\0');
 
-	while ((anotherByte = ReadByte()) < 0)	// ends with the positive byte
-	{
+	for (; (anotherByte = ReadByte()) < 0; result -= anotherByte)	// ends with the positive byte
 		if (++totalBytes >= Bytes::varLengthSize)
 			throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
-		result -= anotherByte;
-	}
 	return static_cast<unsigned>(result + anotherByte);
 }
 

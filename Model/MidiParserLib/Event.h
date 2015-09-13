@@ -23,7 +23,7 @@ namespace Model
 		protected:
 			Event();
 			Event& Init(char statusByte);
-			void Skip() const;
+			void SkipEvent() const;
 
 			FileParser_ GetInputFile() const
 			{

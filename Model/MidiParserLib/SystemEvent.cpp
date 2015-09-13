@@ -19,5 +19,5 @@ void SystemEvent::Read_impl()
 	case -8: /*F8*/ case -6: /*FA*/ case -5: /*FB*/ case -4: /*FC*/ case -2:/*FE*/	// Real-time event,	Ok
 		break; default: assert(!"WRONG STATUS BYTE");								// Not Ok
 	}
-	Skip();
+	SkipEvent();
 }

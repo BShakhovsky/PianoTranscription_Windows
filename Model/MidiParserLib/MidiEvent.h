@@ -19,7 +19,7 @@ namespace Model
 		private:
 			virtual void Read_impl() override final;
 
-			void PrintMsg() const;
+			void PrintMidiEvent() const;
 		};
 	}
 }

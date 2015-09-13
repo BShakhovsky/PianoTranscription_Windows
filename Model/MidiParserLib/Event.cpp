@@ -43,7 +43,7 @@ Event::EventChunk_ Event::Read()
 	return eventChunk_;
 }
 
-void Event::Skip() const
+void Event::SkipEvent() const
 {
 	eventChunk_->length = fileParser_->ReadVarLenFormat();
 	fileParser_->SkipData(eventChunk_->length);

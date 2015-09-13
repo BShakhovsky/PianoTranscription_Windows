@@ -8,116 +8,74 @@
 			1	one line to skip:
 					-- skip --
 -5	FB	Real-time event
-			6	six lines to skip:
+			7	six lines to skip:
 *********************************/
 # include "..\..\Model\MidiParserLib\SystemEvent.h"
 # include "..\..\Model\MidiParserLib\FileParser.h"
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
+# include "IEvent_F.h"
 /********************************************
 -6	FA	Real-time event
 			-1	ReadVarLenFormat
 			4	one + four = 5 lines to skip:
 ********************************************/
-using namespace std;
-using testing::Test;
+using std::length_error;
 using namespace Model::MidiParser;
-/*******************************************************
+using gTest::IEvent_F;
+/***************************************************
 -7	F9	WRONG STATUS BYTE
 -8	F8	Real-time event
 			0	no lines to skip:
 -9	F7	Exclusive event
-			-15	ReadVarLenFormat
-			-23	ReadVarLenFormat
-			-2	ReadVarLenFormat
-			0	Fifteen + 23 + 2 + 0 = 40 lines to skip:
-*******************************************************/
-class SystemEvent_F : public Test
+			-5	ReadVarLenFormat
+			-4	ReadVarLenFormat
+			-8	ReadVarLenFormat
+			0	Five + 4 + 8 + 0 = 17 lines to skip:
+***************************************************/
+class SystemEvent_F : public IEvent_F
 {
 public:
-	const char* assertMsg = "WRONG STATUS BYTE";
-	SystemEvent& sysEvent;
-	shared_ptr<IFileParser> file;
-
 	SystemEvent_F() :
-		sysEvent(SystemEvent::GetInstance()),
-		file(make_shared<FileParser>(CURRENT_FILE_NAME))
+		IEvent_F("WRONG STATUS BYTE", SystemEvent::GetInstance())
 	{}
 	virtual void SetUp() override final
 	{
 # ifdef _DEBUG
-		ASSERT_DEBUG_DEATH(sysEvent.Read(), assertMsg) << "status = zero = not initialized yet";
+		ASSERT_DEBUG_DEATH(event_.Read(), assertMsg_) << "status = zero = not initialized yet";
 # endif
+		INIT;
 	}
 	virtual void TearDown() override final {}
-
-	template<class T>
-	void SetFile()
-	{
-		file = make_shared<T>(CURRENT_FILE_NAME);
-	}
-
-	const type_info& Midi() const
-	{
-		return typeid(MidiEvent::GetInstance());
-	}
-	const type_info& Meta() const
-	{
-		return typeid(MetaEvent::GetInstance());
-	}
-	const type_info& Syst() const
-	{
-		return typeid(SystemEvent::GetInstance());
-	}
 };
-/************************************************
--10	F6	Common event
-			-1	ReadVarLenFormat
-			-10	ReadVarLenFormat
-			4	One + ten + 4 = 15 lines to skip:
-************************************************/
-TEST_F(SystemEvent_F, Read_impl_FileParser)
-{
-	SetFile<FileParser>();
-# ifdef _DEBUG
-	ASSERT_DEBUG_DEATH(Event::GetInstance(file), "LOGICAL ERROR IN COUNTING BYTES REMAINED TO READ FROM MIDI FILE");
-# endif
-	file->SetBytesRemained(1);
-
-	Event::GetInstance(file);
-# ifdef _DEBUG
-	ASSERT_DEBUG_DEATH(sysEvent.Read(), assertMsg) << "status = '#' = 35 = 0x23";
-# endif
-}
 /***********************************************
+-10	F6	Common event
+			0	no lines to skip
 -11	F5	WRONG STATUS BYTE
 -12	F4	WRONG STATUS BYTE
 -13	F3	Common event
-			-5	ReadVarLenFormat
-			7	Five + seven = 12 lines to skip:
+			-9	ReadVarLenFormat
+			-1	ReadVarLenFormat
+			1	Nine + 1 + 1 = 12 lines to skip:
 ***********************************************/
-# define CHECK_TYPE(TYPE, MESSG) ASSERT_EQ(TYPE(), typeid(Event::GetInstance())) << (MESSG);
 # ifdef _DEBUG
-#	define CHECK_DEATH(MESSG) ASSERT_DEBUG_DEATH(sysEvent.Read(), assertStatus) << (MESSG);
+#	define CHECK_DEATH(MESSG)	{ ASSERT_DEBUG_DEATH(event_.Read(), assertMsg_) << (MESSG); }
 # elif defined NDEBUG
 #	define CHECK_DEATH(MESSG)
 # else
 #	"WRONG SOLUTION CONFIGURATION";
 # endif
-# define CHECK_OK(MESSG) { CHECK_TYPE(Syst, (MESSG)); ASSERT_NO_FATAL_FAILURE(sysEvent.Read()) << (MESSG); }
-# define CHECK_WRONG(MESSG) { CHECK_TYPE(Syst, (MESSG)); CHECK_DEATH(MESSG); }
-/*****************************
+# define CHECK_OK(MESSG)		{ CHECK_TYPE(Syst, (MESSG)); ASSERT_NO_FATAL_FAILURE(event_.Read()) << (MESSG); }
+# define CHECK_WRONG(MESSG)		{ CHECK_TYPE(Syst, (MESSG)); CHECK_DEATH(MESSG); }
+/******************************************************
 -14	F2	Common event
-			29	lines to skip:
-*****************************/
-TEST_F(SystemEvent_F, Read_impl_Mock)
+			-15 ReadVarLenFormat
+			-4	ReadVarLenFormat
+			-2	ReadVarLenFormat
+			2	Fifteen + 9 + 3 + 2 = 23 lines to skip:
+******************************************************/
+TEST_F(SystemEvent_F, Read_impl)
 {
-	SetFile<FileParser_Mock>();
-# ifdef _DEBUG
-	auto assertStatus("WRONG STATUS BYTE");
-# endif
-	Event::GetInstance(file);	// read first line of this file ("# include "stdafx.h"\n")
-	CHECK_TYPE(Midi, "second line (/**********) = 0x00");
 	CHECK_TYPE(Meta, "third line (FF)");
 	CHECK_DEATH("FF = meta event");
 	CHECK_OK("FE = real-time event");
@@ -135,7 +93,7 @@ TEST_F(SystemEvent_F, Read_impl_Mock)
 	CHECK_OK("F2 = common event");
 	CHECK_OK("F1 = common event");
 	CHECK_OK("F0 = exclusive event");
-	ASSERT_THROW(Event::GetInstance().Read(), length_error);	// if VarLenFormat exceeds four bytes
+	ASSERT_THROW(Event::GetInstance().Read(), length_error) << "VarLenFormat exceeds four bytes";
 }
 /**************************************************************
 -15	F1	Common event
