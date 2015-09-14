@@ -14,7 +14,7 @@
 # include "..\..\Model\MidiParserLib\FileParser.h"
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
-# include "IEvent_Fixture.h"
+# include "TestFixture_Event.h"
 /********************************************
 -6	FA	Real-time event
 			-1	ReadVarLenFormat
@@ -22,30 +22,33 @@
 ********************************************/
 using namespace std;
 using namespace Model::MidiParser;
-using gTest::IEvent_Fixture;
-/**************************************************
+using gTest::TestFixture_Event;
+/***************************************************
 -7	F9	WRONG STATUS BYTE
 -8	F8	Real-time event
 			0	no lines to skip:
 -9	F7	Exclusive event
-			-6	ReadVarLenFormat
+			-9	ReadVarLenFormat
 			-2	ReadVarLenFormat
 			-8	ReadVarLenFormat
-			0	Six + 2 + 8 + 0 = 16 lines to skip:
-**************************************************/
-class SystemEvent_F : public IEvent_Fixture
+			0	Nine + 2 + 8 + 0 = 19 lines to skip:
+***************************************************/
+class Test_SystemEvent : public TestFixture_Event
 {
 public:
-	SystemEvent_F() :
-		IEvent_Fixture(CURRENT_FILE_NAME)
+	Test_SystemEvent() :
+		TestFixture_Event(CURRENT_FILE_NAME, 109)
 	{}
-	virtual ~SystemEvent_F() override = default;
+	virtual ~Test_SystemEvent() override = default;
 
 	virtual void SetUp() override final
 	{
-		IEvent_Fixture::SetUp();
+		TestFixture_Event::SetUp();
 	}
-	virtual void TearDown() override final {}
+	virtual void TearDown() override final
+	{
+		TestFixture_Event::TearDown();
+	}
 };
 /***********************************************
 -10	F6	Common event
@@ -58,14 +61,14 @@ public:
 			1	Nine + 1 + 1 = 11 lines to skip:
 ***********************************************/
 # ifdef _DEBUG
-#	define CHECK_STATUS(MESSG){	ASSERT_DEBUG_DEATH(		Event::GetInstance().Read(), assertMsg_)	<< (MESSG);	}
+#	define CHECK_STATUS(MESSG){	ASSERT_DEBUG_DEATH(		Event::GetInstance().Read(), assertStatus_)	<< (MESSG);	}
 # elif defined NDEBUG
 #	define CHECK_STATUS(MESSG)
 # else
 #	"WRONG SOLUTION CONFIGURATION";
 # endif
-# define CHECK_OK(MESSG)	{	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read())			<< (MESSG);	}
-# define CHECK_WRONG(MESSG)	{	CHECK_STATUS(MESSG);	Event::GetInstance();									}
+# define CHECK_OK(MESSG)	{	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read()) << (MESSG);	}
+# define CHECK_WRONG(MESSG)	{	CHECK_STATUS(MESSG);	Event::GetInstance();							}
 /*******************************************************
 -14	F2	Common event
 			-14 ReadVarLenFormat
@@ -73,7 +76,7 @@ public:
 			-2	ReadVarLenFormat
 			2	Fourteen + 4 + 2 + 2 = 22 lines to skip:
 *******************************************************/
-TEST_F(SystemEvent_F, Read_impl)
+TEST_F(Test_SystemEvent, Read_impl)
 {
 	file_->SkipData(1);	// 3rd line (FF) = meta event
 	CHECK_OK("FE = real-time event");

@@ -6,7 +6,7 @@
 using testing::Test;
 using Model::MidiParser::MidiParser;
 
-TEST(MidiParser_F, ReadChunkIntro)
+TEST(Test_MidiParser, ReadChunkIntro)
 {
 	MidiParser midiParser(CURRENT_FILE_NAME);
 	ASSERT_NE(nullptr, midiParser.GetInputFile()) << "checking constructor";

@@ -12,3 +12,5 @@ namespace Unmanaged_StatLib
 		~CodeMetrics();
 	};
 }
+
+# define CODE_METRICS Unmanaged_StatLib::CodeMetrics()

@@ -9,15 +9,15 @@ namespace Model
 		{
 			const int32_t UNUSED = NULL;	// four padding bytes
 			std::ifstream inputFile_;
+			std::shared_ptr<class FileCounter> bytesRemained_;
 		public:
-			explicit FileParser_Mock(const char* fileName) :
-				IFileParser(),
-				inputFile_(fileName, std::ifstream::in)
-			{}
-			virtual ~FileParser_Mock() override final = default;
+			explicit FileParser_Mock(const char* fileName);
+			virtual ~FileParser_Mock() override final;
 		private:
+			FileParser_Mock() = delete;
+
 			virtual int GetBytesRemained_impl() const override final;
-			virtual void SetBytesRemained_impl(int) const override final;
+			virtual void SetBytesRemained_impl(int value) const override final;
 
 			virtual int PeekByte_impl() override final;
 			virtual char ReadByte_impl() override final;

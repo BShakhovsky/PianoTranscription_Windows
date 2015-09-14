@@ -4,14 +4,20 @@
 
 using namespace std;
 using Model::MidiParser::MidiTracksCompiler;
-using Unmanaged_StatLib::CodeMetrics;
 
+# ifdef CODE_METRICS
+#	define SOLUTION_LINES																						{\
+		cout<< "Solution total number of non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..", true)\
+				<< "\n\tUnit tests: "								<< CODE_METRICS.SolutionLines("../gTests")	\
+				<< "\n\tModel: "									<< CODE_METRICS.SolutionLines("../../Model")\
+			<< '\n' << endl;																					}
+# else
+#	define SOLUTION_LINES
+# endif
 int main()
 {
 # ifdef _DEBUG
-	cout << "Solution total number of non-blank lines of code: " << CodeMetrics().SolutionLines("../..", true)
-		<< "\n\tUnit tests: " << CodeMetrics().SolutionLines("../gTests")
-		<< "\n\tModel: " << CodeMetrics().SolutionLines("../../Model") << '\n' << endl;
+	SOLUTION_LINES;
 # endif
 	try
 	{

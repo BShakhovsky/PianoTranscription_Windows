@@ -1,6 +1,6 @@
 # pragma once
 
-# include "..\..\..\Shared\stdafx.h"
+# include "..\..\..\SharedHeader.h"
 
 # pragma warning(push)
 # pragma warning(disable:4365)	// signed / unsigned mismatch

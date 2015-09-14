@@ -34,6 +34,9 @@
     <Filter Include="Header Files\Event">
       <UniqueIdentifier>{5f9047d9-cdbc-40d7-968b-4a3135fb4706}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\MidiParser\Event\MetaEvent">
+      <UniqueIdentifier>{890a64d4-9668-4984-94dc-94721aab2af0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -48,7 +51,7 @@
     <ClInclude Include="CurrentFileName.h">
       <Filter>Header Files\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="IEvent_Fixture.h">
+    <ClInclude Include="TestFixture_Event.h">
       <Filter>Header Files\Event</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,22 +68,25 @@
     <ClCompile Include="NoteNames_test.cpp">
       <Filter>Source Files\MidiParser\Struct</Filter>
     </ClCompile>
-    <ClCompile Include="FileParser_test.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiParser_test.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemEvent_test.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
     <ClCompile Include="FileParser_Mock.cpp">
       <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="MidiEvent_test.cpp">
+    <ClCompile Include="Test_MidiParser.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_FileParser.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_SystemEvent.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
     </ClCompile>
-    <ClCompile Include="IEvent_Fixture.cpp">
+    <ClCompile Include="Test_MidiEvent.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MetaEvent_EndTrack.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFixture_Event.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
     </ClCompile>
   </ItemGroup>

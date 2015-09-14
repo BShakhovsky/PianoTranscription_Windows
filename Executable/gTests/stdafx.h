@@ -2,7 +2,8 @@
 
 # include "targetver.h"
 
-# include "..\..\Shared\stdafx.h"
+# include "..\..\SharedHeader.h"
+
 
 # pragma warning(disable:5026 5027)	// non-copyable classes
 
@@ -15,4 +16,4 @@
 #		include <gtest\gtest.h>
 # pragma warning(pop)
 
-# pragma warning(disable:4571)	// catch semantics changed since Visual C++ 7.1
+# pragma warning(disable:4571)		// catch semantics changed since Visual C++ 7.1

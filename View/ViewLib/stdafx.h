@@ -2,4 +2,4 @@
 
 # include "targetver.h"
 
-# include "..\..\Shared\stdafx.h"
+# include "..\..\SharedHeader.h"

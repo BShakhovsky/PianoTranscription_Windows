@@ -46,26 +46,29 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
-# include "IEvent_Fixture.h"
+# include "TestFixture_Event.h"
 
 using namespace std;
 using namespace Model::MidiParser;
 using MidiStruct::EventChunk;
-using gTest::IEvent_Fixture;
+using gTest::TestFixture_Event;
 
-class MidiEvent_F : public IEvent_Fixture
+class Test_MidiEvent : public TestFixture_Event
 {
 public:
-	MidiEvent_F() :
-		IEvent_Fixture(CURRENT_FILE_NAME)
+	Test_MidiEvent() :
+		TestFixture_Event(CURRENT_FILE_NAME, 47)
 	{}
-	virtual ~MidiEvent_F() override = default;
+	virtual ~Test_MidiEvent() override = default;
 
 	virtual void SetUp() override final
 	{
-		IEvent_Fixture::SetUp();
+		TestFixture_Event::SetUp();
 	}
-	virtual void TearDown() override final {}
+	virtual void TearDown() override final
+	{
+		TestFixture_Event::TearDown();
+	}
 };
 
 # define CHECK_THROW(MESSG) {	ASSERT_THROW(Event::GetInstance().Read(), runtime_error) << (MESSG);	}
@@ -73,13 +76,13 @@ public:
 													ASSERT_EQ((STATUS),	result->status)		<< (MESSG);	\
 													ASSERT_EQ((NOTE),	result->note)		<< (MESSG);	\
 													ASSERT_EQ((VELOC),	result->velocity)	<< (MESSG);	}
-TEST_F(MidiEvent_F, Read_impl)
+TEST_F(Test_MidiEvent, Read_impl)
 {
 	Event::GetInstance();		// 3rd line (F0) = system event
 	Event::GetInstance();		// 4th line (F5) = system event
 	file_->SkipData(1);			// 5th line (FF) = meta event
 
-	CHECK_THROW("Empty line");
+	CHECK_THROW("Empty line");										// Reads one status-byte
 
 	CHECK_THROW("00 running status");
 	CHECK_THROW("0F running status");
@@ -94,10 +97,10 @@ TEST_F(MidiEvent_F, Read_impl)
 	CHECK_THROW("Empty line");
 
 	shared_ptr<EventChunk> result;
-	CHECK_RESULT('\x87', 15, 31, "note off");
+	CHECK_RESULT('\x87', 15, 31, "note off");						// Reads three bytes: status, note and velocity
 	CHECK_RESULT('\x96', 60, 0, "note on");
 
-	CHECK_RESULT('\x96', 55, 1, "55 > 0 = running status = note");
+	CHECK_RESULT('\x96', 55, 1, "55 > 0 = running status = note");	// running status reads two bytes
 	
 # pragma warning(push)
 # pragma warning(disable:4309)	// truncations of constant value:

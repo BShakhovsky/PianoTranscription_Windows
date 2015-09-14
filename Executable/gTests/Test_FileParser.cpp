@@ -8,14 +8,14 @@ using testing::Test;
 using namespace Model::MidiParser;
 using MidiStruct::Bytes;
 
-class FileParser_F : public Test
+class Test_FileParser : public Test
 {
 public:
 	FileParser file;
 	const char* assertMsg = "LOGICAL ERROR IN COUNTING BYTES REMAINED TO READ FROM MIDI FILE";
 	const int32_t UNUSED = NULL;	// four padding bytes
 
-	FileParser_F() :
+	Test_FileParser() :
 		file(CURRENT_FILE_NAME)
 	{}
 	virtual void SetUp() override final
@@ -25,7 +25,7 @@ public:
 	virtual void TearDown() override final {}
 };
 
-TEST_F(FileParser_F, ReadByte)
+TEST_F(Test_FileParser, ReadByte)
 {
 # ifdef _DEBUG
 	ASSERT_DEBUG_DEATH(file.ReadByte(), assertMsg);
@@ -41,7 +41,7 @@ TEST_F(FileParser_F, ReadByte)
 	ASSERT_DEBUG_DEATH(file.ReadByte(), assertMsg);
 }
 
-TEST_F(FileParser_F, SkipData)
+TEST_F(Test_FileParser, SkipData)
 {
 	// Moving forward
 	file.SetBytesRemained(3);
@@ -83,7 +83,7 @@ TEST_F(FileParser_F, SkipData)
 	ASSERT_EQ(NULL, file.ReadByte());
 }
 
-TEST_F(FileParser_F, ReadInverse)
+TEST_F(Test_FileParser, ReadInverse)
 {
 # ifdef _DEBUG
 	ASSERT_DEBUG_DEATH(file.ReadInverse(sizeof int32_t), assertMsg);
@@ -162,7 +162,7 @@ TEST_F(FileParser_F, ReadInverse)
 	ASSERT_EQ('\"', file.PeekByte());
 }
 
-TEST_F(FileParser_F, ReadVarLenFormat)
+TEST_F(Test_FileParser, ReadVarLenFormat)
 {
 # ifdef _DEBUG
 	ASSERT_DEBUG_DEATH(file.ReadVarLenFormat(), assertMsg);
