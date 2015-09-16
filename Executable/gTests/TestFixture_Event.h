@@ -6,6 +6,11 @@ namespace Model
 	namespace MidiParser
 	{
 		class IFileParser;
+
+		namespace MidiStruct
+		{
+			class EventChunk;
+		}
 	}
 }
 
@@ -19,6 +24,8 @@ namespace gTest
 # endif
 		std::shared_ptr<Model::MidiParser::IFileParser> file_;
 		int bytesRemained_;
+
+		std::shared_ptr<Model::MidiParser::MidiStruct::EventChunk> result_;
 	public:
 		virtual ~TestFixture_Event() override;
 
@@ -30,3 +37,5 @@ namespace gTest
 		TestFixture_Event() = delete;
 	};
 }
+
+# define CHECK_WHAT Event::GetInstance().Read()

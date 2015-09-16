@@ -28,11 +28,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32", "Executable\Win32\W
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MidiParser_Lib", "Model\MidiParserLib\MidiParserLib.vcxproj", "{11C92B13-D477-473A-820E-724711D8DE72}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_ReadMe", "_ReadMe", "{8B8C9F36-4783-4F12-B9B6-8F4EBB1857AD}"
-	ProjectSection(SolutionItems) = preProject
-		ReadMe.txt = ReadMe.txt
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -1,4 +1,14 @@
 # include "stdafx.h"
+/*
+To finish:
+
+MidiStruct::EventChunk --> remove metaText
+std::ifstream::good, fail, bad, rdstate, clear
+Delta time is calculated for known events only
+
+Structural: Composite, Decorator, Flyweight
+Behaviourial: Command, Interpreter, Mediator, Memento, State, Strategy
+*/
 # include "..\MidiTracksCompiler.h"
 # include "MidiChunksReader.h"
 # include "MidiStruct.h"

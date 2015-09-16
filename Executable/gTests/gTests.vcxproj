@@ -226,6 +226,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
     <ClCompile Include="Test_FileParser.cpp" />
     <ClCompile Include="TestFixture_Event.cpp" />
     <ClCompile Include="Test_MetaEvent_EndTrack.cpp" />
+    <ClCompile Include="Test_MetaEvent_Tempo.cpp" />
     <ClCompile Include="Test_MidiEvent.cpp" />
     <ClCompile Include="Test_MidiParser.cpp" />
     <ClCompile Include="MidiStruct_test.cpp" />

@@ -42,7 +42,6 @@
 ****************************************************************/
 
 # include "..\..\Model\MidiParserLib\MidiEvent.h"
-# include "..\..\Model\MidiParserLib\FileParser.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
@@ -50,7 +49,6 @@
 
 using namespace std;
 using namespace Model::MidiParser;
-using MidiStruct::EventChunk;
 using gTest::TestFixture_Event;
 
 class Test_MidiEvent : public TestFixture_Event
@@ -71,11 +69,10 @@ public:
 	}
 };
 
-# define CHECK_THROW(MESSG) {	ASSERT_THROW(Event::GetInstance().Read(), runtime_error) << (MESSG);	}
-# define CHECK_RESULT(STATUS, NOTE, VELOC, MESSG) {	result = Event::GetInstance().Read();				\
-													ASSERT_EQ((STATUS),	result->status)		<< (MESSG);	\
-													ASSERT_EQ((NOTE),	result->note)		<< (MESSG);	\
-													ASSERT_EQ((VELOC),	result->velocity)	<< (MESSG);	}
+# define CHECK_THROW(MESSG)				{ ASSERT_THROW(CHECK_WHAT,						runtime_error)		<< (MESSG);	}
+# define CHECK_RESULT(STATUS,NOTE,VELOC,MESSG){	result_=CHECK_WHAT;	ASSERT_EQ((STATUS),	result_->status)	<< (MESSG);	\
+																	ASSERT_EQ((NOTE),	result_->note)		<< (MESSG);	\
+																	ASSERT_EQ((VELOC),	result_->velocity)	<< (MESSG);	}
 TEST_F(Test_MidiEvent, Read_impl)
 {
 	Event::GetInstance();		// 3rd line (F0) = system event
@@ -96,7 +93,6 @@ TEST_F(Test_MidiEvent, Read_impl)
 
 	CHECK_THROW("Empty line");
 
-	shared_ptr<EventChunk> result;
 	CHECK_RESULT('\x87', 15, 31, "note off");						// Reads three bytes: status, note and velocity
 	CHECK_RESULT('\x96', 60, 0, "note on");
 

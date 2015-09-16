@@ -14,6 +14,7 @@
 #	pragma warning(disable:4820)	// padding bytes
 #	pragma warning(disable:4826)	// sign-extended conversion
 #		include <gtest\gtest.h>
+#		include <gtest\gtest-spi.h>	// for checking execution of FAIL() macro in client's code
 # pragma warning(pop)
 
 # pragma warning(disable:4571)		// catch semantics changed since Visual C++ 7.1

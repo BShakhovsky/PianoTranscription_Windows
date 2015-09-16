@@ -1,6 +1,7 @@
 # include "stdafx.h"
 # include "TestFixture_Event.h"
 # include "..\..\Model\MidiParserLib\Event.h"
+# include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "FileParser_Mock.h"
 
 using std::make_shared;
@@ -9,7 +10,8 @@ using gTest::TestFixture_Event;
 
 TestFixture_Event::TestFixture_Event(const char* fileName, const int bytesRemained) :
 	file_(make_shared<FileParser_Mock>(fileName)),
-	bytesRemained_(bytesRemained)
+	bytesRemained_(bytesRemained),
+	result_(nullptr)
 {}
 
 TestFixture_Event::~TestFixture_Event() {}
@@ -26,5 +28,5 @@ void TestFixture_Event::SetUp()
 void TestFixture_Event::TearDown()
 {
 	ASSERT_DEBUG_DEATH(Event::GetInstance(), "LOGICAL ERROR IN COUNTING BYTES REMAINED TO READ FROM MIDI FILE")
-												<< bytesRemained_ << " bytes finished";
+												<< file_->GetBytesRemained() << " bytes left";
 }

@@ -21,7 +21,7 @@ int main()
 # endif
 	try
 	{
-		MidiTracksCompiler midiFile("Midi File.mid");
+		MidiTracksCompiler midiFile("../../../../../C++/Projects/Backup Piano-Fingers/Test.mid");
 		while (midiFile.LoadNextTrack())
 			if (_kbhit())
 			{

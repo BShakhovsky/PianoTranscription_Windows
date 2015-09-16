@@ -30,8 +30,6 @@
 *******************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent_EndTrack.h"
-# include <gtest\gtest-spi.h>
-
 # include "FileParser_Mock.h"
 # include "CurrentFileName.h"
 # include "TestFixture_Event.h"
@@ -57,11 +55,10 @@ public:
 	}
 };
 
-# define CHECK_WHAT															Event::GetInstance().Read()
-# define CHECK_LOGIC(MESSG) {								ASSERT_DEBUG_DEATH		(CHECK_WHAT, assertMsg)	<< (MESSG);	}
-# define CHECK_OK(MESSG)	{ file_->SetBytesRemained(3);	ASSERT_NO_FATAL_FAILURE	(CHECK_WHAT)			<< (MESSG);	}
-# define CHECK_WRONG		{ file_->SetBytesRemained(3);	EXPECT_FATAL_FAILURE	(CHECK_WHAT,						\
-																		"WARNING: Corrupted MIDI's end of track");		}
+# define CHECK_LOGIC(MESSG){						ASSERT_DEBUG_DEATH		(CHECK_WHAT, assertMsg)	<< (MESSG);			}
+# define CHECK_OK(MESSG){file_->SetBytesRemained(3);ASSERT_NO_FATAL_FAILURE	(CHECK_WHAT)			<< (MESSG);			}
+# define CHECK_WRONG	{file_->SetBytesRemained(3);EXPECT_FATAL_FAILURE	(CHECK_WHAT,"Corrupted MIDI's end of track");}
+
 TEST_F(Test_MetaEvent_EndTrack, Read_impl)
 {
 # ifdef _DEBUG

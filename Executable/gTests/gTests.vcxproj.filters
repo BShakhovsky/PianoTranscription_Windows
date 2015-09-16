@@ -89,5 +89,8 @@
     <ClCompile Include="TestFixture_Event.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
     </ClCompile>
+    <ClCompile Include="Test_MetaEvent_Tempo.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

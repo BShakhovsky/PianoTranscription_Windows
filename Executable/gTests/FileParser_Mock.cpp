@@ -26,26 +26,31 @@ void FileParser_Mock::SetBytesRemained_impl(const int value) const
 }
 
 
-# define NOT_IMPLEMENTED BORIS_ASSERT("VIRTUAL FUNCTION " __FUNCTION__ " HAS NOT BEEN OVERRIDEN");
-
-int FileParser_Mock::PeekByte_impl()
-{
-	NOT_IMPLEMENTED;
-	return NULL;
-}
-char FileParser_Mock::ReadByte_impl()
+int FileParser_Mock::ReadNumber()
 {
 	string str;
 	getline(inputFile_, str);
-	bytesRemained_->Reduce(1);
 
 	auto result(NULL);
 	istringstream(str) >> result;
-	return static_cast<char>(result);
+	return result;
+}
+
+int FileParser_Mock::PeekByte_impl()
+{
+	const auto pos(inputFile_.tellg());
+	const auto result(ReadNumber());
+	inputFile_.seekg(pos);
+	return result;
+}
+char FileParser_Mock::ReadByte_impl()
+{
+	bytesRemained_->Reduce(1);
+	return static_cast<char>(ReadNumber());
 }
 void FileParser_Mock::ReadData_impl(char*, std::streamsize)
 {
-	NOT_IMPLEMENTED;
+	BORIS_ASSERT("VIRTUAL FUNCTION " __FUNCTION__ " HAS NOT BEEN OVERRIDEN");
 }
 void FileParser_Mock::SkipData_impl(std::streamoff offset)
 {
@@ -53,10 +58,17 @@ void FileParser_Mock::SkipData_impl(std::streamoff offset)
 	for (auto i(NULL); i < offset; ++i) ReadByte();
 }
 
-unsigned FileParser_Mock::ReadInverse_impl(unsigned, bool)
+unsigned FileParser_Mock::ReadInverse_impl(unsigned nBytes, const bool toCheck)
 {
-	NOT_IMPLEMENTED;
-	return NULL;
+	if (nBytes > sizeof(int32_t))
+	{
+		assert(!"NUMBER OF BYTES TO READ > SIZEOF INT");
+		nBytes = sizeof(int32_t);
+	}
+	unsigned result(NULL);
+	for (unsigned i(NULL); i < nBytes; ++i) result += ReadNumber();
+	bytesRemained_->Reduce(static_cast<signed>(nBytes), toCheck);
+	return result;
 }
 unsigned FileParser_Mock::ReadVarLenFormat_impl()
 {
@@ -64,24 +76,19 @@ unsigned FileParser_Mock::ReadVarLenFormat_impl()
 		totalBytes(NULL);
 	auto anotherByte('\0');
 
-	for (; (anotherByte = ReadByte()) < 0; result -= anotherByte)	// ends with the positive byte
-	{
-		if (++totalBytes >= Bytes::varLengthSize)
-			throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
-	}
+	for (; (anotherByte = ReadByte_impl()) < 0; result -= anotherByte)	// ends with the positive byte
+		if (++totalBytes >= Bytes::varLengthSize) throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
 	return static_cast<unsigned>(result + anotherByte);
 }
 
 
-# define NOT_SPECIALIZED BORIS_ASSERT("TEMPLATE " __FUNCTION__ " HAS NOT BEEN SPECIALIZED");
-
 uint32_t MidiParser::ReadWord(std::shared_ptr<FileParser_Mock>)	// Word = 4 bytes!!!
 {
-	NOT_SPECIALIZED;
+	BORIS_ASSERT("TEMPLATE " __FUNCTION__ " HAS NOT BEEN SPECIALIZED");
 	return NULL;
 }
 uint16_t MidiParser::ReadDWord(std::shared_ptr<FileParser_Mock>)	// DWord = 2 bytes!!!
 {
-	NOT_SPECIALIZED;
+	BORIS_ASSERT("TEMPLATE " __FUNCTION__ " HAS NOT BEEN SPECIALIZED");
 	return NULL;
 }
