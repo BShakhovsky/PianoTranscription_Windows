@@ -37,5 +37,3 @@ namespace gTest
 		TestFixture_Event() = delete;
 	};
 }
-
-# define CHECK_WHAT Event::GetInstance().Read()

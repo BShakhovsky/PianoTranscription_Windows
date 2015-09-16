@@ -10,46 +10,33 @@
 -5	FB	Real-time event
 			7	seven lines to skip:
 ***********************************/
+
 # include "..\..\Model\MidiParserLib\SystemEvent.h"
 # include "..\..\Model\MidiParserLib\FileParser.h"
-# include "FileParser_Mock.h"
-# include "CurrentFileName.h"
-# include "TestFixture_Event.h"
+# include "EventCommon.h"
+
 /********************************************
 -6	FA	Real-time event
 			-1	ReadVarLenFormat
-			4	one + four = 5 lines to skip:
+			5	one + five = 6 lines to skip:
 ********************************************/
-using namespace std;
-using namespace Model::MidiParser;
-using gTest::TestFixture_Event;
-/***************************************************
+
+using std::length_error;
+using Model::MidiParser::Event;
+
+/*************************************************
 -7	F9	WRONG STATUS BYTE
 -8	F8	Real-time event
 			0	no lines to skip:
 -9	F7	Exclusive event
-			-9	ReadVarLenFormat
 			-2	ReadVarLenFormat
-			-8	ReadVarLenFormat
-			0	Nine + 2 + 8 + 0 = 19 lines to skip:
-***************************************************/
-class Test_SystemEvent : public TestFixture_Event
-{
-public:
-	Test_SystemEvent() :
-		TestFixture_Event(CURRENT_FILE_NAME, 109)
-	{}
-	virtual ~Test_SystemEvent() override = default;
+			-1	ReadVarLenFormat
+			-2	ReadVarLenFormat
+			0	Two + 1 + 2 + 0 = 5 lines to skip:
+*************************************************/
 
-	virtual void SetUp() override final
-	{
-		TestFixture_Event::SetUp();
-	}
-	virtual void TearDown() override final
-	{
-		TestFixture_Event::TearDown();
-	}
-};
+FIXTURE(SystemEvent, 100);
+
 /***********************************************
 -10	F6	Common event
 			0	no lines to skip
@@ -58,8 +45,9 @@ public:
 -13	F3	Common event
 			-9	ReadVarLenFormat
 			-1	ReadVarLenFormat
-			1	Nine + 1 + 1 = 11 lines to skip:
+			3	Nine + 1 + 3 = 13 lines to skip:
 ***********************************************/
+
 # ifdef _DEBUG
 #	define CHECK_STATUS(MESSG){	ASSERT_DEBUG_DEATH(		Event::GetInstance().Read(), assertStatus_)	<< (MESSG);	}
 # elif defined NDEBUG
@@ -69,13 +57,15 @@ public:
 # endif
 # define CHECK_OK(MESSG)	{	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read()) << (MESSG);	}
 # define CHECK_WRONG(MESSG)	{	CHECK_STATUS(MESSG);	Event::GetInstance();							}
-/*******************************************************
+
+/******************************************************
 -14	F2	Common event
-			-14 ReadVarLenFormat
+			-16 ReadVarLenFormat
 			-4	ReadVarLenFormat
 			-2	ReadVarLenFormat
-			2	Fourteen + 4 + 2 + 2 = 22 lines to skip:
-*******************************************************/
+			2	Sixteen + 4 + 2 + 2 = 22 lines to skip:
+******************************************************/
+
 TEST_F(Test_SystemEvent, Read_impl)
 {
 	file_->SkipData(1);	// 3rd line (FF) = meta event
@@ -96,6 +86,7 @@ TEST_F(Test_SystemEvent, Read_impl)
 	CHECK_OK("F0 = exclusive event");
 	ASSERT_THROW(Event::GetInstance().Read(), length_error) << "VarLenFormat exceeds four bytes";
 }
+
 /**************************************************************
 -15	F1	Common event
 			0 no lines to skip

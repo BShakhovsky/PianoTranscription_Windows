@@ -30,30 +30,9 @@
 *******************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent_EndTrack.h"
-# include "FileParser_Mock.h"
-# include "CurrentFileName.h"
-# include "TestFixture_Event.h"
+# include "EventCommon.h"
 
-using namespace Model::MidiParser;
-using gTest::TestFixture_Event;
-
-class Test_MetaEvent_EndTrack : public TestFixture_Event
-{
-public:
-	Test_MetaEvent_EndTrack() :
-		TestFixture_Event(CURRENT_FILE_NAME, 4)
-	{}
-	virtual ~Test_MetaEvent_EndTrack() override = default;
-
-	virtual void SetUp() override final
-	{
-		TestFixture_Event::SetUp();
-	}
-	virtual void TearDown() override final
-	{
-		TestFixture_Event::TearDown();
-	}
-};
+FIXTURE(MetaEvent_EndTrack, 4);
 
 # define CHECK_LOGIC(MESSG){						ASSERT_DEBUG_DEATH		(CHECK_WHAT, assertMsg)	<< (MESSG);			}
 # define CHECK_OK(MESSG){file_->SetBytesRemained(3);ASSERT_NO_FATAL_FAILURE	(CHECK_WHAT)			<< (MESSG);			}

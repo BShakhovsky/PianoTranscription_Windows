@@ -43,31 +43,12 @@
 
 # include "..\..\Model\MidiParserLib\MidiEvent.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
-# include "FileParser_Mock.h"
-# include "CurrentFileName.h"
-# include "TestFixture_Event.h"
+# include "EventCommon.h"
 
-using namespace std;
-using namespace Model::MidiParser;
-using gTest::TestFixture_Event;
+using std::runtime_error;
+using Model::MidiParser::Event;
 
-class Test_MidiEvent : public TestFixture_Event
-{
-public:
-	Test_MidiEvent() :
-		TestFixture_Event(CURRENT_FILE_NAME, 47)
-	{}
-	virtual ~Test_MidiEvent() override = default;
-
-	virtual void SetUp() override final
-	{
-		TestFixture_Event::SetUp();
-	}
-	virtual void TearDown() override final
-	{
-		TestFixture_Event::TearDown();
-	}
-};
+FIXTURE(MidiEvent, 47);
 
 # define CHECK_THROW(MESSG)				{ ASSERT_THROW(CHECK_WHAT,						runtime_error)		<< (MESSG);	}
 # define CHECK_RESULT(STATUS,NOTE,VELOC,MESSG){	result_=CHECK_WHAT;	ASSERT_EQ((STATUS),	result_->status)	<< (MESSG);	\

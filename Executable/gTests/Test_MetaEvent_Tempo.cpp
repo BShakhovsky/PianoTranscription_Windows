@@ -43,34 +43,12 @@
 						4	ReadInverse
 						5	2 + 3 + 4 + 5 = 14 = metaData
 *********************************************************/
+
 # include "..\..\Model\MidiParserLib\MetaEvent_Tempo.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
-# include "FileParser_Mock.h"
-# include "CurrentFileName.h"
-# include "TestFixture_Event.h"
+# include "EventCommon.h"
 
-using std::shared_ptr;
-using namespace Model::MidiParser;
-using MidiStruct::EventChunk;
-using gTest::TestFixture_Event;
-
-class Test_MetaEvent_Tempo : public TestFixture_Event
-{
-public:
-	Test_MetaEvent_Tempo() :
-		TestFixture_Event(CURRENT_FILE_NAME, 44)
-	{}
-	virtual ~Test_MetaEvent_Tempo() override = default;
-
-	virtual void SetUp() override final
-	{
-		TestFixture_Event::SetUp();
-	}
-	virtual void TearDown() override final
-	{
-		TestFixture_Event::TearDown();
-	}
-};
+FIXTURE(MetaEvent_Tempo, 44);
 
 # ifdef _DEBUG
 #	define CHECK_DEATH(MESSG, SKIP_BYTES){ ASSERT_DEBUG_DEATH(CHECK_WHAT, (MESSG));	file_->SkipData(SKIP_BYTES);	}
