@@ -96,6 +96,9 @@
     <ClInclude Include="MetaEvent_Text.h">
       <Filter>Header Files\Event\Meta Event</Filter>
     </ClInclude>
+    <ClInclude Include="MetaEvent_KeySign_pimpl.h">
+      <Filter>Header Files\Event\Meta Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -144,6 +147,9 @@
       <Filter>Source Files\Event\Meta Event</Filter>
     </ClCompile>
     <ClCompile Include="MetaEvent.cpp">
+      <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaEvent_KeySign_pimpl.cpp">
       <Filter>Source Files\Event\Meta Event</Filter>
     </ClCompile>
   </ItemGroup>

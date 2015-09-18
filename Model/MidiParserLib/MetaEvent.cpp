@@ -3,11 +3,8 @@
 # include "MidiStruct.h"
 # include "FileParser.h"
 
-using namespace std;
-using namespace boost;
-using serialization::singleton;
-using namespace Model::MidiParser;
-using MidiStruct::TrackEvent;
+using std::runtime_error;
+using Model::MidiParser::MetaEvent;
 
 MetaEvent& MetaEvent::MetaInit(const char metaTypeByte)
 {
@@ -17,7 +14,7 @@ MetaEvent& MetaEvent::MetaInit(const char metaTypeByte)
 
 MetaEvent& MetaEvent::GetInstance()
 {
-	if (!GetInputFile()) throw std::runtime_error("INPUT FILE HAS NOT BEEN SET YET");
+	if (!GetInputFile()) throw runtime_error("INPUT FILE HAS NOT BEEN SET YET");
 	const auto metaType(GetInputFile()->ReadByte());
 
 	switch (metaType)

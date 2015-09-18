@@ -58,17 +58,21 @@
 # include "..\..\Model\MidiParserLib\MetaEvent_Skip.h"
 # include "EventCommon.h"
 
+using testing::FLAGS_gtest_break_on_failure;
+
 FIXTURE(MetaEvent_Skip, 65);
 
 # define CHECK_CASE(MESSG, BYTE_VAL)	{ 	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong " MESSG " chunk length");		\
 											ASSERT_NO_FATAL_FAILURE(CHECK_WHAT) << (BYTE_VAL) << " = correct length";	}
 TEST_F(Test_MetaEvent_Skip, Read_impl)
 {
+	FLAGS_gtest_break_on_failure = false;
 	CHECK_CASE("MIDI channel prefix assignment",	1);
 	CHECK_CASE("MIDI port",							1);
 	CHECK_CASE("SMPTE offset",						5);
 	CHECK_CASE("time signature",					4);
-
+	
+	FLAGS_gtest_break_on_failure = true;
 	ASSERT_NO_FATAL_FAILURE(CHECK_WHAT) << "Sequencer specific event, any length is Ok";
 	ASSERT_NO_FATAL_FAILURE(CHECK_WHAT) << "Sequencer specific event, any length is Ok";
 }

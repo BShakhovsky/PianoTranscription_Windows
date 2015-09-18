@@ -15,7 +15,6 @@ FileParser_Mock::FileParser_Mock(const char* fileName) :
 {}
 FileParser_Mock::~FileParser_Mock() {}
 
-
 int FileParser_Mock::GetBytesRemained_impl() const
 {
 	return bytesRemained_->Get();
@@ -25,14 +24,16 @@ void FileParser_Mock::SetBytesRemained_impl(const int value) const
 	bytesRemained_->Set(value);
 }
 
-
+unique_ptr<string> FileParser_Mock::ReadLine()
+{
+	auto str(make_unique<string>(""));
+	getline(inputFile_, *str);
+	return str;
+}
 int FileParser_Mock::ReadNumber()
 {
-	string str;
-	getline(inputFile_, str);
-
 	auto result(NULL);
-	istringstream(str) >> result;
+	istringstream(*ReadLine()) >> result;
 	return result;
 }
 
@@ -48,9 +49,15 @@ char FileParser_Mock::ReadByte_impl()
 	bytesRemained_->Reduce(1);
 	return static_cast<char>(ReadNumber());
 }
-void FileParser_Mock::ReadData_impl(char*, std::streamsize)
+void FileParser_Mock::ReadData_impl(char* data, std::streamsize count)
 {
-	BORIS_ASSERT("VIRTUAL FUNCTION " __FUNCTION__ " HAS NOT BEEN OVERRIDEN");
+	bytesRemained_->Reduce(static_cast<int>(count), false);
+	for (; count--; ++data)
+	{
+		auto result('\0');
+		istringstream(*ReadLine()) >> result;
+		*data = result ? result : ' ';
+	}
 }
 void FileParser_Mock::SkipData_impl(std::streamoff offset)
 {
@@ -80,7 +87,6 @@ unsigned FileParser_Mock::ReadVarLenFormat_impl()
 		if (++totalBytes >= Bytes::varLengthSize) throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
 	return static_cast<unsigned>(result + anotherByte);
 }
-
 
 uint32_t MidiParser::ReadWord(std::shared_ptr<FileParser_Mock>)	// Word = 4 bytes!!!
 {

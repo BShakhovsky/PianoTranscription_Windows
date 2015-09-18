@@ -4,7 +4,6 @@
 
 # include "..\..\SharedHeader.h"
 
-
 # pragma warning(disable:5026 5027)	// non-copyable classes
 
 # pragma warning(push)

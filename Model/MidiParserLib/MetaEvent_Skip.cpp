@@ -15,6 +15,10 @@ MetaEvent_Skip& MetaEvent_Skip::GetInstance()
 # define PRINT_AND_SKIP(BYTE_VAL, MESSG)	{	if ((BYTE_VAL) != GetInputFile()->PeekByte())					\
 													ADD_FAILURE() << "Wrong " << (MESSG) << " chunk length";	\
 												SkipEvent();	/* Skip anyway */								}
+# pragma warning(push)
+#	ifdef _DEBUG
+#		pragma warning(disable:4702)	// unreachable code (but may become reachable by mistake ==> test it)
+#	endif
 void MetaEvent_Skip::Read_impl()
 {
 	switch (GetChunk()->metaType)
@@ -24,6 +28,7 @@ void MetaEvent_Skip::Read_impl()
 	case 0x54: PRINT_AND_SKIP(5, "SMPTE offset");					break;
 	case 0x58: PRINT_AND_SKIP(4, "time signature");					break;
 	case 0x7F: SkipEvent();		/* Sequencer specific event */		break;
-	default: FAIL() << "WRONG META TYPE"; assert(!"WRONG META TYPE");
+	default: assert(!"WRONG META TYPE");
 	}
 }
+# pragma warning(pop)

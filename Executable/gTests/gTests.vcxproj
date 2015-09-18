@@ -126,6 +126,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gtestd.lib;gtest_main-mdd.lib;$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xCopy /Y /S "$(SolutionDir)*.h" "$(USERPROFILE)\Documents\C++\Projects\$(SolutionName)\"
@@ -195,6 +196,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>gtest.lib;gtest_main-md.lib;$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xCopy /Y /S "$(SolutionDir)*.h" "$(USERPROFILE)\Documents\C++\Projects\$(SolutionName)\"
@@ -224,11 +226,15 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\Documents\C++\Projects\$(Solution
   <ItemGroup>
     <ClCompile Include="CodeMetrics_test.cpp" />
     <ClCompile Include="FileParser_Mock.cpp" />
+    <ClCompile Include="Test_Event.cpp" />
     <ClCompile Include="Test_FileParser.cpp" />
     <ClCompile Include="TestFixture_Event.cpp" />
+    <ClCompile Include="Test_MetaEvent.cpp" />
     <ClCompile Include="Test_MetaEvent_EndTrack.cpp" />
+    <ClCompile Include="Test_MetaEvent_KeySign.cpp" />
     <ClCompile Include="Test_MetaEvent_Skip.cpp" />
     <ClCompile Include="Test_MetaEvent_Tempo.cpp" />
+    <ClCompile Include="Test_MetaEvent_Text.cpp" />
     <ClCompile Include="Test_MidiEvent.cpp" />
     <ClCompile Include="Test_MidiParser.cpp" />
     <ClCompile Include="MidiStruct_test.cpp" />

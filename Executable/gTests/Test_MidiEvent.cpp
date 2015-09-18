@@ -50,29 +50,29 @@ using Model::MidiParser::Event;
 
 FIXTURE(MidiEvent, 47);
 
-# define CHECK_THROW(MESSG)				{ ASSERT_THROW(CHECK_WHAT,						runtime_error)		<< (MESSG);	}
-# define CHECK_RESULT(STATUS,NOTE,VELOC,MESSG){	result_=CHECK_WHAT;	ASSERT_EQ((STATUS),	result_->status)	<< (MESSG);	\
-																	ASSERT_EQ((NOTE),	result_->note)		<< (MESSG);	\
-																	ASSERT_EQ((VELOC),	result_->velocity)	<< (MESSG);	}
+# define CHECK_RESULT(STATUS, NOTE, VELOC, MESSG) {	result_ = CHECK_WHAT;								\
+													ASSERT_EQ((STATUS),	result_->status)	<< (MESSG);	\
+													ASSERT_EQ((NOTE),	result_->note)		<< (MESSG);	\
+													ASSERT_EQ((VELOC),	result_->velocity)	<< (MESSG);	}
 TEST_F(Test_MidiEvent, Read_impl)
 {
-	Event::GetInstance();		// 3rd line (F0) = system event
-	Event::GetInstance();		// 4th line (F5) = system event
-	file_->SkipData(1);			// 5th line (FF) = meta event
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance())	<< "3rd line (F0) = system event";
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance())	<< "4th line (F5) = system event";
+	ASSERT_NO_FATAL_FAILURE(file_->SkipData(1))		<< "5th line (FF) = meta event";
 
-	CHECK_THROW("Empty line");										// Reads one status-byte
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "Empty line";		// Reads one status-byte
 
-	CHECK_THROW("00 running status");
-	CHECK_THROW("0F running status");
-	CHECK_THROW("1E running status");
-	CHECK_THROW("2D running status");
-	CHECK_THROW("3C running status");
-	CHECK_THROW("4B running status");
-	CHECK_THROW("5A running status");
-	CHECK_THROW("69 running status");
-	CHECK_THROW("78 running status");
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "00 running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "0F running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "1E running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "2D running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "3C running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "4B running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "5A running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "69 running status";
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "78 running status";
 
-	CHECK_THROW("Empty line");
+	ASSERT_THROW(CHECK_WHAT, runtime_error) << "Empty line";
 
 	CHECK_RESULT('\x87', 15, 31, "note off");						// Reads three bytes: status, note and velocity
 	CHECK_RESULT('\x96', 60, 0, "note on");

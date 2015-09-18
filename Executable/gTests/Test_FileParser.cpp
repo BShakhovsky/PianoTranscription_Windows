@@ -4,7 +4,7 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 
 using std::length_error;
-using testing::Test;
+using namespace testing;
 using namespace Model::MidiParser;
 using MidiStruct::Bytes;
 
@@ -20,6 +20,7 @@ public:
 	{}
 	virtual void SetUp() override final
 	{
+		FLAGS_gtest_break_on_failure = true;
 		ASSERT_EQ(NULL, file.GetBytesRemained()) << "checking constructor";
 	}
 	virtual void TearDown() override final {}

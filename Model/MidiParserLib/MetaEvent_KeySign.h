@@ -7,10 +7,11 @@ namespace Model
 	{
 		class MetaEvent_KeySign : public MetaEvent
 		{
+			std::unique_ptr<class MetaEvent_KeySign_pimpl> pimpl_;
 		public:
-			virtual ~MetaEvent_KeySign() override = default;
+			virtual ~MetaEvent_KeySign() override;
 		protected:
-			MetaEvent_KeySign() = default;
+			MetaEvent_KeySign();
 		private:
 			virtual void Read_impl() override final;	// may throw std::runtime_error
 

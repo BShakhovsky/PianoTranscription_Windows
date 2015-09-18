@@ -3,11 +3,13 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "CurrentFileName.h"
 
-using testing::Test;
+using testing::FLAGS_gtest_break_on_failure;
 using Model::MidiParser::MidiParser;
 
 TEST(Test_MidiParser, ReadChunkIntro)
 {
+	FLAGS_gtest_break_on_failure = true;
+
 	MidiParser midiParser(CURRENT_FILE_NAME);
 	ASSERT_NE(nullptr, midiParser.GetInputFile()) << "checking constructor";
 

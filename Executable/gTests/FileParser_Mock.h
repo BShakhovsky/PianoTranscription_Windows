@@ -18,10 +18,11 @@ namespace Model
 			virtual int GetBytesRemained_impl() const override final;
 			virtual void SetBytesRemained_impl(int value) const override final;
 
+			std::unique_ptr<std::string> ReadLine();
 			int ReadNumber();
 			virtual int PeekByte_impl() override final;
 			virtual char ReadByte_impl() override final;
-			virtual void ReadData_impl(char*, std::streamsize) override final;
+			virtual void ReadData_impl(char* data, std::streamsize count) override final;
 			virtual void SkipData_impl(std::streamoff offset) override final;
 
 			virtual unsigned ReadInverse_impl(unsigned nBytes, bool toCheck) override final;

@@ -6,11 +6,11 @@ using namespace std;
 using Model::MidiParser::MidiTracksCompiler;
 
 # ifdef CODE_METRICS
-#	define SOLUTION_LINES																						{\
-		cout<< "Solution total number of non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..", true)\
-				<< "\n\tUnit tests: "								<< CODE_METRICS.SolutionLines("../gTests")	\
-				<< "\n\tModel: "									<< CODE_METRICS.SolutionLines("../../Model")\
-			<< '\n' << endl;																					}
+#	define SOLUTION_LINES																				{\
+		cout<< "Solution total non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..")		\
+				<< " Unit tests: "							<< CODE_METRICS.SolutionLines("../gTests")	\
+				<< " Model: "								<< CODE_METRICS.SolutionLines("../../Model")\
+			<< '\n' << endl;																			}
 # else
 #	define SOLUTION_LINES
 # endif

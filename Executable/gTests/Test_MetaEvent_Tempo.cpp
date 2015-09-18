@@ -48,6 +48,8 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 # include "EventCommon.h"
 
+using testing::FLAGS_gtest_break_on_failure;
+
 FIXTURE(MetaEvent_Tempo, 44);
 
 # ifdef _DEBUG
@@ -62,14 +64,17 @@ FIXTURE(MetaEvent_Tempo, 44);
 																			CHECK_RESULT((LEN), (DATA));			}
 TEST_F(Test_MetaEvent_Tempo, Read_impl)
 {
+	FLAGS_gtest_break_on_failure = false;
 	CHECK_DEATH("WRONG TEMPO: DIVISION BY ZERO", 3);
 	
 	CHECK_WRONG(1, 5);
 	CHECK_WRONG(2, 4);
 	
+	FLAGS_gtest_break_on_failure = true;
 	ASSERT_NO_FATAL_FAILURE(result_ = CHECK_WHAT) << "Tempo chunk length = 3 = Ok";
 	CHECK_RESULT(3, 15);
 	
+	FLAGS_gtest_break_on_failure = false;
 	CHECK_WRONG(4, 6);
 	CHECK_WRONG(4, 10);
 # ifdef _DEBUG

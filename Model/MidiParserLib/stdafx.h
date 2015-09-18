@@ -10,7 +10,4 @@
 #	endif
 #	ifndef ADD_FAILURE
 #		define ADD_FAILURE()	std::cout << "\nWARNING: "
-#		define SUCCESS			std::cout << '\n'
-#	else
-#		define SUCCESS			std::cout
 #	endif

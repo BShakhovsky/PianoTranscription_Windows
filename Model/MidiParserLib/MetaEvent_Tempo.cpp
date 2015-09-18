@@ -3,7 +3,7 @@
 # include "FileParser.h"
 # include "MidiStruct.h"
 
-using std::endl;
+using namespace std;
 using boost::serialization::singleton;
 using namespace Model::MidiParser;
 using MidiStruct::TrackEvent;
@@ -20,8 +20,8 @@ void MetaEvent_Tempo::Read_impl()
 	GetChunk()->length = GetInputFile()->ReadVarLenFormat();
 	GetChunk()->metaData = GetInputFile()->ReadInverse(GetChunk()->length, true);
 
-	if (GetChunk()->metaData) SUCCESS << "Tempo setting "
+	if (GetChunk()->metaData) cout << "\nTempo setting "
 		<< (TrackEvent::microSec * TrackEvent::minute / GetChunk()->metaData)	// not covered by unit test
-		<< " BPM" << endl;
+		<< " BPM";
 	else assert(!"WRONG TEMPO: DIVISION BY ZERO");
 }

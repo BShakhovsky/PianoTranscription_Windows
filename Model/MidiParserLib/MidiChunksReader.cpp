@@ -39,14 +39,12 @@ void MidiChunksReader::ReadHeaderChunk()
 	switch (header_->data.format)
 	{
 	case 0: if (1 != header_->data.tracks) throw logic_error("CORRUPTED MIDI FILE TRACK NUMBERS");
-		cout << "There is a single track" << endl;				break;
-	case 1: cout << "There are " << header_->data.tracks
-		<< " tracks to be played simultaneously" << endl;		break;
-	case 2: cout << "There are " << header_->data.tracks
-		<< " independant tracks" << endl;						break;
-	default: throw runtime_error("CORRUPTED MIDI FILE FORMAT");	break;
+			cout << "There is a single track";														break;
+	case 1: cout << "There are " << header_->data.tracks << " tracks to be played simultaneously";	break;
+	case 2: cout << "There are " << header_->data.tracks << " independant tracks";					break;
+	default: throw runtime_error("CORRUPTED MIDI FILE FORMAT");
 	}
-	cout << "PPQN = " << header_->data.division << '\n' << endl;
+	cout << ", PPQN = " << header_->data.division;
 }
 
 void MidiChunksReader::ReadTrackChunks()

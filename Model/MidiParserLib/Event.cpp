@@ -39,6 +39,7 @@ Event::~Event() {}
 
 Event::EventChunk_ Event::Read()
 {
+	if (!fileParser_) assert(!"INPUT FILE HAS NOT BEEN SET YET");
 	Read_impl();
 	return eventChunk_;
 }

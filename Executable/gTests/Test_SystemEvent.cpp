@@ -48,15 +48,15 @@ FIXTURE(SystemEvent, 100);
 			3	Nine + 1 + 3 = 13 lines to skip:
 ***********************************************/
 
+# define CHECK_OK(MESSG)		ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read())	<< (MESSG);
 # ifdef _DEBUG
-#	define CHECK_STATUS(MESSG){	ASSERT_DEBUG_DEATH(		Event::GetInstance().Read(), assertStatus_)	<< (MESSG);	}
+#	define CHECK_WRONG(MESSG) {	ASSERT_DEBUG_DEATH(CHECK_WHAT, assertStatus_)				<< (MESSG);	\
+								Event::GetInstance();													}
 # elif defined NDEBUG
-#	define CHECK_STATUS(MESSG)
+#	define CHECK_WRONG(MESSG)	Event::GetInstance();
 # else
 #	"WRONG SOLUTION CONFIGURATION";
 # endif
-# define CHECK_OK(MESSG)	{	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read()) << (MESSG);	}
-# define CHECK_WRONG(MESSG)	{	CHECK_STATUS(MESSG);	Event::GetInstance();							}
 
 /******************************************************
 -14	F2	Common event

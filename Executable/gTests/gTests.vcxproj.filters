@@ -98,5 +98,17 @@
     <ClCompile Include="Test_MetaEvent_Skip.cpp">
       <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
     </ClCompile>
+    <ClCompile Include="Test_MetaEvent_Text.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MetaEvent_KeySign.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MetaEvent.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Event.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
