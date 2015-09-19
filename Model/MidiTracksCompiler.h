@@ -5,11 +5,15 @@ namespace Model
 	{
 		namespace MidiStruct
 		{
+			struct HeaderChunk;
 			struct TrackEvent;
 			struct TrackChunk;
 		}
 		class MidiTracksCompiler : private boost::noncopyable
 		{
+			std::unique_ptr<MidiStruct::HeaderChunk> header_;
+			std::vector<MidiStruct::TrackChunk> tracks_;
+
 			static const char project_ =
 # if defined _CONSOLE || defined _LIB
 				'C';

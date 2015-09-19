@@ -73,8 +73,6 @@ FIXTURE(MetaEvent_Text, 86);
 
 TEST_F(Test_MetaEvent_Text, Read_impl)
 {
-	FLAGS_gtest_show_internal_stack_frames = false;
-
 	FLAGS_gtest_break_on_failure = false;
 	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong sequence chunk length");
 	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong sequence chunk length");

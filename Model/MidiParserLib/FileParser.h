@@ -29,7 +29,7 @@ namespace Model
 			virtual unsigned ReadVarLenFormat_impl() override final;	// may throw std::length_error
 		};
 
-		uint32_t ReadWord(std::shared_ptr<FileParser> fileParser);	// Word = 4 bytes!!!
-		uint16_t ReadDWord(std::shared_ptr<FileParser> fileParser);	// DWord = 2 bytes!!!
+		uint32_t ReadWord(std::shared_ptr<IFileParser> fileParser);		// Word = 4 bytes!!!
+		uint16_t ReadDWord(std::shared_ptr<IFileParser> fileParser);	// DWord = 2 bytes!!!
 	}
 }

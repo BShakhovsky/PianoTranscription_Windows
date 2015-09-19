@@ -2,15 +2,7 @@
 # include "SystemEvent.h"
 # include "MidiStruct.h"
 
-using boost::serialization::singleton;
-using Model::MidiParser::SystemEvent;
-
-SystemEvent& SystemEvent::GetInstance()
-{
-	return singleton<SystemEvent>::get_mutable_instance();
-}
-
-void SystemEvent::Read_impl()
+EVENT_IMPL(System)
 {
 	switch (GetChunk()->status)
 	{

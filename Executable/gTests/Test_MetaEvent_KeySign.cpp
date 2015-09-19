@@ -69,11 +69,11 @@ FIXTURE(MetaEvent_KeySign, 59);
 TEST_F(Test_MetaEvent_KeySign, Read_impl)
 {
 	FLAGS_gtest_break_on_failure = false;
-	EXPECT_FATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 0 bytes skipped");
-	EXPECT_FATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 1 bytes skipped");
-	EXPECT_FATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 3 bytes skipped");
-	EXPECT_FATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 1 bytes skipped");
-	EXPECT_FATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 5 bytes skipped");
+	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 0 bytes skipped");
+	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 1 bytes skipped");
+	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 3 bytes skipped");
+	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 1 bytes skipped");
+	EXPECT_NONFATAL_FAILURE(CHECK_WHAT, "Wrong key signature chunk length, 5 bytes skipped");
 
 	FLAGS_gtest_break_on_failure = true;
 	ASSERT_THROW(CHECK_WHAT, runtime_error) << "WRONG KEY SIGNATURE, SHOULD BE 0...7 BEMOLES OR DIESES";

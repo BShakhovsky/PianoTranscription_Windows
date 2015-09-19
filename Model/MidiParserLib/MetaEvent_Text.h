@@ -9,15 +9,12 @@ namespace Model
 		{
 		public:
 			virtual ~MetaEvent_Text() = default;
-		protected:
-			MetaEvent_Text() = default;
 		private:
-			virtual void Read_impl() override final;	// may throw std::runtime_error
-
-			void ReadText(const char *eventMsg) const;	// may throw std::length_error
-
-			static MetaEvent_Text& GetInstance();
-			friend class MetaEvent;
+			explicit MetaEvent_Text(char statusByte, char metaType) :
+				MetaEvent(statusByte, metaType)
+			{}
+			void ReadText(const char* eventMsg) const;	// may throw std::length_error
+			META_DECL(Text);
 		};
 	}
 }

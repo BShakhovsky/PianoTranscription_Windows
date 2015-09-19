@@ -46,36 +46,12 @@ namespace Model
 				HeaderData data;
 			};
 
-			class EventChunk
+			struct EventChunk
 			{
-			public:
-				EventChunk()
-				{
-					Clear();
-				}
-				EventChunk(const EventChunk&) = default;
-				EventChunk& operator = (const EventChunk&) = default;
-
-				char status,			// meta or sysex or midi event
-					metaType;
-				int16_t UNUSED_twoPaddingBytes;
-				uint32_t length;		// for meta and sysex events, and at most four bytes long
-				uint32_t metaData;		// tempo setting
-				std::string metaText;	// track name, instrument, etc.
-
-				int16_t note,			// midi events: 0x90 = note on, 0x80 = note off
-					velocity;
-
-				void Clear()
-				{
-					status = '\0';
-					metaType = '\0';
-					length = NULL;
-					metaData = NULL;
-					metaText.clear();
-					note = NULL;
-					velocity = NULL;
-				}
+				char status,				// meta or sysex or midi event
+					metaType, UNUSED[2];	// two padding bytes
+				uint32_t metaData;			// tempo setting
+				int16_t note, velocity;		// for midi events
 			};
 			struct TrackEvent
 			{

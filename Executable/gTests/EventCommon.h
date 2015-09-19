@@ -23,8 +23,7 @@
 		}																	\
 	};
 
-# define CHECK_WHAT Model::MidiParser::Event::GetInstance().Read()
+# define CHECK_WHAT Model::MidiParser::Event::GetInstance(file_)->Read()
 
-# define CHECK_TYPE(META_TYPE, EVENT_TYPE) ASSERT_EQ(												\
-	typeid(boost::serialization::singleton<Model::MidiParser::EVENT_TYPE>::get_mutable_instance()),	\
-	typeid(Model::MidiParser::Event::GetInstance())) << "meta type = " << (META_TYPE)				;
+# define CHECK_TYPE(META_TYPE, EVENT_TYPE) ASSERT_EQ(typeid(Model::MidiParser::EVENT_TYPE),	\
+	typeid(*Model::MidiParser::Event::GetInstance(file_))) << "meta type = " << (META_TYPE)	;

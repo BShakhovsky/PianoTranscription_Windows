@@ -59,28 +59,27 @@ FIXTURE(MetaEvent_Tempo, 44);
 # else
 #	"WRONG SOLUTION CONFIGURATION"
 # endif
-# define CHECK_RESULT(LEN, DATA){ ASSERT_EQ((LEN), result_->length);	ASSERT_EQ((DATA), result_->metaData);		}
-# define CHECK_WRONG(LEN, DATA)	{ EXPECT_NONFATAL_FAILURE(result_ = CHECK_WHAT, "Wrong tempo chunk length");		\
-																			CHECK_RESULT((LEN), (DATA));			}
+# define CHECK_WRONG(DATA)	{ EXPECT_NONFATAL_FAILURE(result_ = CHECK_WHAT, "Wrong tempo chunk length");	\
+																	ASSERT_EQ((DATA), result_->metaData);	}
 TEST_F(Test_MetaEvent_Tempo, Read_impl)
 {
 	FLAGS_gtest_break_on_failure = false;
 	CHECK_DEATH("WRONG TEMPO: DIVISION BY ZERO", 3);
 	
-	CHECK_WRONG(1, 5);
-	CHECK_WRONG(2, 4);
+	CHECK_WRONG(5);
+	CHECK_WRONG(4);
 	
 	FLAGS_gtest_break_on_failure = true;
 	ASSERT_NO_FATAL_FAILURE(result_ = CHECK_WHAT) << "Tempo chunk length = 3 = Ok";
-	CHECK_RESULT(3, 15);
+	ASSERT_EQ(15, result_->metaData);
 	
 	FLAGS_gtest_break_on_failure = false;
-	CHECK_WRONG(4, 6);
-	CHECK_WRONG(4, 10);
+	CHECK_WRONG(6);
+	CHECK_WRONG(10);
 # ifdef _DEBUG
 	CHECK_DEATH("NUMBER OF BYTES TO READ > SIZEOF INT", 9);
 # elif defined NDEBUG
-	CHECK_WRONG(5, 14);
+	CHECK_WRONG(14);
 # else
 	"WRONG SOLUTION CONFIGURATION";
 # endif

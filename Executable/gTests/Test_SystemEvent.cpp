@@ -48,12 +48,12 @@ FIXTURE(SystemEvent, 100);
 			3	Nine + 1 + 3 = 13 lines to skip:
 ***********************************************/
 
-# define CHECK_OK(MESSG)		ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_).Read())	<< (MESSG);
+# define CHECK_OK(MESSG)		ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_)->Read())	<< (MESSG);
 # ifdef _DEBUG
 #	define CHECK_WRONG(MESSG) {	ASSERT_DEBUG_DEATH(CHECK_WHAT, assertStatus_)				<< (MESSG);	\
-								Event::GetInstance();													}
+								Event::GetInstance(file_);													}
 # elif defined NDEBUG
-#	define CHECK_WRONG(MESSG)	Event::GetInstance();
+#	define CHECK_WRONG(MESSG)	Event::GetInstance(file_);
 # else
 #	"WRONG SOLUTION CONFIGURATION";
 # endif
@@ -84,7 +84,7 @@ TEST_F(Test_SystemEvent, Read_impl)
 	CHECK_OK("F2 = common event");
 	CHECK_OK("F1 = common event");
 	CHECK_OK("F0 = exclusive event");
-	ASSERT_THROW(Event::GetInstance().Read(), length_error) << "VarLenFormat exceeds four bytes";
+	ASSERT_THROW(Event::GetInstance(file_)->Read(), length_error) << "VarLenFormat exceeds four bytes";
 }
 
 /**************************************************************

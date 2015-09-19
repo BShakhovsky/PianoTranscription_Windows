@@ -80,11 +80,11 @@ unsigned FileParser::ReadVarLenFormat_impl()
 	return result;
 }
 
-uint32_t MidiParser::ReadWord(shared_ptr<FileParser> fileParser)
+uint32_t MidiParser::ReadWord(shared_ptr<IFileParser> fileParser)
 {
 	return fileParser->ReadInverse(sizeof uint32_t, false);
 }
-uint16_t MidiParser::ReadDWord(shared_ptr<FileParser> fileParser)
+uint16_t MidiParser::ReadDWord(shared_ptr<IFileParser> fileParser)
 {
 	return static_cast<uint16_t>(fileParser->ReadInverse(sizeof uint16_t, false));
 }

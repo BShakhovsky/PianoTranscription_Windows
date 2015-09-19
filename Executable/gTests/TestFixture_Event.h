@@ -9,7 +9,7 @@ namespace Model
 
 		namespace MidiStruct
 		{
-			class EventChunk;
+			struct EventChunk;
 		}
 	}
 }

@@ -9,13 +9,11 @@ namespace Model
 		{
 		public:
 			virtual ~MetaEvent_Skip() override = default;
-		protected:
-			MetaEvent_Skip() = default;
 		private:
-			virtual void Read_impl() override final;
-
-			static MetaEvent_Skip& GetInstance();
-			friend class MetaEvent;
+			explicit MetaEvent_Skip(char statusByte, char metaType) :
+				MetaEvent(statusByte, metaType)
+			{}
+			META_DECL(Skip);
 		};
 	}
 }

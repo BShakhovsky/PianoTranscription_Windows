@@ -3,25 +3,16 @@
 # include "FileParser.h"
 # include "MidiStruct.h"
 
-using namespace std;
-using boost::serialization::singleton;
-using namespace Model::MidiParser;
-using MidiStruct::TrackEvent;
+using std::cout;
+using Model::MidiParser::MidiStruct::TrackEvent;
 
-MetaEvent_Tempo& MetaEvent_Tempo::GetInstance()
+META_IMPL(Tempo)
 {
-	return singleton<MetaEvent_Tempo>::get_mutable_instance();
-}
+	if (3 != GetInputFile()->PeekByte()) WARNING("Wrong tempo chunk length");
 
-void MetaEvent_Tempo::Read_impl()
-{
-	if (3 != GetInputFile()->PeekByte()) ADD_FAILURE() << "Wrong tempo chunk length";
-
-	GetChunk()->length = GetInputFile()->ReadVarLenFormat();
-	GetChunk()->metaData = GetInputFile()->ReadInverse(GetChunk()->length, true);
-
-	if (GetChunk()->metaData) cout << "\nTempo setting "
-		<< (TrackEvent::microSec * TrackEvent::minute / GetChunk()->metaData)	// not covered by unit test
-		<< " BPM";
+	if (GetChunk()->metaData = GetInputFile()->ReadInverse(GetInputFile()->ReadVarLenFormat(), true))	// = not ==
+		cout << "\nTempo setting "
+			<< (TrackEvent::microSec * TrackEvent::minute / GetChunk()->metaData)	// not covered by unit test
+			<< " BPM";
 	else assert(!"WRONG TEMPO: DIVISION BY ZERO");
 }

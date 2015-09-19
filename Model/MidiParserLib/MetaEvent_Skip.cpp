@@ -3,23 +3,14 @@
 # include "FileParser.h"
 # include "MidiStruct.h"
 
-using namespace std;
-using boost::serialization::singleton;
-using Model::MidiParser::MetaEvent_Skip;
-
-MetaEvent_Skip& MetaEvent_Skip::GetInstance()
-{
-	return singleton<MetaEvent_Skip>::get_mutable_instance();
-}
-
-# define PRINT_AND_SKIP(BYTE_VAL, MESSG)	{	if ((BYTE_VAL) != GetInputFile()->PeekByte())					\
-													ADD_FAILURE() << "Wrong " << (MESSG) << " chunk length";	\
-												SkipEvent();	/* Skip anyway */								}
+# define PRINT_AND_SKIP(BYTE_VAL, MESSG)	{	if ((BYTE_VAL) != GetInputFile()->PeekByte())			\
+													WARNING("Wrong " << (MESSG) << " chunk length");	\
+												SkipEvent();	/* Skip anyway */						}
 # pragma warning(push)
 #	ifdef _DEBUG
 #		pragma warning(disable:4702)	// unreachable code (but may become reachable by mistake ==> test it)
 #	endif
-void MetaEvent_Skip::Read_impl()
+META_IMPL(Skip)
 {
 	switch (GetChunk()->metaType)
 	{

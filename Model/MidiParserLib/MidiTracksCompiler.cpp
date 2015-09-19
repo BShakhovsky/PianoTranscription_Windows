@@ -2,7 +2,10 @@
 /*
 To finish:
 
-MidiStruct::EventChunk --> remove metaText
+MidiStruct::EventChunk --> possibly replace 6 fields with less
+Replace std::shared_ptr<EventChunk> with EventChunk by value
+Replace std::unique_ptr<TrackEvent> with TrackEvent by value
+
 std::ifstream::good, fail, bad, rdstate, clear
 Delta time is calculated for known events only
 
@@ -17,11 +20,14 @@ Behaviourial: Command, Interpreter, Mediator, Memento, State, Strategy
 using namespace std;
 using boost::format;
 using namespace Model::MidiParser;
-using MidiStruct::TrackEvent;
+using namespace MidiStruct;
 using View::Keyboard;
 
-MidiTracksCompiler::MidiTracksCompiler(const char *fileName)
-	: ptrMidi_(new MidiChunksReader(fileName)),
+MidiTracksCompiler::MidiTracksCompiler(const char *fileName) :
+	header_(make_unique<HeaderChunk>()),
+	tracks_(),
+
+	ptrMidi_(new MidiChunksReader(fileName)),
 	totalMicroSeconds_(NULL),
 	tempoSettings_(),
 	isPaused_(true),
@@ -42,12 +48,22 @@ MidiTracksCompiler::MidiTracksCompiler(const char *fileName)
 	default: assert(!"WRONG PROJECT TYPE");
 	}
 
-	ptrMidi_->ReadHeaderChunk();	// may throw std::runtime_error, std::length_error and std::logic_error
-	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-	ptrMidi_->ReadTrackChunks();	// may throw std::runtime_error
+	*header_ = ptrMidi_->ReadHeaderChunk();	// may throw std::runtime_error, std::length_error and std::logic_error
 
-	for (itCurrentTrack_ = ptrMidi_->GetTracks().cbegin();
-	itCurrentTrack_ != ptrMidi_->GetTracks().cend(); ++itCurrentTrack_)
+	tracks_.reserve(header_->data.tracks);
+
+	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+
+	for (auto i(0); i < header_->data.tracks; ++i)
+	{
+		tracks_.emplace_back(ptrMidi_->ReadTrackChunk());	// may throw std::runtime_error
+		cout << "\n\nEnd of track " << i + 1 << " of " << header_->data.tracks << endl;
+		system("Pause");
+	}
+	cout << "\n\nAll tracks have been read successfully" << endl;
+
+	for (itCurrentTrack_ = tracks_.cbegin();
+	itCurrentTrack_ != tracks_.cend(); ++itCurrentTrack_)
 		if (!itCurrentTrack_->trackEvent.empty())
 		{
 			itCurrentEvent_ = itCurrentTrack_->trackEvent.cbegin();
@@ -74,7 +90,7 @@ bool MidiTracksCompiler::LoadNextTrack()
 	if (!isPaused_)
 	{
 		if (!tempoSettings_.empty()) totalMicroSeconds_ += itCurrentEvent_->deltaTime
-			* itCurrentTempo_->second / ptrMidi_->GetHeader()->data.division;
+			* itCurrentTempo_->second / header_->data.division;
 		
 		if (-1 == itCurrentEvent_->eventChunk.status &&	// 0xFF
 			0x51 == itCurrentEvent_->eventChunk.metaType)
@@ -95,9 +111,9 @@ bool MidiTracksCompiler::LoadNextTrack()
 		}
 		if (++itCurrentEvent_ == itCurrentTrack_->trackEvent.cend())
 		{
-			cout << "\nEnd of track " << itCurrentTrack_ - ptrMidi_->GetTracks().cbegin() + 1 << " of " <<
-				ptrMidi_->GetHeader()->data.tracks << "\n\n==================================================\n" << endl;
-			while (++itCurrentTrack_ != ptrMidi_->GetTracks().cend())
+			cout << "\nEnd of track " << itCurrentTrack_ - tracks_.cbegin() + 1 << " of " <<
+				header_->data.tracks << "\n\n==================================================\n" << endl;
+			while (++itCurrentTrack_ != tracks_.cend())
 				if (!itCurrentTrack_->trackEvent.empty())
 				{
 					itCurrentEvent_ = itCurrentTrack_->trackEvent.cbegin();
@@ -106,7 +122,7 @@ bool MidiTracksCompiler::LoadNextTrack()
 					break;
 				}
 			isPaused_ = true;
-			if (itCurrentTrack_ == ptrMidi_->GetTracks().cend())
+			if (itCurrentTrack_ == tracks_.cend())
 			{
 				cout << "\nEnd of MIDI file\n\n==================================================\n" << endl;
 				return false;	// return without pause
@@ -120,8 +136,7 @@ void MidiTracksCompiler::PrintTime() const
 {
 	const auto totalSeconds(totalMicroSeconds_ / TrackEvent::microSec);
 	cout << "Time = " << (totalSeconds / TrackEvent::minute) << ':'
-		<< setfill('0') << setw(2) << (totalSeconds % TrackEvent::minute)
-		<< " -> " << itCurrentEvent_->eventChunk.metaText;
+		<< setfill('0') << setw(2) << (totalSeconds % TrackEvent::minute);
 }
 
 void MidiTracksCompiler::ShowKeyboard() const

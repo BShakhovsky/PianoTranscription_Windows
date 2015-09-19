@@ -36,8 +36,8 @@ using testing::FLAGS_gtest_break_on_failure;
 
 FIXTURE(MetaEvent_EndTrack, 4);
 
-# define CHECK_OK(MESSG){file_->SetBytesRemained(3);ASSERT_NO_FATAL_FAILURE	(CHECK_WHAT)			<< (MESSG);			}
-# define CHECK_WRONG	{file_->SetBytesRemained(3);EXPECT_FATAL_FAILURE	(CHECK_WHAT,"Corrupted MIDI's end of track");}
+# define CHECK_OK(MESSG){file_->SetBytesRemained(3);ASSERT_NO_FATAL_FAILURE(CHECK_WHAT)			<< (MESSG);			}
+# define CHECK_WRONG	{file_->SetBytesRemained(3);EXPECT_NONFATAL_FAILURE(CHECK_WHAT,"Corrupted MIDI's end of track");}
 
 TEST_F(Test_MetaEvent_EndTrack, Read_impl)
 {

@@ -75,8 +75,8 @@ using namespace Model::MidiParser;
 
 FIXTURE(MetaEvent, 66);
 
-# define CHECK_THROW(META_TYPE) ASSERT_THROW(Event::GetInstance(), runtime_error)	<< (META_TYPE) << " = WRONG META TYPE";
-
+# define CHECK_THROW(META_TYPE) ASSERT_THROW(Event::GetInstance(file_), runtime_error)	\
+												<< (META_TYPE) << " = WRONG META TYPE"	;
 TEST_F(Test_MetaEvent, GetInstance)
 {
 	CHECK_THROW(-1);

@@ -162,7 +162,7 @@
     <ClInclude Include="MetaEvent_EndTrack.h" />
     <ClInclude Include="MetaEvent.h" />
     <ClInclude Include="MetaEvent_KeySign.h" />
-    <ClInclude Include="MetaEvent_KeySign_pimpl.h" />
+    <ClInclude Include="MetaEvent_KeySign_printer.h" />
     <ClInclude Include="MetaEvent_Skip.h" />
     <ClInclude Include="MetaEvent_Tempo.h" />
     <ClInclude Include="MetaEvent_Text.h" />
@@ -181,7 +181,7 @@
     <ClCompile Include="MetaEvent_EndTrack.cpp" />
     <ClCompile Include="MetaEvent.cpp" />
     <ClCompile Include="MetaEvent_KeySign.cpp" />
-    <ClCompile Include="MetaEvent_KeySign_pimpl.cpp" />
+    <ClCompile Include="MetaEvent_KeySign_printer.cpp" />
     <ClCompile Include="MetaEvent_Skip.cpp" />
     <ClCompile Include="MetaEvent_Tempo.cpp" />
     <ClCompile Include="MetaEvent_Text.cpp" />

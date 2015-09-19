@@ -56,9 +56,9 @@ FIXTURE(MidiEvent, 47);
 													ASSERT_EQ((VELOC),	result_->velocity)	<< (MESSG);	}
 TEST_F(Test_MidiEvent, Read_impl)
 {
-	ASSERT_NO_FATAL_FAILURE(Event::GetInstance())	<< "3rd line (F0) = system event";
-	ASSERT_NO_FATAL_FAILURE(Event::GetInstance())	<< "4th line (F5) = system event";
-	ASSERT_NO_FATAL_FAILURE(file_->SkipData(1))		<< "5th line (FF) = meta event";
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_))	<< "3rd line (F0) = system event";
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_))	<< "4th line (F5) = system event";
+	ASSERT_NO_FATAL_FAILURE(file_->SkipData(1))			<< "5th line (FF) = meta event";
 
 	ASSERT_THROW(CHECK_WHAT, runtime_error) << "Empty line";		// Reads one status-byte
 

@@ -1,25 +1,25 @@
 # include "stdafx.h"
-# include "MetaEvent_KeySign_pimpl.h"
+# include "MetaEvent_KeySign_printer.h"
 # include "IFileParser.h"
 
 using namespace std;
-using Model::MidiParser::MetaEvent_KeySign_pimpl;
+using Model::MidiParser::MetaEvent_KeySign_printer;
 
-MetaEvent_KeySign_pimpl::MetaEvent_KeySign_pimpl() :
+MetaEvent_KeySign_printer::MetaEvent_KeySign_printer() :
 	inputFile_(nullptr),
 	sf(NULL)
 {}
 
-MetaEvent_KeySign_pimpl::~MetaEvent_KeySign_pimpl() {}
+MetaEvent_KeySign_printer::~MetaEvent_KeySign_printer() {}
 
-void MetaEvent_KeySign_pimpl::KeySignInit(FileParser_ newFile)
+void MetaEvent_KeySign_printer::KeySignInit(FileParser_ newFile)
 {
 	inputFile_ = newFile;
 }
 
 
 
-void MetaEvent_KeySign_pimpl::PrintKeySignature()
+void MetaEvent_KeySign_printer::PrintKeySignature()
 {
 	if (!inputFile_) throw runtime_error("INPUT FILE HAS NOT BEEN SET YET");
 	sf = inputFile_->ReadByte();
@@ -29,7 +29,7 @@ void MetaEvent_KeySign_pimpl::PrintKeySignature()
 	PrintKeyMI();
 }
 
-void MetaEvent_KeySign_pimpl::PrintKeySF() const
+void MetaEvent_KeySign_printer::PrintKeySF() const
 {
 	switch (sf)
 	{
@@ -40,7 +40,7 @@ void MetaEvent_KeySign_pimpl::PrintKeySF() const
 	}
 }
 
-void MetaEvent_KeySign_pimpl::PrintKeyMI() const
+void MetaEvent_KeySign_printer::PrintKeyMI() const
 {
 	if (!inputFile_) assert(!"INPUT FILE HAS NOT BEEN SET YET");
 	switch (inputFile_->ReadByte())	// mi

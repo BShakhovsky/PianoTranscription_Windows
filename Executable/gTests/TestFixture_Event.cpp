@@ -24,12 +24,12 @@ void TestFixture_Event::SetUp()
 # ifdef _DEBUG
 	file_->SetBytesRemained(bytesRemained_);
 # endif
-	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_))	<< R"%(	1st line ("# include "stdafx.h"\n") = 0x00	)%";
-	ASSERT_NO_FATAL_FAILURE(Event::GetInstance())		<< R"%(	2nd line ("/*******************\n") = 0x00	)%";
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_)) << R"%(	1st line ("# include "stdafx.h"\n") = 0x00	)%";
+	ASSERT_NO_FATAL_FAILURE(Event::GetInstance(file_)) << R"%(	2nd line ("/*******************\n") = 0x00	)%";
 }
 
 void TestFixture_Event::TearDown()
 {
-	ASSERT_DEBUG_DEATH(Event::GetInstance(), "LOGICAL ERROR IN COUNTING BYTES REMAINED TO READ FROM MIDI FILE")
-												<< file_->GetBytesRemained() << " bytes left";
+	ASSERT_DEBUG_DEATH(Event::GetInstance(file_), "LOGICAL ERROR IN COUNTING BYTES REMAINED TO READ FROM MIDI FILE")
+														<< file_->GetBytesRemained() << " bytes left";
 }

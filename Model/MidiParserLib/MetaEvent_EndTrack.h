@@ -9,13 +9,11 @@ namespace Model
 		{
 		public:
 			virtual ~MetaEvent_EndTrack() override = default;
-		protected:
-			MetaEvent_EndTrack() = default;
 		private:
-			virtual void Read_impl() override final;
-
-			static MetaEvent_EndTrack& GetInstance();
-			friend class MetaEvent;
+			explicit MetaEvent_EndTrack(char statusByte, char metaType) :
+				MetaEvent(statusByte, metaType)
+			{}
+			META_DECL(EndTrack);
 		};
 	}
 }

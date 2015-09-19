@@ -5,9 +5,8 @@
 # include "..\..\SharedHeader.h"
 
 # include "..\..\Executable\gTests\stdafx.h"
-#	ifndef FAIL
-#		define FAIL()			std::cout << "\nWARNING: "
-#	endif
-#	ifndef ADD_FAILURE
-#		define ADD_FAILURE()	std::cout << "\nWARNING: "
+#	ifdef ADD_FAILURE
+#		define WARNING(MESSG) { ADD_FAILURE()				<< MESSG;				system("Pause"); }
+#	else
+#		define WARNING(MESSG) {std::cout << "\nWARNING: "	<< MESSG << std::endl;	system("Pause"); }
 #	endif

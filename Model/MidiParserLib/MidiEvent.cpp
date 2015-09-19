@@ -4,16 +4,11 @@
 # include "FileParser.h"
 
 using namespace std;
-using namespace boost;
-using serialization::singleton;
 using Model::MidiParser::MidiEvent;
 
-MidiEvent& MidiEvent::GetInstance()
-{
-	return singleton<MidiEvent>::get_mutable_instance();
-}
+char MidiEvent::runStatus_ = '\0';
 
-void MidiEvent::Read_impl()
+EVENT_IMPL(Midi)
 {
 	if (GetChunk()->status < 0)				// most significant byte is set ==> it is status byte, Ok
 	{
@@ -44,8 +39,8 @@ void MidiEvent::PrintMidiEvent() const
 	case 0x0C0: break;	// New program (patch) number
 	case 0x0D0: break;	// Channel after-touch number
 
-	case 0x0E0: break;	// Pitch wheel change(2'000H is normal or no change) : \
-						//	Bottom(least significant) 7 bits of value,
+	case 0x0E0: break;	// Pitch wheel change(2'000H is normal or no change) :	\
+						//	Bottom(least significant) 7 bits of value,			\
 						//	Top (most significant) 7 bits of value
 	default: assert(!"MIDI RUNNING STATUS");
 	}

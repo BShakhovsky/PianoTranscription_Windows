@@ -74,15 +74,5 @@ namespace Model
 			virtual unsigned ReadInverse_impl(unsigned, bool) = 0;
 			virtual unsigned ReadVarLenFormat_impl() = 0;
 		};
-		template<class T>
-		inline uint32_t ReadWord(std::shared_ptr<T>)	// Word = 4 bytes!!!
-		{
-			assert(!"TEMPLATE " && __FUNCTION__ && " HAS NOT BEEN SPECIALIZED");
-		}
-		template<class T>
-		inline uint16_t ReadDWord(std::shared_ptr<T>)	// DWord = 2 bytes!!!
-		{
-			assert(!"TEMPLATE " && __FUNCTION__ && " HAS NOT BEEN SPECIALIZED");
-		}
 	}
 }

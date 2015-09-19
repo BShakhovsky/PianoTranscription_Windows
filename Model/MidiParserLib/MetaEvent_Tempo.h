@@ -9,13 +9,11 @@ namespace Model
 		{
 		public:
 			virtual ~MetaEvent_Tempo() override = default;
-		protected:
-			MetaEvent_Tempo() = default;
 		private:
-			virtual void Read_impl() override final;
-
-			static MetaEvent_Tempo& GetInstance();
-			friend class MetaEvent;
+			explicit MetaEvent_Tempo(char statusByte, char metaType) :
+				MetaEvent(statusByte, metaType)
+			{}
+			META_DECL(Tempo);
 		};
 	}
 }

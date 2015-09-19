@@ -8,28 +8,26 @@ namespace Model
 		{
 			struct ChunkType;
 			struct ChunkIntro;
-			class EventChunk;
+			struct HeaderData;
+			struct TrackEvent;
 		}
 
 		class MidiParser : private boost::noncopyable
 		{
-			typedef std::shared_ptr<class FileParser> FileParser_;
-			FileParser_ fileParser_;
+			std::shared_ptr<class IFileParser> inputFile_;
 
-			MidiParser() = delete;
-		public:
-			explicit MidiParser(const char *fileName);
-			~MidiParser() = default;
-
-			FileParser_ GetInputFile() const
-			{
-				return fileParser_;
-			}
-
-			std::shared_ptr<MidiStruct::EventChunk> ReadEvent() const;
-			const MidiStruct::ChunkIntro ReadChunkIntro() const;
-		private:
 			const MidiStruct::ChunkType ReadChunkType() const;
+		public:
+			const MidiStruct::ChunkIntro ReadChunkIntro() const;
+			const MidiStruct::HeaderData ReadHeaderData() const;
+
+			void SkipTrackEvents(uint32_t length) const;
+			std::vector<MidiStruct::TrackEvent> ReadTrackEvents(uint32_t length) const;	// may throw std::length_error
+
+			explicit MidiParser(const char* fileName);
+			~MidiParser() = default;
+		private:
+			MidiParser() = delete;
 		};
 	}
 }

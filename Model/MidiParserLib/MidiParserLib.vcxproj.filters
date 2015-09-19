@@ -96,7 +96,7 @@
     <ClInclude Include="MetaEvent_Text.h">
       <Filter>Header Files\Event\Meta Event</Filter>
     </ClInclude>
-    <ClInclude Include="MetaEvent_KeySign_pimpl.h">
+    <ClInclude Include="MetaEvent_KeySign_printer.h">
       <Filter>Header Files\Event\Meta Event</Filter>
     </ClInclude>
   </ItemGroup>
@@ -149,7 +149,7 @@
     <ClCompile Include="MetaEvent.cpp">
       <Filter>Source Files\Event\Meta Event</Filter>
     </ClCompile>
-    <ClCompile Include="MetaEvent_KeySign_pimpl.cpp">
+    <ClCompile Include="MetaEvent_KeySign_printer.cpp">
       <Filter>Source Files\Event\Meta Event</Filter>
     </ClCompile>
   </ItemGroup>
