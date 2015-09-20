@@ -99,6 +99,9 @@
     <ClInclude Include="MetaEvent_KeySign_printer.h">
       <Filter>Header Files\Event\Meta Event</Filter>
     </ClInclude>
+    <ClInclude Include="IMidiParser.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="MetaEvent_KeySign_printer.cpp">
       <Filter>Source Files\Event\Meta Event</Filter>
+    </ClCompile>
+    <ClCompile Include="IMidiParser.cpp">
+      <Filter>Source Files\Parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 # pragma once
+# include "IMidiParser.h"
 
 namespace Model
 {
@@ -7,27 +8,25 @@ namespace Model
 		namespace MidiStruct
 		{
 			struct ChunkType;
-			struct ChunkIntro;
-			struct HeaderData;
-			struct TrackEvent;
 		}
 
-		class MidiParser : private boost::noncopyable
+		class MidiParser : public IMidiParser
 		{
 			std::shared_ptr<class IFileParser> inputFile_;
 
-			const MidiStruct::ChunkType ReadChunkType() const;
-		public:
-			const MidiStruct::ChunkIntro ReadChunkIntro() const;
-			const MidiStruct::HeaderData ReadHeaderData() const;
-
-			void SkipTrackEvents(uint32_t length) const;
-			std::vector<MidiStruct::TrackEvent> ReadTrackEvents(uint32_t length) const;	// may throw std::length_error
-
-			explicit MidiParser(const char* fileName);
-			~MidiParser() = default;
-		private:
 			MidiParser() = delete;
+		public:
+			explicit MidiParser(const char* fileName);
+			virtual ~MidiParser() override final = default;
+		private:
+			virtual const MidiStruct::ChunkIntro ReadChunkIntro_impl() const override final;
+			virtual const MidiStruct::HeaderData ReadHeaderData_impl() const override final;
+
+			virtual void SkipTrackEvents_impl(uint32_t length) const;
+			virtual std::vector<MidiStruct::TrackEvent> ReadTrackEvents_impl(uint32_t length) const override final;
+				// may throw std::length_error
+
+			const MidiStruct::ChunkType ReadChunkType() const;
 		};
 	}
 }

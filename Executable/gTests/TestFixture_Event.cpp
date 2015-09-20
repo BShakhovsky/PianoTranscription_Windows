@@ -6,7 +6,7 @@
 
 using std::make_shared;
 using testing::FLAGS_gtest_break_on_failure;
-using namespace Model::MidiParser;
+using Model::MidiParser::Event;
 using gTest::TestFixture_Event;
 
 TestFixture_Event::TestFixture_Event(const char* fileName, const int bytesRemained) :

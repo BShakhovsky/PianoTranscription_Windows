@@ -7,7 +7,7 @@ namespace Model
 	{
 		class MetaEvent_KeySign : public MetaEvent
 		{
-			std::unique_ptr<class MetaEvent_KeySign_printer> pimpl_;
+			const std::unique_ptr<class MetaEvent_KeySign_printer> pimpl_;
 		public:
 			virtual ~MetaEvent_KeySign() override;
 		private:

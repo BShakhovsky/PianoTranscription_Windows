@@ -159,6 +159,7 @@
     <ClInclude Include="FileCounter.h" />
     <ClInclude Include="FileParser.h" />
     <ClInclude Include="IFileParser.h" />
+    <ClInclude Include="IMidiParser.h" />
     <ClInclude Include="MetaEvent_EndTrack.h" />
     <ClInclude Include="MetaEvent.h" />
     <ClInclude Include="MetaEvent_KeySign.h" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="IMidiParser.cpp" />
     <ClCompile Include="MetaEvent_EndTrack.cpp" />
     <ClCompile Include="MetaEvent.cpp" />
     <ClCompile Include="MetaEvent_KeySign.cpp" />

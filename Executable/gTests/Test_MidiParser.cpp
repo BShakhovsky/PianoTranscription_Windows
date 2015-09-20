@@ -34,13 +34,9 @@ TEST_F(Test_MidiParser, ReadChunkIntro)
 
 	union
 	{
-		char ch[4];
+		const char ch[5] = "dulc";
 		int num;
 	} length;
-	length.ch[3] = 'c';
-	length.ch[2] = 'l';
-	length.ch[1] = 'u';
-	length.ch[0] = 'd';
 	ASSERT_EQ(length.num, result.length) << "length = next four bytes";
 }
 

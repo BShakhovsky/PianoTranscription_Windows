@@ -4,9 +4,9 @@
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 
 using namespace std;
-using namespace Model;
-using namespace MidiParser;
+using namespace Model::MidiParser;
 using MidiStruct::Bytes;
+using gTest::FileParser_Mock;
 
 FileParser_Mock::FileParser_Mock(const char* fileName) :
 	IFileParser(),
@@ -88,12 +88,12 @@ unsigned FileParser_Mock::ReadVarLenFormat_impl()
 	return static_cast<unsigned>(result + anotherByte);
 }
 
-uint32_t MidiParser::ReadWord(std::shared_ptr<FileParser_Mock>)	// Word = 4 bytes!!!
+uint32_t gTest::ReadWord(std::shared_ptr<FileParser_Mock>)	// Word = 4 bytes!!!
 {
 	BORIS_ASSERT("TEMPLATE " __FUNCTION__ " HAS NOT BEEN SPECIALIZED");
 	return NULL;
 }
-uint16_t MidiParser::ReadDWord(std::shared_ptr<FileParser_Mock>)	// DWord = 2 bytes!!!
+uint16_t gTest::ReadDWord(std::shared_ptr<FileParser_Mock>)	// DWord = 2 bytes!!!
 {
 	BORIS_ASSERT("TEMPLATE " __FUNCTION__ " HAS NOT BEEN SPECIALIZED");
 	return NULL;

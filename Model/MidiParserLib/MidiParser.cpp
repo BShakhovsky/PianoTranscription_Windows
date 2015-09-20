@@ -12,6 +12,7 @@ using namespace Model::MidiParser;
 using namespace MidiStruct;
 
 MidiParser::MidiParser(const char* fileName) :
+	IMidiParser(),
 	inputFile_(make_unique<FileParser>(fileName))
 {}
 
@@ -23,7 +24,8 @@ const ChunkType MidiParser::ReadChunkType() const
 	return result;
 }
 
-const ChunkIntro MidiParser::ReadChunkIntro() const
+
+const ChunkIntro MidiParser::ReadChunkIntro_impl() const
 {
 	ChunkIntro result;
 	result.type = ReadChunkType();
@@ -31,7 +33,7 @@ const ChunkIntro MidiParser::ReadChunkIntro() const
 	return result;
 }
 
-const HeaderData MidiParser::ReadHeaderData() const
+const HeaderData MidiParser::ReadHeaderData_impl() const
 {
 	HeaderData result;
 
@@ -43,13 +45,14 @@ const HeaderData MidiParser::ReadHeaderData() const
 }
 
 
-void MidiParser::SkipTrackEvents(const uint32_t length) const
+void MidiParser::SkipTrackEvents_impl(const uint32_t length) const
 {
+	inputFile_->SetBytesRemained(static_cast<int>(length));
 	inputFile_->SkipData(length);
-	WARNING("Corrupted MIDI Track Header, " << length << "bytes skipped");
+	WARNING("Corrupted MIDI Track Header, " << length << " bytes skipped");
 }
 
-vector<TrackEvent> MidiParser::ReadTrackEvents(const uint32_t length) const
+vector<TrackEvent> MidiParser::ReadTrackEvents_impl(const uint32_t length) const
 {
 	vector<TrackEvent> result;
 

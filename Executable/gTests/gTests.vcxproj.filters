@@ -57,6 +57,9 @@
     <ClInclude Include="EventCommon.h">
       <Filter>Header Files\Event</Filter>
     </ClInclude>
+    <ClInclude Include="MidiParser_Mock.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -109,6 +112,12 @@
     </ClCompile>
     <ClCompile Include="Test_Event.cpp">
       <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiChunksReader.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiParser_Mock.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
