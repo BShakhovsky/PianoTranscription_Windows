@@ -15,7 +15,7 @@ namespace Model
 			EventChunk_ eventChunk_;
 		public:
 			static std::unique_ptr<Event> GetInstance(FileParser_ = nullptr);
-			virtual ~Event();
+			virtual ~Event() = 0;
 			EventChunk_ Read();
 		protected:
 			explicit Event(char statusByte);
@@ -41,7 +41,8 @@ namespace Model
 	public:		virtual ~ ## NAME ## Event () override = default;										\
 	private:	NAME ## Event () = delete;																\
 				explicit NAME ## Event (char statusByte) : Event(statusByte) {}							\
-				static std::unique_ptr<NAME ## Event> GetInstance(char statusByte);						\
+				static std::unique_ptr<NAME ## Event> GetInstance(char statusByte)						\
+					{ return std::unique_ptr<NAME ## Event>(new NAME ## Event (statusByte)); }			\
 				virtual void Read_impl() override final;												\
 				friend class Event;
 		};
@@ -51,8 +52,3 @@ namespace Model
 # include "MetaEvent.h"
 # include "SystemEvent.h"
 # include "MidiEvent.h"
-
-# define EVENT_IMPL(NAME) std::unique_ptr<Model::MidiParser:: NAME ## Event >							\
-	Model::MidiParser:: NAME ## Event::GetInstance(const char statusByte)								\
-		{ return std::unique_ptr<NAME ## Event>(new NAME ## Event (statusByte)); }						\
-	void Model::MidiParser:: NAME ## Event ::Read_impl()

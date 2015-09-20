@@ -12,7 +12,7 @@ namespace ManagedCLR
 		class PowerShell_CLR_pimpl* pimpl_;
 	public:
 		void __cdecl AppendScript(const char* script);
-		std::unique_ptr<std::vector<std::string>> __cdecl Execute();
+		std::vector<std::string> __cdecl Execute();
 
 		PowerShell_CLR();
 		~PowerShell_CLR();

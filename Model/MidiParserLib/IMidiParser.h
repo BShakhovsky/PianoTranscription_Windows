@@ -23,7 +23,7 @@ namespace Model
 			}
 			std::vector<MidiStruct::TrackEvent> ReadTrackEvents(uint32_t length) const;
 
-			virtual ~IMidiParser() = default;
+			virtual ~IMidiParser() = 0 {}
 		protected:
 			IMidiParser() = default;
 		private:

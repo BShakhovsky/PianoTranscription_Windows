@@ -8,7 +8,7 @@ using Model::MidiParser::MidiEvent;
 
 char MidiEvent::runStatus_ = '\0';
 
-EVENT_IMPL(Midi)
+void MidiEvent::Read_impl()
 {
 	if (GetChunk()->status < 0)				// most significant byte is set ==> it is status byte, Ok
 	{

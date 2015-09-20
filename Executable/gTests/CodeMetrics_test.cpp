@@ -34,7 +34,7 @@ TEST_F(CodeMetrics_F, PwrShell_Execute)
 	powerShell.AppendScript(command.c_str());
 	auto result(powerShell.Execute());
 	;
-	ASSERT_STREQ(lexical_cast<string>(line).c_str(), result->at(0).c_str()) COMMENT;
+	ASSERT_STREQ(lexical_cast<string>(line).c_str(), result.at(0).c_str()) COMMENT;
 }
 ;
 void CodeMetrics_F::SetUp()

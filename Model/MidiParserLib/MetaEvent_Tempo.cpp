@@ -4,9 +4,10 @@
 # include "MidiStruct.h"
 
 using std::cout;
-using Model::MidiParser::MidiStruct::TrackEvent;
+using namespace Model::MidiParser;
+using MidiStruct::TrackEvent;
 
-META_IMPL(Tempo)
+void MetaEvent_Tempo::Read_impl()
 {
 	if (3 != GetInputFile()->PeekByte()) WARNING("Wrong tempo chunk length");
 

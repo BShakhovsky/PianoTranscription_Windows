@@ -143,17 +143,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Keyboard.h" />
-    <ClInclude Include="..\KeyboardConsole.h" />
-    <ClInclude Include="..\KeyboardWin32.h" />
-    <ClInclude Include="KeyboardConsole_handle.h" />
+    <ClInclude Include="..\Include\Keyboard.h" />
+    <ClInclude Include="..\Include\MidiLog.h" />
+    <ClInclude Include="..\ViewFactory.h" />
+    <ClInclude Include="Factory_Console.h" />
+    <ClInclude Include="Factory_Win32.h" />
+    <ClInclude Include="Keyboard_Console.h" />
+    <ClInclude Include="Keyboard_Console_handle.h" />
     <ClInclude Include="KeyboardStruct.h" />
+    <ClInclude Include="Keyboard_Win32.h" />
+    <ClInclude Include="MidiLog_Console.h" />
+    <ClInclude Include="MidiLog_Win32.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Keyboard.cpp" />
-    <ClCompile Include="KeyboardConsole.cpp" />
+    <ClCompile Include="Factory_Console.cpp" />
+    <ClCompile Include="Factory_Win32.cpp" />
+    <ClCompile Include="Keyboard_Console.cpp" />
     <ClCompile Include="KeyboardStruct.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -161,6 +168,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,6 +20,6 @@ int CodeMetrics_pimpl::SolutionLines_impl(const char* command) const
 {
 	dll_->AppendScript(command);
 	auto result(dll_->Execute());
-	assert("WRONG NUMBER OF OUTPUTS FROM POWER SHELL" && result->size() == 1);
-	return lexical_cast<int>(result->at(0).c_str());
+	assert("WRONG NUMBER OF OUTPUTS FROM POWER SHELL" && result.size() == 1);
+	return lexical_cast<int>(result.at(0).c_str());
 }

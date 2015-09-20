@@ -1,21 +1,13 @@
 # include "stdafx.h"
-# include "..\KeyboardConsole.h"
-# include "KeyboardConsole_handle.h"
+# include "Keyboard_Console.h"
+# include "Keyboard_Console_handle.h"
 # include "KeyboardStruct.h"
 
 using namespace std;
 using namespace View;
 
-# pragma warning(push)
-# pragma warning(disable:4711)	// automatic inline expansion
-KeyboardConsole::KeyboardConsole()
-	: Keyboard(),
-	consoleHandle_(make_unique<KeyboardConsole_handle>())
-{}
-KeyboardConsole::~KeyboardConsole() {}
-# pragma warning(pop)
-
-void KeyboardConsole::Init_impl() const
+Keyboard_Console::Keyboard_Console() : Keyboard(),
+	consoleHandle_(make_unique<Keyboard_Console_handle>())
 {
 	system("cls");
 	system("COLOR 4");
@@ -27,7 +19,9 @@ void KeyboardConsole::Init_impl() const
 	*************************************************/
 }
 
-void KeyboardConsole::Update_impl() const
+Keyboard_Console::~Keyboard_Console() {}
+
+void Keyboard_Console::Update_impl() const
 {
 	SetConsoleCursorPosition(consoleHandle_->Get(), { NULL, NULL });
 	for (auto i(NULL); i < 2; ++i)

@@ -6,7 +6,7 @@ namespace Model
 		class IFileParser abstract : private boost::noncopyable
 		{
 		public:
-			virtual ~IFileParser() = default;
+			virtual ~IFileParser() = 0 {}
 
 			int GetBytesRemained() const
 			{

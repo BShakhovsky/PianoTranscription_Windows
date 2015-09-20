@@ -3,6 +3,8 @@
 # include "FileParser.h"
 # include "MidiStruct.h"
 
+using Model::MidiParser::MetaEvent_Skip;
+
 # define PRINT_AND_SKIP(BYTE_VAL, MESSG)	{	if ((BYTE_VAL) != GetInputFile()->PeekByte())			\
 													WARNING("Wrong " << (MESSG) << " chunk length");	\
 												SkipEvent();	/* Skip anyway */						}
@@ -10,7 +12,7 @@
 #	ifdef _DEBUG
 #		pragma warning(disable:4702)	// unreachable code (but may become reachable by mistake ==> test it)
 #	endif
-META_IMPL(Skip)
+void MetaEvent_Skip::Read_impl()
 {
 	switch (GetChunk()->metaType)
 	{

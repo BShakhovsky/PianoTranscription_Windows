@@ -22,15 +22,8 @@ int main()
 	try
 	{
 		MidiTracksCompiler midiFile("../../../../../C++/Projects/MidiParser/Test.mid");
-		while (midiFile.LoadNextTrack())
-			if (_kbhit())
-			{
-				auto ignored(_getch());
-				++ignored;
-				midiFile.UnPause();
-			}
-		system("Pause");
-		midiFile.ShowKeyboard();
+		midiFile.Init();
+		while (midiFile.LoadNextTrack());
 	}
 	catch (const std::exception& e)
 	{

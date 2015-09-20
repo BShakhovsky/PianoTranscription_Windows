@@ -10,7 +10,7 @@ using Model::MidiParser::MetaEvent_Text;
 #	ifdef _DEBUG
 #		pragma warning(disable:4702)	// unreachable code (but may become reachable by mistake ==> test it)
 #	endif
-META_IMPL(Text) 
+void MetaEvent_Text::Read_impl()
 {
 	switch (GetChunk()->metaType)
 	{

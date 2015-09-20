@@ -13,6 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Include">
+      <UniqueIdentifier>{ab015753-2bee-444a-a7f7-a71e16d48006}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib">
+      <UniqueIdentifier>{6f5edc2b-9ab2-4e25-aad4-3a94a3000519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\MidiLog">
+      <UniqueIdentifier>{5b1ac6d7-a0d1-4163-88e4-3ada5819ba79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\Keyboard">
+      <UniqueIdentifier>{be392e3b-b834-426c-ad76-9f315cdced41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Keyboard">
+      <UniqueIdentifier>{7411b87c-4ffb-4061-944e-50827f9c9aac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Factory">
+      <UniqueIdentifier>{32b13281-744b-4d2d-9d8d-5fb8ad85ef3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -21,34 +39,58 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KeyboardConsole_handle.h">
+    <ClInclude Include="..\Include\Keyboard.h">
+      <Filter>Header Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\MidiLog.h">
+      <Filter>Header Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ViewFactory.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory_Console.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory_Win32.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard_Console.h">
+      <Filter>Header Files\Lib\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard_Console_handle.h">
+      <Filter>Header Files\Lib\Keyboard</Filter>
     </ClInclude>
     <ClInclude Include="KeyboardStruct.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Lib\Keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="..\Keyboard.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Keyboard_Win32.h">
+      <Filter>Header Files\Lib\Keyboard</Filter>
     </ClInclude>
-    <ClInclude Include="..\KeyboardConsole.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MidiLog_Console.h">
+      <Filter>Header Files\Lib\MidiLog</Filter>
     </ClInclude>
-    <ClInclude Include="..\KeyboardWin32.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MidiLog_Win32.h">
+      <Filter>Header Files\Lib\MidiLog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeyboardConsole.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Keyboard_Console.cpp">
+      <Filter>Source Files\Keyboard</Filter>
     </ClCompile>
     <ClCompile Include="KeyboardStruct.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Keyboard</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Factory_Console.cpp">
+      <Filter>Source Files\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory_Win32.cpp">
+      <Filter>Source Files\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewFactory.cpp">
+      <Filter>Source Files\Factory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

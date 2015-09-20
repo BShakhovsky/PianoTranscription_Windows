@@ -13,7 +13,7 @@ MetaEvent_KeySign::MetaEvent_KeySign(const char statusByte, const char metaType)
 
 MetaEvent_KeySign::~MetaEvent_KeySign() {}
 
-META_IMPL(KeySign)
+void MetaEvent_KeySign::Read_impl()
 {
 	const auto length = GetInputFile()->ReadVarLenFormat();
 	if (2 != length)

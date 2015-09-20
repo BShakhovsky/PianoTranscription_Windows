@@ -10,8 +10,8 @@ namespace ManagedCLR
 		{
 			commands_.push_back(script);
 		}
-		std::unique_ptr<std::string> StringConvert(System::String^ str) const;
-		std::unique_ptr<std::vector<std::string>> PowerShell_Invoke();
+		std::string StringConvert(System::String^ str) const;
+		std::vector<std::string> PowerShell_Invoke();
 
 		PowerShell_CLR_pimpl() = default;
 		~PowerShell_CLR_pimpl() = default;

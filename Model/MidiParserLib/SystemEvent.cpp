@@ -2,7 +2,9 @@
 # include "SystemEvent.h"
 # include "MidiStruct.h"
 
-EVENT_IMPL(System)
+using Model::MidiParser::SystemEvent;
+
+void SystemEvent::Read_impl()
 {
 	switch (GetChunk()->status)
 	{

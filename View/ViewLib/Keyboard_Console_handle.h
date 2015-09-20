@@ -2,14 +2,14 @@
 
 namespace View
 {
-	class KeyboardConsole_handle : private boost::noncopyable
+	class Keyboard_Console_handle : private boost::noncopyable
 	{
 		const HANDLE hStdOut_;
 	public:
-		KeyboardConsole_handle() :
+		Keyboard_Console_handle() :
 			hStdOut_(GetStdHandle(STD_OUTPUT_HANDLE))
 		{}
-		~KeyboardConsole_handle()
+		~Keyboard_Console_handle()
 		{
 			CloseHandle(hStdOut_);
 		}
