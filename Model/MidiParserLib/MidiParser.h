@@ -17,7 +17,7 @@ namespace Model
 			MidiParser() = delete;
 		public:
 			explicit MidiParser(const char* fileName);
-			virtual ~MidiParser() override final = default;
+			virtual ~MidiParser() override final;
 		private:
 			virtual const MidiStruct::ChunkIntro ReadChunkIntro_impl() const override final;
 			virtual const MidiStruct::HeaderData ReadHeaderData_impl() const override final;

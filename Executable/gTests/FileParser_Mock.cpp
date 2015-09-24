@@ -15,6 +15,11 @@ FileParser_Mock::FileParser_Mock(const char* fileName) :
 {}
 FileParser_Mock::~FileParser_Mock() {}
 
+void FileParser_Mock::CloseFile_impl()
+{
+	BORIS_ASSERT("VIRTUAL " __FUNCTION__ " HAS NOT BEEN OVERRIDEN");
+}
+
 int FileParser_Mock::GetBytesRemained_impl() const
 {
 	return bytesRemained_->Get();

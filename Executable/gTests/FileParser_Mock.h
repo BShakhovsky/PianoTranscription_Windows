@@ -20,6 +20,8 @@ namespace gTest
 	private:
 		FileParser_Mock() = delete;
 
+		virtual void CloseFile_impl() override final;
+
 		virtual int GetBytesRemained_impl() const override final;
 		virtual void SetBytesRemained_impl(int value) const override final;
 

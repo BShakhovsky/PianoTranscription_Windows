@@ -17,9 +17,7 @@ namespace Model
 			};
 			inline bool operator == (const ChunkType& lhs, const ChunkType& rhs)
 			{
-				for (auto i(0); i < sizeof lhs.type / sizeof *lhs.type; ++i)
-					if (lhs.type[i] != rhs.type[i]) return false;
-				return true;
+				return 0 == memcmp(&lhs, &rhs, sizeof ChunkType);
 			}
 			inline bool operator != (const ChunkType& lhs, const ChunkType& rhs)
 			{

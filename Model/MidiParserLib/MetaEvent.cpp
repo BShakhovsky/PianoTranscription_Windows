@@ -1,7 +1,7 @@
 # include "stdafx.h"
 # include "MetaEvent.h"
 # include "MidiStruct.h"
-# include "FileParser.h"
+# include "IFileParser.h"
 
 using namespace std;
 using Model::MidiParser::MetaEvent;

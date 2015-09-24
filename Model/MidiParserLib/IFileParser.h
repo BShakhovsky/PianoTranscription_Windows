@@ -6,8 +6,6 @@ namespace Model
 		class IFileParser abstract : private boost::noncopyable
 		{
 		public:
-			virtual ~IFileParser() = 0 {}
-
 			int GetBytesRemained() const
 			{
 				return GetBytesRemained_impl();
@@ -42,9 +40,20 @@ namespace Model
 			{
 				return ReadVarLenFormat_impl();
 			}
+
+			void CloseFile()
+			{
+				CloseFile_impl();
+			}
+			virtual ~IFileParser() = 0 {}
 		protected:
 			IFileParser() = default;
 		private:
+			virtual void CloseFile_impl() = 0
+			{
+				PURE_VIRTUAL;
+			}
+
 			virtual int GetBytesRemained_impl() const = 0
 			{
 				PURE_VIRTUAL;

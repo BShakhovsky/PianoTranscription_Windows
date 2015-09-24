@@ -18,10 +18,11 @@
 /********************************************
 -6	FA	Real-time event
 			-1	ReadVarLenFormat
-			5	one + five = 6 lines to skip:
+			6	one + six = 7 lines to skip:
 ********************************************/
 
 using std::length_error;
+using testing::FLAGS_gtest_break_on_failure;
 using Model::MidiParser::Event;
 
 /*************************************************
@@ -35,7 +36,7 @@ using Model::MidiParser::Event;
 			0	Two + 1 + 2 + 0 = 5 lines to skip:
 *************************************************/
 
-FIXTURE(SystemEvent, 100);
+FIXTURE(SystemEvent, 104);
 
 /***********************************************
 -10	F6	Common event
@@ -58,13 +59,13 @@ FIXTURE(SystemEvent, 100);
 #	"WRONG SOLUTION CONFIGURATION";
 # endif
 
-/******************************************************
+/*******************************************************
 -14	F2	Common event
-			-16 ReadVarLenFormat
+			-19 ReadVarLenFormat
 			-4	ReadVarLenFormat
 			-2	ReadVarLenFormat
-			2	Sixteen + 4 + 2 + 2 = 22 lines to skip:
-******************************************************/
+			2	Nineteen + 4 + 2 + 2 = 27 lines to skip:
+*******************************************************/
 
 TEST_F(Test_SystemEvent, Read_impl)
 {
@@ -80,19 +81,22 @@ TEST_F(Test_SystemEvent, Read_impl)
 	CHECK_OK("F6 = common event");
 	CHECK_WRONG("F5");
 	CHECK_WRONG("F4");
-	CHECK_OK("F3 = common event");
-	CHECK_OK("F2 = common event");
-	CHECK_OK("F1 = common event");
+
+	FLAGS_gtest_break_on_failure = false;
+	EXPECT_NONFATAL_FAILURE(Event::GetInstance(file_)->Read(), "Wrong song select"); // F3 = common event
+	EXPECT_NONFATAL_FAILURE(Event::GetInstance(file_)->Read(), "Wrong song position"); // F2 = common event
+	FLAGS_gtest_break_on_failure = true; 
+	CHECK_OK("F1 = common event");	// not "WRONG MIDI TIME CODE", PeekByte() == 1, Ok
 	CHECK_OK("F0 = exclusive event");
 	ASSERT_THROW(Event::GetInstance(file_)->Read(), length_error) << "VarLenFormat exceeds four bytes";
 }
 
 /**************************************************************
 -15	F1	Common event
-			0 no lines to skip
--16	F0	Exclusive event
 			1 line to skip
 
+-16	F0	Exclusive event
+			0 no lines to skip
 -16		Check if VarLenFormat exceeds four bytes:
 			-1
 			-1

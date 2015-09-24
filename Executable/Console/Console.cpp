@@ -1,19 +1,22 @@
 # include "stdafx.h"
-# include "..\..\Model\MidiTracksCompiler.h"
+# include "..\..\Model\MidiParser_Facade.h"
 # include "..\..\CodeMetrics\CodeMetrics.h"
 
 using namespace std;
-using Model::MidiParser::MidiTracksCompiler;
+using Model::MidiParser::MidiParser_Facade;
 
 # ifdef CODE_METRICS
-#	define SOLUTION_LINES																				{\
-		cout<< "Solution total non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..")		\
-				<< " Unit tests: "							<< CODE_METRICS.SolutionLines("../gTests")	\
-				<< " Model: "								<< CODE_METRICS.SolutionLines("../../Model")\
-			<< '\n' << endl;																			}
+#	define SOLUTION_LINES																						{\
+		cout << "Solution total non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..")		<< '\n'	\
+				<< "\t Model: "								<< CODE_METRICS.SolutionLines("../../Model")		\
+				<< "   View: "								<< CODE_METRICS.SolutionLines("../../View")			\
+				<< "   CodeMetrics: "						<< CODE_METRICS.SolutionLines("../../CodeMetrics")	\
+				<< "   Unit tests: "						<< CODE_METRICS.SolutionLines("../gTests")			\
+			<< endl;																							}
 # else
 #	define SOLUTION_LINES
 # endif
+
 int main()
 {
 # ifdef _DEBUG
@@ -21,9 +24,7 @@ int main()
 # endif
 	try
 	{
-		MidiTracksCompiler midiFile("../../../../../C++/Projects/MidiParser/Test.mid");
-		midiFile.Init();
-		while (midiFile.LoadNextTrack());
+		MidiParser_Facade("../../../../../C++/Projects/MidiParser/Test.mid");
 	}
 	catch (const std::exception& e)
 	{

@@ -70,7 +70,6 @@
 # include "EventCommon.h"
 
 using std::runtime_error;
-using boost::serialization::singleton;
 using namespace Model::MidiParser;
 
 FIXTURE(MetaEvent, 66);

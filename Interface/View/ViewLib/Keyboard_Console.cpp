@@ -4,7 +4,7 @@
 # include "KeyboardStruct.h"
 
 using namespace std;
-using namespace View;
+using namespace Interface::View;
 
 Keyboard_Console::Keyboard_Console() : Keyboard(),
 	consoleHandle_(make_unique<Keyboard_Console_handle>())

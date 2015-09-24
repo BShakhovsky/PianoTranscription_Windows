@@ -12,15 +12,14 @@ namespace Model
 			std::shared_ptr<class FileCounter> bytesRemained_;
 		public:
 			explicit FileParser(const char *fileName);
-			virtual ~FileParser() override final;
+			virtual ~FileParser() override final = default;
 		private:
+			virtual void CloseFile_impl() override final;
+
 			virtual int GetBytesRemained_impl() const override final;
 			virtual void SetBytesRemained_impl(int value) const override final;
 
-			virtual int PeekByte_impl() override final
-			{
-				return inputFile_.peek();
-			}
+			virtual int PeekByte_impl() override final;
 			virtual char ReadByte_impl() override final;
 			virtual void ReadData_impl(char* data, std::streamsize count) override final;
 			virtual void SkipData_impl(std::streamoff offset) override final;

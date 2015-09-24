@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Struct">
       <UniqueIdentifier>{ee29d3f6-fe0f-46a5-bb27-0660a06bacc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Compiler">
+      <UniqueIdentifier>{b1c3060e-2ee2-4975-8394-7a810e2ca814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Compiler">
+      <UniqueIdentifier>{2a69bad5-1024-4363-8871-979bb8b5624e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -56,9 +62,6 @@
     </ClInclude>
     <ClInclude Include="Event.h">
       <Filter>Header Files\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MidiTracksCompiler.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MidiChunksReader.h">
       <Filter>Header Files\Parser</Filter>
@@ -102,6 +105,15 @@
     <ClInclude Include="IMidiParser.h">
       <Filter>Header Files\Parser</Filter>
     </ClInclude>
+    <ClInclude Include="..\MidiParser_Facade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MidiTracksCollector.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="MidiTimeCalculator.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -115,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="NoteNames.cpp">
       <Filter>Source Files\Struct</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiTracksCompiler.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MidiChunksReader.cpp">
       <Filter>Source Files\Parser</Filter>
@@ -157,6 +166,15 @@
     </ClCompile>
     <ClCompile Include="IMidiParser.cpp">
       <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiParser_Facade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiTracksCollector.cpp">
+      <Filter>Source Files\Compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiTimeCalculator.cpp">
+      <Filter>Source Files\Compiler</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

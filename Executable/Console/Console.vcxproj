@@ -104,11 +104,11 @@
     <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
       <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Interface\View\ViewLib\ViewLib.vcxproj">
+      <Project>{ee4dd4df-b133-4319-948f-e8a39d98f229}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Model\MidiParserLib\MidiParserLib.vcxproj">
       <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\View\ViewLib\ViewLib.vcxproj">
-      <Project>{ee4dd4df-b133-4319-948f-e8a39d98f229}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

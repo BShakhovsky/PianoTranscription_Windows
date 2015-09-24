@@ -154,7 +154,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\MidiTracksCompiler.h" />
+    <ClInclude Include="..\MidiParser_Facade.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="FileCounter.h" />
     <ClInclude Include="FileParser.h" />
@@ -171,6 +171,8 @@
     <ClInclude Include="MidiChunksReader.h" />
     <ClInclude Include="MidiParser.h" />
     <ClInclude Include="MidiStruct.h" />
+    <ClInclude Include="MidiTimeCalculator.h" />
+    <ClInclude Include="MidiTracksCollector.h" />
     <ClInclude Include="NoteNames.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemEvent.h" />
@@ -190,8 +192,10 @@
     <ClCompile Include="MidiEvent.cpp" />
     <ClCompile Include="MidiChunksReader.cpp" />
     <ClCompile Include="MidiParser.cpp" />
+    <ClCompile Include="MidiParser_Facade.cpp" />
     <ClCompile Include="MidiStruct.cpp" />
-    <ClCompile Include="MidiTracksCompiler.cpp" />
+    <ClCompile Include="MidiTracksCollector.cpp" />
+    <ClCompile Include="MidiTimeCalculator.cpp" />
     <ClCompile Include="NoteNames.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

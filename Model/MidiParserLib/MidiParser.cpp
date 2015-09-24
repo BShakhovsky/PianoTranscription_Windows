@@ -16,6 +16,11 @@ MidiParser::MidiParser(const char* fileName) :
 	inputFile_(make_unique<FileParser>(fileName))
 {}
 
+MidiParser::~MidiParser()
+{
+	inputFile_->CloseFile();
+}
+
 
 const ChunkType MidiParser::ReadChunkType() const
 {
@@ -61,7 +66,7 @@ vector<TrackEvent> MidiParser::ReadTrackEvents_impl(const uint32_t length) const
 	{
 		result.emplace_back();
 		result.back().deltaTime = inputFile_->ReadVarLenFormat();	// may throw std::length_error
-		result.back().eventChunk = *Event::GetInstance(inputFile_)->Read();
+		result.back().eventChunk = *(Event::GetInstance(inputFile_)->Read());
 	}
 
 	return result;

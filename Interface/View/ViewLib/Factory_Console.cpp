@@ -4,7 +4,7 @@
 # include "Keyboard_Console.h"
 
 using std::unique_ptr;
-using namespace View;
+using namespace Interface::View;
 
 unique_ptr<MidiLog> Factory_Console::GetMidiLog_impl() const
 {

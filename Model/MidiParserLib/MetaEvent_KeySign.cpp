@@ -1,7 +1,7 @@
 # include "stdafx.h"
 # include "MetaEvent_KeySign.h"
 # include "MetaEvent_KeySign_printer.h"
-# include "FileParser.h"
+# include "IFileParser.h"
 
 using std::make_unique;
 using namespace Model::MidiParser;

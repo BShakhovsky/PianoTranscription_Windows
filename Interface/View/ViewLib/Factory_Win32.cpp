@@ -4,7 +4,7 @@
 # include "Keyboard_Win32.h"
 
 using namespace std;
-using namespace View;
+using namespace Interface::View;
 
 unique_ptr<MidiLog> Factory_Win32::GetMidiLog_impl() const
 {

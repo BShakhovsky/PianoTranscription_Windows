@@ -1,6 +1,6 @@
 # include "stdafx.h"
 # include "MetaEvent_Skip.h"
-# include "FileParser.h"
+# include "IFileParser.h"
 # include "MidiStruct.h"
 
 using Model::MidiParser::MetaEvent_Skip;

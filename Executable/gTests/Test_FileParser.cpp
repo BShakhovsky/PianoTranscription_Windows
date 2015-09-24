@@ -3,11 +3,15 @@
 # include "..\..\Model\MidiParserLib\FileParser.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 
-using std::length_error;
+using namespace std;
 using namespace testing;
 using namespace Model::MidiParser;
 using MidiStruct::Bytes;
 
+# define TRY_CATCH(VAR_NAME, FUNC_NAME, EXCEPT_FUNC_NAME, OFFSET)							\
+	try { (VAR_NAME) . FUNC_NAME (OFFSET); }	catch (const runtime_error& e)				\
+	{ ASSERT_STREQ("Model::MidiParser::FileParser::" #EXCEPT_FUNC_NAME "_impl", e.what());	}
+# define NOTHING
 class Test_FileParser : public Test
 {
 public:
@@ -24,6 +28,14 @@ public:
 		ASSERT_EQ(NULL, file.GetBytesRemained()) << "checking constructor";
 	}
 	virtual void TearDown() override final {}
+
+	void Try_Catch(streamoff offset)
+	{
+		TRY_CATCH(file, SkipData, SkipData, offset);
+		TRY_CATCH(file, PeekByte, PeekByte, NOTHING);
+		TRY_CATCH(file, ReadByte, ReadByte, NOTHING);
+		TRY_CATCH(file, ReadByte, ReadByte, NOTHING);
+	}
 };
 
 TEST_F(Test_FileParser, ReadByte)
@@ -66,22 +78,10 @@ TEST_F(Test_FileParser, SkipData)
 
 	// Moving backwards before the file beginning
 	file.SetBytesRemained(20);
-	file.SkipData(-1);
-	ASSERT_EQ(EOF, file.PeekByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	file.SkipData(2);
-	ASSERT_EQ(EOF, file.PeekByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	file.SkipData(-3);
-	ASSERT_EQ(EOF, file.PeekByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	file.SkipData(10);
-	ASSERT_EQ(EOF, file.PeekByte());
-	ASSERT_EQ(NULL, file.ReadByte());
-	ASSERT_EQ(NULL, file.ReadByte());
+	Try_Catch(-1);
+	Try_Catch(2);
+	Try_Catch(-3);
+	Try_Catch(-10);
 }
 
 TEST_F(Test_FileParser, ReadInverse)
@@ -179,14 +179,19 @@ TEST_F(Test_FileParser, ReadVarLenFormat)
 	FileParser project("gTests.vcxproj");
 	project.SetBytesRemained(Bytes::varLengthSize);
 	ASSERT_EQ(0xEF, project.PeekByte());	// https://hexed.it/
-	ASSERT_EQ(0xEF'BB'BF'3C, project.ReadVarLenFormat());
+	/********************************************
+		EF			BB			BF			3C
+	1110'1111	1011'1011	1011'1111	0011'1100
+	 110 1111	 011 1011	 011 1111	 011 1100
+	********************************************/
+	ASSERT_EQ(0b0000'1101'1110'1110'1101'1111'1011'1100, project.ReadVarLenFormat());
 
 	project.SkipData(-3);
-	ASSERT_EQ(0xBB'BF'3C, project.ReadVarLenFormat());
+	ASSERT_EQ(0b000'0'1110'1101'1111'1011'1100, project.ReadVarLenFormat());
 	project.SkipData(-2);
-	ASSERT_EQ(0xBF'3C, project.ReadVarLenFormat());
+	ASSERT_EQ(0b00'01'1111'1011'1100, project.ReadVarLenFormat());
 	project.SkipData(-1);
-	ASSERT_EQ(0x3C, project.ReadVarLenFormat());
+	ASSERT_EQ(0b0'011'1100, project.ReadVarLenFormat());
 
 	FileParser header("Debug/gTests.pch");
 	header.SetBytesRemained(200);
@@ -196,10 +201,15 @@ TEST_F(Test_FileParser, ReadVarLenFormat)
 	ASSERT_THROW(header.ReadVarLenFormat(), length_error) << "UNEXPECTED VARIABLE LENGTH > FOUR BYTES";
 
 	header.SkipData(-4);
-	ASSERT_EQ(0xFF'FF'FF'01, header.ReadVarLenFormat());
+	/********************************************
+		FF			FF			FF			01
+	1111'1111	1111'1111	1111'1111	0000'0001
+	 111 1111	 111 1111	 111 1111	 000 0001
+	********************************************/
+	ASSERT_EQ(0b0000'1111'1111'1111'1111'1111'1000'0001, header.ReadVarLenFormat());
 	ASSERT_EQ(NULL, header.ReadVarLenFormat());
 
-	header.SkipData(-200);	// moving backwards before the file beginning, so that each ReadByte() call returns NULL
-	ASSERT_EQ(NULL, header.ReadVarLenFormat());
-	ASSERT_EQ(NULL, header.ReadVarLenFormat());
+	TRY_CATCH(header, SkipData, SkipData, -200);	// moving backwards before the file beginning
+	TRY_CATCH(header, ReadVarLenFormat, ReadByte, NOTHING);
+	TRY_CATCH(header, ReadVarLenFormat, ReadByte, NOTHING);
 }

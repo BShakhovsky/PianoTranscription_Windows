@@ -59,8 +59,8 @@ TEST_F(Test_MidiChunksReader, ReadHeaderChunk)
 	ASSERT_THROW(midi_.ReadHeaderChunk(), logic_error) << "tracks = 0";
 	ASSERT_THROW(midi_.ReadHeaderChunk(), logic_error) << "tracks > 1";
 
-	CHECK_DEATH("format = 0, division = 0 (should be > 0)");
-	CHECK_DEATH("format = 1, division = 0 (should be > 0)");
+	ASSERT_THROW(midi_.ReadHeaderChunk(), logic_error) << "format = 0, division = 0";
+	ASSERT_THROW(midi_.ReadHeaderChunk(), logic_error) << "format = 1, division = 0";
 	try
 	{
 		midi_.ReadHeaderChunk();
@@ -69,7 +69,7 @@ TEST_F(Test_MidiChunksReader, ReadHeaderChunk)
 	{
 		ASSERT_STREQ("CORRUPTED MIDI FILE FORMAT", e.what()) << "format > 2";
 	}
-	CHECK_DEATH("format = 2, division = 0 (should be > 0)");
+	ASSERT_THROW(midi_.ReadHeaderChunk(), logic_error) << "format = 2, division = 0";
 
 	HeaderChunk result = { NULL, NULL, NULL };
 	ASSERT_NO_FATAL_FAILURE(result = midi_.ReadHeaderChunk());

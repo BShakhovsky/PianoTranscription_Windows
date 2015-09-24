@@ -81,10 +81,12 @@ TEST_F(Test_MidiEvent, Read_impl)
 	
 # pragma warning(push)
 # pragma warning(disable:4309)	// truncations of constant value:
-	CHECK_RESULT('\xA5', 		-5,			static_cast<char>(150),		"A5 key after - touch");
+	CHECK_RESULT('\xA5', 		-5,			static_cast<char>(150),		"A5 key polyphonic after-touch");
 	CHECK_RESULT('\xB4', static_cast<char>(-150),	-21,				"B4 control change");
-	CHECK_RESULT('\xC3', 		46,			static_cast<char>(-130),	"C3 new program(patch) number");
-	CHECK_RESULT('\xD2', static_cast<char>(150),	0,					"D2 channel after - touch number");
+	CHECK_RESULT('\xC3', 		46,					NULL,				"C3 new program(patch) number");
+	file_->SkipData(1);	// C3 new patch number reads just one data-byte
+	CHECK_RESULT('\xD2', static_cast<char>(150),	NULL,				"D2 channel after - touch number");
+	file_->SkipData(1);	// D2 channel after-touch number reads just one data-byte
 	CHECK_RESULT('\xE1', 		0,					5,					"E1 pitch wheel change");
 # pragma warning(pop)
 

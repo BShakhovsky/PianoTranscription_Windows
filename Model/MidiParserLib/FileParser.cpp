@@ -8,16 +8,18 @@ using namespace Model;
 using namespace MidiParser;
 using MidiStruct::Bytes;
 
-# pragma warning(push)
-# pragma warning(disable:4711)	// automatic inline expansion
-FileParser::FileParser(const char *fileName) :
-	IFileParser(),
-	inputFile_(fileName, std::ifstream::binary),
+FileParser::FileParser(const char *fileName) : IFileParser(),
+	inputFile_(fileName, ifstream::binary),
 	bytesRemained_(make_shared<FileCounter>())
-{}
-# pragma warning(pop)
+{
+	if (inputFile_.fail()) throw runtime_error(string("CANNOT OPEN INPUT FILE ") + fileName);
+}
 
-FileParser::~FileParser() {}
+void FileParser::CloseFile_impl()
+{
+	inputFile_.close();
+	if (inputFile_.fail()) throw runtime_error("CANNOT CLOSE INPUT FILE");
+}
 
 int FileParser::GetBytesRemained_impl() const
 {
@@ -28,21 +30,34 @@ void FileParser::SetBytesRemained_impl(const int value) const
 	bytesRemained_->Set(value);
 }
 
+# define CHECK_FLAGS {	if (inputFile_.eof()) throw length_error("END OF INPUT FILE IS REACHED");	\
+					else if (inputFile_.fail()) throw runtime_error(__FUNCTION__);					}
+
+int FileParser::PeekByte_impl()
+{
+	const auto result(inputFile_.peek());
+	CHECK_FLAGS;
+	return result;
+}
 char FileParser::ReadByte_impl()
 {
 	char result('\0');
 	inputFile_.get(result);
+	CHECK_FLAGS;
 	bytesRemained_->Reduce(1);
 	return result;
 }
 void FileParser::ReadData_impl(char* data, const std::streamsize count)
 {
 	inputFile_.read(data, count);
+	CHECK_FLAGS;
 	bytesRemained_->Reduce(static_cast<int>(count), false);
 }
 void FileParser::SkipData_impl(const std::streamoff offset)
 {
+	inputFile_.clear();	// remove EOF flag if set
 	inputFile_.seekg(offset, std::ifstream::cur);
+	CHECK_FLAGS;
 	bytesRemained_->Reduce(static_cast<int>(offset));
 }
 
@@ -59,6 +74,7 @@ unsigned FileParser::ReadInverse_impl(unsigned nBytes, const bool toCheck)
 	{
 		result <<= MidiStruct::Bytes::byteSize;
 		result |= inputFile_.get();
+		CHECK_FLAGS;
 	}
 	bytesRemained_->Reduce(static_cast<signed>(nBytes), toCheck);
 	return result;
@@ -73,8 +89,8 @@ unsigned FileParser::ReadVarLenFormat_impl()
 		anotherByte = ReadByte();
 		if (++totalBytes > Bytes::varLengthSize)
 			throw length_error("UNEXPECTED VARIABLE LENGTH > FOUR BYTES");
-		result <<= Bytes::byteSize;
-		result |= static_cast<unsigned char>(anotherByte);
+		result <<= Bytes::byteSize - 1;
+		result |= static_cast<unsigned char>(anotherByte & 0x7F);
 	} while (anotherByte < 0);	// ends when the most significant bit is unset
 
 	return result;

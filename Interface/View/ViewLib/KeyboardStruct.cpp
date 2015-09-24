@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "KeyboardStruct.h"
-using View::KeyboardStruct;
+using Interface::View::KeyboardStruct;
 /******************************************************************************************
    b1    aa  aa      aa  aa  aa      aa  aa      aa  aa  aa      aa  aa      aa  aa  aa
    b2     |   |       |   |   |       |   |       |   |   |       |   |       |   |   |

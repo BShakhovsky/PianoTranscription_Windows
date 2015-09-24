@@ -1,7 +1,7 @@
 # include "stdafx.h"
 # include "Event.h"
 # include "MidiStruct.h"
-# include "FileParser.h"
+# include "IFileParser.h"
 
 using namespace std;
 using namespace Model::MidiParser;
@@ -12,6 +12,7 @@ Event::FileParser_ Event::fileParser_ = nullptr;
 Event::Event(const char statusByte) :
 	eventChunk_(make_shared<EventChunk>())
 {
+	memset(eventChunk_.get(), NULL, sizeof (*eventChunk_));
 	eventChunk_->status = statusByte;
 }
 

@@ -5,7 +5,7 @@
 
 using std::logic_error;
 using boost::serialization::singleton;
-using View::ViewFactory;
+using Interface::View::ViewFactory;
 
 const ViewFactory& ViewFactory::GetInstance()
 {
