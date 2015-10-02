@@ -205,6 +205,11 @@
     </ClCompile>
     <ClCompile Include="SystemEvent.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Interface\View\ViewLib\ViewLib.vcxproj">
+      <Project>{ee4dd4df-b133-4319-948f-e8a39d98f229}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

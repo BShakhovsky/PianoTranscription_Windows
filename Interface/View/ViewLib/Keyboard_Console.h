@@ -11,6 +11,9 @@ namespace Interface
 		public:
 			virtual ~Keyboard_Console() override;
 		private:
+			virtual void PressKey_impl(int16_t note) const override final;
+			virtual void ReleaseKey_impl(int16_t note) const override final;
+			virtual void ReleaseAllKeys_impl() const override final;
 			virtual void Update_impl() const override final;
 
 			Keyboard_Console();

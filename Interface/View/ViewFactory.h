@@ -8,13 +8,14 @@ namespace Interface
 
 		class ViewFactory abstract : private boost::noncopyable
 		{
-			static const char factory_ =
+			enum class FACTORY { CONSOL, WIND32, WRONG };
+			static const FACTORY factory_ =
 # if defined _CONSOLE || _LIB
-				'C';
+				FACTORY::CONSOL;
 # elif defined _WINDOWS
-				'W';
+				FACTORY::WIND32;
 # else
-				"WRONG PROJECT";
+				FACTORY::WRONG;
 # endif
 		public:
 			static const ViewFactory& GetInstance();

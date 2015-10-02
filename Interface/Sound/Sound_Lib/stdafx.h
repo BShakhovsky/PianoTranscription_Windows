@@ -10,3 +10,5 @@
 #	include <dsound.h>
 # pragma warning(pop)
 # pragma comment(lib, "dsound.lib")
+
+# define WARNING(MESSG) { std::cout << "\nWARNING: " << (MESSG) << std::endl; system("Pause"); }

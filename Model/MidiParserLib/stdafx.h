@@ -7,6 +7,7 @@
 #	include <chrono>
 #	include <iomanip>	// std::setfill, std::setw
 #	include <fstream>
+#	include <map>
 
 # include "..\..\Executable\gTests\stdafx.h"
 # ifdef ADD_FAILURE

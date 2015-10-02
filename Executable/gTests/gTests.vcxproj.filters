@@ -28,14 +28,20 @@
     <Filter Include="Source Files\MidiParser\Event">
       <UniqueIdentifier>{bf8fb3be-2309-4725-bd3d-08a3219444d5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Parser">
-      <UniqueIdentifier>{8273cd53-5a47-4d7c-a680-84d632e55c80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Event">
-      <UniqueIdentifier>{5f9047d9-cdbc-40d7-968b-4a3135fb4706}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\MidiParser\Event\MetaEvent">
       <UniqueIdentifier>{890a64d4-9668-4984-94dc-94721aab2af0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MidiParser">
+      <UniqueIdentifier>{b632cee4-3c32-4847-a8d5-24485cc08585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MidiParser\Parser">
+      <UniqueIdentifier>{8273cd53-5a47-4d7c-a680-84d632e55c80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MidiParser\Event">
+      <UniqueIdentifier>{5f9047d9-cdbc-40d7-968b-4a3135fb4706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering">
+      <UniqueIdentifier>{3beaba3f-35a2-4b19-9375-565a905d2d68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,19 +52,19 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileParser_Mock.h">
-      <Filter>Header Files\Parser</Filter>
+      <Filter>Header Files\MidiParser\Parser</Filter>
     </ClInclude>
     <ClInclude Include="CurrentFileName.h">
-      <Filter>Header Files\Parser</Filter>
+      <Filter>Header Files\MidiParser\Parser</Filter>
     </ClInclude>
     <ClInclude Include="TestFixture_Event.h">
-      <Filter>Header Files\Event</Filter>
+      <Filter>Header Files\MidiParser\Event</Filter>
     </ClInclude>
     <ClInclude Include="EventCommon.h">
-      <Filter>Header Files\Event</Filter>
+      <Filter>Header Files\MidiParser\Event</Filter>
     </ClInclude>
     <ClInclude Include="MidiParser_Mock.h">
-      <Filter>Header Files\Parser</Filter>
+      <Filter>Header Files\MidiParser\Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="MidiParser_Mock.cpp">
       <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="DistanceTable_test.cpp">
+      <Filter>Source Files\Fingering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

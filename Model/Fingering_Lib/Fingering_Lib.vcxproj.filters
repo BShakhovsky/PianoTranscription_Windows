@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Lib">
+      <UniqueIdentifier>{a78ddb38-6e8f-4a7b-bf30-2423d3102e1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib">
+      <UniqueIdentifier>{448ae337-d1fa-4e13-acfc-2ba2400104c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\Input Data Values">
+      <UniqueIdentifier>{18c57aa5-a052-4273-a530-0438bbd3549b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\Input Data Values">
+      <UniqueIdentifier>{5c3aab16-c6fe-4f74-8247-b5f8f85a86a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\Costs Calculator">
+      <UniqueIdentifier>{ea46e23c-30c0-42e4-8b41-525683fef5e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\Costs Calculator">
+      <UniqueIdentifier>{f9f9cd01-3fb7-48a3-a302-69393b570b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\Hand Costs">
+      <UniqueIdentifier>{da3af3bf-fc75-46f6-b0c5-fafe4f7e0d02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\Hand Costs">
+      <UniqueIdentifier>{8457c31d-4a15-46d2-8a53-5499897dce52}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ICostsCalculator.h">
+      <Filter>Header Files\Lib\Costs Calculator</Filter>
+    </ClInclude>
+    <ClInclude Include="DistanceTable.h">
+      <Filter>Header Files\Lib\Input Data Values</Filter>
+    </ClInclude>
+    <ClInclude Include="CostRules.h">
+      <Filter>Header Files\Lib\Input Data Values</Filter>
+    </ClInclude>
+    <ClInclude Include="MonoCosts.h">
+      <Filter>Header Files\Lib\Costs Calculator</Filter>
+    </ClInclude>
+    <ClInclude Include="PolyCosts.h">
+      <Filter>Header Files\Lib\Costs Calculator</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalCost.h">
+      <Filter>Header Files\Lib\Hand Costs</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalCost.h">
+      <Filter>Header Files\Lib\Hand Costs</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DistanceTable.cpp">
+      <Filter>Source Files\Lib\Input Data Values</Filter>
+    </ClCompile>
+    <ClCompile Include="CostRules.cpp">
+      <Filter>Source Files\Lib\Input Data Values</Filter>
+    </ClCompile>
+    <ClCompile Include="MonoCosts.cpp">
+      <Filter>Source Files\Lib\Costs Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="PolyCosts.cpp">
+      <Filter>Source Files\Lib\Costs Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalCost.cpp">
+      <Filter>Source Files\Lib\Hand Costs</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalCost.cpp">
+      <Filter>Source Files\Lib\Hand Costs</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

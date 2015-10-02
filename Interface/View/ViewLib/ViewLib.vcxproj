@@ -162,6 +162,7 @@
     <ClCompile Include="Factory_Win32.cpp" />
     <ClCompile Include="Keyboard_Console.cpp" />
     <ClCompile Include="KeyboardStruct.cpp" />
+    <ClCompile Include="MidiLog.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

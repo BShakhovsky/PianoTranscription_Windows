@@ -1,15 +1,15 @@
 # include "stdafx.h"
-# include "..\..\Model\MidiParser_Facade.h"
+# include "..\..\Model\MidiPlayback_Lib\MidiPlayback.h"
 # include "..\..\CodeMetrics\CodeMetrics.h"
 
 using namespace std;
-using Model::MidiParser::MidiParser_Facade;
+using Model::MidiPlayback::MidiPlayback;
 
 # ifdef CODE_METRICS
 #	define SOLUTION_LINES																						{\
 		cout << "Solution total non-blank lines of code: "	<< CODE_METRICS.SolutionLines("../..")		<< '\n'	\
 				<< "\t Model: "								<< CODE_METRICS.SolutionLines("../../Model")		\
-				<< "   View: "								<< CODE_METRICS.SolutionLines("../../View")			\
+				<< "   Interface: "							<< CODE_METRICS.SolutionLines("../../Interface")	\
 				<< "   CodeMetrics: "						<< CODE_METRICS.SolutionLines("../../CodeMetrics")	\
 				<< "   Unit tests: "						<< CODE_METRICS.SolutionLines("../gTests")			\
 			<< endl;																							}
@@ -24,7 +24,7 @@ int main()
 # endif
 	try
 	{
-		MidiParser_Facade("../../../../../C++/Projects/MidiParser/Test.mid");
+		MidiPlayback::Execute("../../../Test.mid");
 	}
 	catch (const std::exception& e)
 	{

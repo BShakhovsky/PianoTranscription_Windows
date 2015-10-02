@@ -95,7 +95,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gtestd.lib;gtest_main-mdd.lib;$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;gtest_main-mdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VisualStudioDir)\Additional C++ Libraries\gtest-1.7.0\msvc\gtest-md\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -169,7 +169,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>gtest.lib;gtest_main-md.lib;$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;gtest_main-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VisualStudioDir)\Additional C++ Libraries\gtest-1.7.0\msvc\gtest-md\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -242,6 +242,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeMetrics_test.cpp" />
+    <ClCompile Include="DistanceTable_test.cpp" />
     <ClCompile Include="FileParser_Mock.cpp" />
     <ClCompile Include="MidiParser_Mock.cpp" />
     <ClCompile Include="Test_Event.cpp" />
@@ -269,6 +270,9 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
   <ItemGroup>
     <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
       <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Model\Fingering_Lib\Fingering_Lib.vcxproj">
+      <Project>{ee8c95d4-1ba5-41e0-9140-75f29d0f6e97}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Model\MidiParserLib\MidiParserLib.vcxproj">
       <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>

@@ -7,11 +7,7 @@ namespace Interface
 		class MidiLog abstract : private boost::noncopyable
 		{
 		public:
-			MidiLog* Maximize()
-			{
-				ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-				return this;
-			}
+			void Maximize();
 
 			virtual ~MidiLog() = 0 {}
 		protected:

@@ -66,7 +66,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,7 +87,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)$(Configuration)\PowerShell_CLR.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -104,11 +106,8 @@
     <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
       <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Interface\View\ViewLib\ViewLib.vcxproj">
-      <Project>{ee4dd4df-b133-4319-948f-e8a39d98f229}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Model\MidiParserLib\MidiParserLib.vcxproj">
-      <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>
+    <ProjectReference Include="..\..\Model\MidiPlayback_Lib\MidiPlayback_Lib.vcxproj">
+      <Project>{a7866a30-7f37-4b20-8a9c-396333a46d8f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

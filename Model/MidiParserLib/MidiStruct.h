@@ -53,9 +53,7 @@ namespace Model
 			};
 			struct TrackEvent
 			{
-				static const long long
-					microSec,
-					minute;
+				static const int microSec, milliSec, minute;
 				uint32_t deltaTime;	// delta-time is at most four bytes long
 				EventChunk eventChunk;
 			};

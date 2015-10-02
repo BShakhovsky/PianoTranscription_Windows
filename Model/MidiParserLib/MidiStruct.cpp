@@ -13,6 +13,7 @@ const ChunkType
 ChunkIntro::HEADER{ 'M', 'T', 'h', 'd' },
 ChunkIntro::TRACK{ 'M', 'T', 'r', 'k' };
 
-const long long
-TrackEvent::microSec = micro::den / micro::num,
-TrackEvent::minute = duration_cast<seconds>(minutes(1)).count();
+const int
+TrackEvent::microSec = static_cast<int>(micro::den / micro::num),
+TrackEvent::milliSec = static_cast<int>(milli::den / milli::num),
+TrackEvent::minute = static_cast<int>(duration_cast<seconds>(minutes(1)).count());

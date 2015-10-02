@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Factory">
       <UniqueIdentifier>{32b13281-744b-4d2d-9d8d-5fb8ad85ef3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\MidiLog">
+      <UniqueIdentifier>{5110f3eb-8768-44dc-a633-9a2db329004e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -89,8 +92,11 @@
     <ClCompile Include="Factory_Win32.cpp">
       <Filter>Source Files\Factory</Filter>
     </ClCompile>
+    <ClCompile Include="MidiLog.cpp">
+      <Filter>Source Files\MidiLog</Filter>
+    </ClCompile>
     <ClCompile Include="ViewFactory.cpp">
-      <Filter>Source Files\Factory</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

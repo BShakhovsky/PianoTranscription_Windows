@@ -135,15 +135,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DirectHarmonic.h" />
+    <ClInclude Include="DirectHarmonics.h" />
+    <ClInclude Include="DirectSound_buffer.h" />
+    <ClInclude Include="DirectSound_locker.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DirectHarmonic.cpp" />
+    <ClCompile Include="DirectHarmonics.cpp" />
+    <ClCompile Include="DirectSound_buffer.cpp" />
+    <ClCompile Include="DirectSound_locker.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

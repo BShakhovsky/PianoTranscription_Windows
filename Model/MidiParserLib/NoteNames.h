@@ -6,22 +6,31 @@ namespace Model
 	{
 		class NoteNames abstract : private boost::noncopyable
 		{
-			static constexpr unsigned NUM_NOTES = 12;
-			static const char noteNames[NUM_NOTES][3];
 		public:
-			static unsigned GetOctaveNumber(int noteNumber)
+			static constexpr unsigned NUM_NOTES = 12;
+			enum class NOTE_NAMES { C, C1, D, D1, E, F, F1, G, G1, A, A1, B };
+
+			static unsigned GetOctaveNumber(int16_t noteNumber)
 			{
 				assert("NOTE MUST BE A POSITIVE NUMBER" && noteNumber >= 0);
 				return noteNumber / NUM_NOTES;
 			}
-			static const char* GetNoteName(int noteNumber)
+			static NOTE_NAMES GetNoteName(int16_t noteNumber)
 			{
 				assert("NOTE MUST BE A POSITIVE NUMBER" && noteNumber >= 0);
-				return noteNames[noteNumber % NUM_NOTES];
+				return static_cast<NOTE_NAMES>(noteNumber % NUM_NOTES);
 			}
+
+			static bool IsWhite(int16_t noteNumber)
+			{
+				return !IsBlack(noteNumber);
+			}
+			static bool IsBlack(int16_t noteNumber);
 		private:
 			NoteNames() = delete;
 			~NoteNames() = delete;
 		};
+		
+		typedef NoteNames::NOTE_NAMES NOTE_NAMES;
 	}
 }
