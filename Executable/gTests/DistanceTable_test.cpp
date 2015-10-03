@@ -10,12 +10,13 @@ using Model::Fingering::DistanceTable;
 void TestColumn(char(*func)(char, char), char fin12, char fin13, char fin14, char fin15,
 	char fin23, char fin24, char fin25, char fin34, char fin35, char fin45)
 {
-	ASSERT_DEBUG_DEATH(func(1, -1), "WRONG FINGER PAIR");
-	ASSERT_DEBUG_DEATH(func(2, 0), "WRONG FINGER PAIR");
-	ASSERT_DEBUG_DEATH(func(3, 6), "WRONG FINGER PAIR");
-	ASSERT_DEBUG_DEATH(func(-1, 3), "WRONG FINGER PAIR");
-	ASSERT_DEBUG_DEATH(func(0, 4), "WRONG FINGER PAIR");
-	ASSERT_DEBUG_DEATH(func(6, 5), "WRONG FINGER PAIR");
+	srand(static_cast<unsigned>(time(NULL)));
+	ASSERT_DEBUG_DEATH(func(1, 1 - rand() % (CHAR_MAX - 2) - 2), "WRONG FINGER");
+	ASSERT_DEBUG_DEATH(func(2, 0), "WRONG FINGER");
+	ASSERT_DEBUG_DEATH(func(3, rand() % (CHAR_MAX - 6) + 6), "WRONG FINGER");
+	ASSERT_DEBUG_DEATH(func(1 - rand() % (CHAR_MAX - 2) - 2, 3), "WRONG FINGER");
+	ASSERT_DEBUG_DEATH(func(0, 4), "WRONG FINGER");
+	ASSERT_DEBUG_DEATH(func(rand() % (CHAR_MAX - 6) + 6, 5), "WRONG FINGER");
 
 	ASSERT_DEBUG_DEATH(func(1, 1), "FINGER PAIR MUST CONSIST OF TWO DIFFERENT FINGERS");
 	ASSERT_EQ(fin12, func(1, 2)); ASSERT_EQ(fin13, func(1, 3)); ASSERT_EQ(fin14, func(1, 4)); ASSERT_EQ(fin15, func(1, 5));

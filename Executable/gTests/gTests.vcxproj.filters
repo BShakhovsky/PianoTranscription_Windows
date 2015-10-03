@@ -128,5 +128,8 @@
     <ClCompile Include="DistanceTable_test.cpp">
       <Filter>Source Files\Fingering</Filter>
     </ClCompile>
+    <ClCompile Include="CostRules_test.cpp">
+      <Filter>Source Files\Fingering</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

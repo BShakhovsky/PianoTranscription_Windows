@@ -245,6 +245,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     <ClCompile Include="DistanceTable_test.cpp" />
     <ClCompile Include="FileParser_Mock.cpp" />
     <ClCompile Include="MidiParser_Mock.cpp" />
+    <ClCompile Include="CostRules_test.cpp" />
     <ClCompile Include="Test_Event.cpp" />
     <ClCompile Include="Test_FileParser.cpp" />
     <ClCompile Include="TestFixture_Event.cpp" />

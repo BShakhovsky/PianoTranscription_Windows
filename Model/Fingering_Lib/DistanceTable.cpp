@@ -19,12 +19,9 @@ const char DistanceTable::distanceMatrix_[10][6] =
 	{ 1, 1, 1, 2, 3, 5 }
 };
 
-# pragma warning(push)
-#	ifdef _DEBUG
-#		pragma warning(disable:4715)	// not all control paths return a value
-#	endif
 int DistanceTable::TableRow(const char finger1, const char finger2)
 {
+	assert("WRONG FINGER" && finger1 > 0 && finger1 <= 5 && finger2 > 0 && finger2 <= 5);
 	auto fingerPair('\0');
 	if (finger1 < finger2) fingerPair = finger1 * 10 + finger2;
 	else if (finger1 > finger2) fingerPair = finger2 * 10 + finger1;
@@ -46,7 +43,6 @@ int DistanceTable::TableRow(const char finger1, const char finger2)
 
 	case 45: return 9;
 
-	default: assert(!"WRONG FINGER PAIR");
+	default: assert(!"WRONG FINGER PAIR"); return -1;
 	}
 }
-# pragma warning(pop)

@@ -7,7 +7,7 @@ namespace Model {
 // http://www.scriptiebank.be/sites/default/files/webform/scriptie/balliauw-matteo-2014_0.pdf
 // Page 16, Table 2
 			static int Rule1_StretchComf(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
-			static char Rule2_SpanRel(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
+			static int Rule2_SpanRel(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
 
 			static char Rule3_PositionChange(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2,
 				std::pair<int16_t, char> note3);
@@ -29,7 +29,7 @@ namespace Model {
 			static char Rule13_ThreeSameFinger(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2,
 				std::pair<int16_t, char> note3);
 
-			static char Rule14_MaxPractical(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
+			static int Rule14_MaxPractical(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
 			static char Rule15_SameNote(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
 		};
 	}

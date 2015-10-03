@@ -20,19 +20,24 @@ int CostRules::Rule1_StretchComf(const pair<int16_t, char> note1, const pair<int
 		return (distance - DistanceTable::MaxComf(note1.second, note2.second)) * 2;
 	else return NULL;
 }
-char CostRules::Rule2_SpanRel(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
+int CostRules::Rule2_SpanRel(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
 	auto distance(note2.first - note1.first);
 	if (note1.second == note2.second) return NULL;
 	else if (note1.second > note2.second) distance *= -1;
 
+	auto coeff(NULL);
+	if (1 == note1.second || 1 == note2.second) coeff = 1;
+	else										coeff = 2;
+
 	if (distance < DistanceTable::MinRel(note1.second, note2.second))
-		return (DistanceTable::MinRel(note1.second, note2.second) - distance);
+		return (DistanceTable::MinRel(note1.second, note2.second) - distance) * coeff;
 	else if (distance > DistanceTable::MaxRel(note1.second, note2.second))
-		return (distance - DistanceTable::MaxRel(note1.second, note2.second));
+		return (distance - DistanceTable::MaxRel(note1.second, note2.second)) * coeff;
 	else return NULL;
 }
 
+// not covered by unit tests:
 char CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair<int16_t, char> note2,
 	const pair<int16_t, char> note3)
 {
@@ -50,7 +55,7 @@ char CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair
 		distance > DistanceTable::MaxPrac(note1.second, note3.second)
 		) && (note1.first < note2.first && note2.first < note3.first ||
 			note1.first > note2.first && note2.first > note3.first))	++result;	// full-change
-	if (note1.first == note3.first && note1.second != note3.second)		++result;
+	if (note1.first == note3.first /*&& note1.second != note3.second*/)	++result;
 
 	return result;
 }
@@ -67,20 +72,15 @@ char CostRules::Rule4_PositionSize(const pair<int16_t, char> note1, const pair<i
 	else return NULL;
 }
 
-# pragma warning(push)
-#	ifdef _DEBUG
-#		pragma warning(disable:4715)	// not all control paths return a value
-#	endif
 char CostRules::Rule5_WeakFinger(const char finger)
 {
 	switch (finger)
 	{
 	case 1:	case 2:	case 3: return NULL;	break;
 	case 4:	case 5:			return 1;		break;
-	default: assert(!"WRONG FINGER NUMBER");
+	default: assert(!"WRONG FINGER NUMBER"); return NULL;
 	}
 }
-# pragma warning(pop)
 char CostRules::Rule6_ThreeFourFive(const char finger1, const char finger2, const char finger3)
 {
 	if		(3 == finger1 && 4 == finger2 && 5 == finger3)	return 1;
@@ -167,7 +167,7 @@ char CostRules::Rule13_ThreeSameFinger(const pair<int16_t, char> note1, const pa
 	else															return NULL;
 }
 
-char CostRules::Rule14_MaxPractical(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
+int CostRules::Rule14_MaxPractical(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
 	auto distance(note2.first - note1.first);
 	if (note1.second == note2.second) return NULL;
