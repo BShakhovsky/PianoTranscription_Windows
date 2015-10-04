@@ -13,7 +13,7 @@
 
 # include "..\..\Model\MidiParserLib\SystemEvent.h"
 # include "..\..\Model\MidiParserLib\FileParser.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 /********************************************
 -6	FA	Real-time event

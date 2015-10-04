@@ -233,40 +233,48 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CurrentFileName.h" />
-    <ClInclude Include="EventCommon.h" />
-    <ClInclude Include="FileParser_Mock.h" />
+    <ClInclude Include="Fingering_CostCommon.h" />
+    <ClInclude Include="Fingering_CostTable.h" />
+    <ClInclude Include="MidiParser_EventCommon.h" />
+    <ClInclude Include="MidiParser_FileParser_Mock.h" />
     <ClInclude Include="MidiParser_Mock.h" />
-    <ClInclude Include="TestFixture_Event.h" />
+    <ClInclude Include="MidiParser_TestFixture_Event.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CodeMetrics_test.cpp" />
-    <ClCompile Include="DistanceTable_test.cpp" />
-    <ClCompile Include="FileParser_Mock.cpp" />
+    <ClCompile Include="Fingering_CostCommon.cpp" />
+    <ClCompile Include="Fingering_CostTable.cpp" />
+    <ClCompile Include="MidiParser_FileParser_Mock.cpp" />
     <ClCompile Include="MidiParser_Mock.cpp" />
-    <ClCompile Include="CostRules_test.cpp" />
-    <ClCompile Include="Test_Event.cpp" />
-    <ClCompile Include="Test_FileParser.cpp" />
-    <ClCompile Include="TestFixture_Event.cpp" />
-    <ClCompile Include="Test_MetaEvent.cpp" />
-    <ClCompile Include="Test_MetaEvent_EndTrack.cpp" />
-    <ClCompile Include="Test_MetaEvent_KeySign.cpp" />
-    <ClCompile Include="Test_MetaEvent_Skip.cpp" />
-    <ClCompile Include="Test_MetaEvent_Tempo.cpp" />
-    <ClCompile Include="Test_MetaEvent_Text.cpp" />
-    <ClCompile Include="Test_MidiChunksReader.cpp" />
-    <ClCompile Include="Test_MidiEvent.cpp" />
-    <ClCompile Include="Test_MidiParser.cpp" />
-    <ClCompile Include="MidiStruct_test.cpp" />
-    <ClCompile Include="NoteNames_test.cpp" />
+    <ClCompile Include="MidiParser_TestFixture_Event.cpp" />
+    <ClCompile Include="Test_Fingering_HorizontalCost.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Test_SystemEvent.cpp" />
+    <ClCompile Include="Test_CodeMetrics.cpp" />
+    <ClCompile Include="Test_Fingering_CostRules.cpp" />
+    <ClCompile Include="Test_Fingering_DistanceTable.cpp" />
+    <ClCompile Include="Test_Fingering_MonoCosts.cpp" />
+    <ClCompile Include="Test_Fingering_PolyCosts.cpp" />
+    <ClCompile Include="Test_Fingering_VerticalCost.cpp" />
+    <ClCompile Include="Test_MidiParser.cpp" />
+    <ClCompile Include="Test_MidiParser_Event.cpp" />
+    <ClCompile Include="Test_MidiParser_FileParser.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent_EndTrack.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent_KeySign.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent_Skip.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent_Tempo.cpp" />
+    <ClCompile Include="Test_MidiParser_MetaEvent_Text.cpp" />
+    <ClCompile Include="Test_MidiParser_MidiChunksReader.cpp" />
+    <ClCompile Include="Test_MidiParser_MidiEvent.cpp" />
+    <ClCompile Include="Test_MidiParser_MidiStruct.cpp" />
+    <ClCompile Include="Test_MidiParser_NoteNames.cpp" />
+    <ClCompile Include="Test_MidiParser_SystemEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">

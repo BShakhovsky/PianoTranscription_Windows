@@ -43,7 +43,7 @@
 
 # include "..\..\Model\MidiParserLib\MidiEvent.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 using std::runtime_error;
 using Model::MidiParser::Event;

@@ -28,14 +28,14 @@
     <Filter Include="Header Files\Lib\Costs Calculator">
       <UniqueIdentifier>{ea46e23c-30c0-42e4-8b41-525683fef5e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Lib\Costs Calculator">
-      <UniqueIdentifier>{f9f9cd01-3fb7-48a3-a302-69393b570b52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Lib\Hand Costs">
       <UniqueIdentifier>{da3af3bf-fc75-46f6-b0c5-fafe4f7e0d02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Lib\Hand Costs">
+    <Filter Include="Source Files\Lib\Final Hand Costs">
       <UniqueIdentifier>{8457c31d-4a15-46d2-8a53-5499897dce52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\Intermediate Calculator">
+      <UniqueIdentifier>{f9f9cd01-3fb7-48a3-a302-69393b570b52}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,16 +78,16 @@
       <Filter>Source Files\Lib\Input Data Values</Filter>
     </ClCompile>
     <ClCompile Include="MonoCosts.cpp">
-      <Filter>Source Files\Lib\Costs Calculator</Filter>
+      <Filter>Source Files\Lib\Intermediate Calculator</Filter>
     </ClCompile>
     <ClCompile Include="PolyCosts.cpp">
-      <Filter>Source Files\Lib\Costs Calculator</Filter>
+      <Filter>Source Files\Lib\Intermediate Calculator</Filter>
     </ClCompile>
     <ClCompile Include="HorizontalCost.cpp">
-      <Filter>Source Files\Lib\Hand Costs</Filter>
+      <Filter>Source Files\Lib\Final Hand Costs</Filter>
     </ClCompile>
     <ClCompile Include="VerticalCost.cpp">
-      <Filter>Source Files\Lib\Hand Costs</Filter>
+      <Filter>Source Files\Lib\Final Hand Costs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

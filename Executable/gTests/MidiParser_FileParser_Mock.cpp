@@ -1,5 +1,5 @@
 # include "stdafx.h"
-# include "FileParser_Mock.h"
+# include "MidiParser_FileParser_Mock.h"
 # include "..\..\Model\MidiParserLib\FileCounter.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
 

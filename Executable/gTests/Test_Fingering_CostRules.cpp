@@ -1,227 +1,95 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\CostRules.h"
 # include "..\..\Model\MidiParserLib\NoteNames.h"
+# include "Fingering_CostCommon.h"
+# include "Fingering_CostTable.h"
 
 using namespace std;
-using namespace testing;
 using Model::Fingering::CostRules;
 using Model::MidiParser::NoteNames;
+using namespace gTest;
 
-class CostRules_F : public Test
+class CostRules_F : public CostCommon
 {
-	static const int comfort[10][21];
 public:
-	int16_t whiteNote, blackNote, randNote1, randNote2, distance;
-	char randFinger1, randFinger2, nonThumb;
-	const char UNUSED[3] = { '\0', '\0', '\0' };	// three padding bytes
-
-	CostRules_F() :
-		whiteNote(NULL),
-		blackNote(NULL),
-		randNote1(NULL),
-		randNote2(NULL),
-		distance(NULL),
-		randFinger1('\0'),
-		randFinger2('\0'),
-		nonThumb('\0')
-	{
-		srand(static_cast<unsigned>(time(NULL)));
-		while (NoteNames::IsBlack(whiteNote = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1)));
-		while (NoteNames::IsWhite(blackNote = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1)));
-
-		randNote1 = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1);
-		randNote2 = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1);
-
-		randFinger1 = static_cast<char>(rand() % 5 + 1);
-		randFinger2 = static_cast<char>(rand() % 5 + 1);
-		nonThumb = static_cast<char>(rand() % (CHAR_MAX - 2) + 2);
-
-		distance = randFinger1 > randFinger2 ? randNote1 - randNote2 : randNote2 - randNote1;
-	}
+	CostRules_F() = default;
 	virtual ~CostRules_F() override = default;
 
-	virtual void SetUp() override final
-	{
-		FLAGS_gtest_break_on_failure = true;
-	}
-	virtual void TearDown() override final {}
-
-	void TestRule4_MONOPHONIC(size_t tableRow, size_t tableCol, char finger1, char finger3, int16_t note1, int16_t note3) const
-	{
-		ASSERT_EQ(comfort[tableRow][tableCol] / 2,
-			CostRules::Rule4_PositionSize(make_pair(note1, finger1), make_pair(note3, finger3)));
-		ASSERT_EQ(NULL, CostRules::Rule4_PositionSize(make_pair(note1, finger1), make_pair(note3, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule4_PositionSize(make_pair(note1, finger3), make_pair(note3, finger3)));
-	}
-
-	void TestRule1_Stretch(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2) const
-	{
-		ASSERT_EQ(comfort[tableRow][tableCol],
-			CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger2)));
-		ASSERT_EQ(NULL, CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule1_StretchComf(make_pair(note1, finger2), make_pair(note2, finger2)));
-	}
-	void TestRule2_Span(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2) const
-	{
-		static const int relaxed[][21] =
-		{
-			{ 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-			{ 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8 },
-			{ 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6 },
-			{ 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 1, 2, 3, 4, 5 },
-			{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
-			{ 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 },
-			{ 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 },
-			{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
-			{ 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 },
-			{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
-		};
-		ASSERT_EQ(relaxed[tableRow][tableCol],
-			CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger2)));
-		ASSERT_EQ(NULL, CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule2_SpanRel(make_pair(note1, finger2), make_pair(note2, finger2)));
-	}
-	void TestRule14_MaxPractical(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2) const
-	{
-		static const int practical[][21] =
-		{
-			{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50 },
-			{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30 },
-			{ 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10 },
-			{ 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-			{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 },
-			{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80 },
-			{ 70, 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50 },
-			{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110 },
-			{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80 },
-			{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }
-		};
-		ASSERT_EQ(practical[tableRow][tableCol],
-			CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger2)));
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger2), make_pair(note2, finger2)));
-	}
-
-	void Test_PolyphonicSum(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2) const
-	{
-		static const int polyphonic[][21] =
-		{
-			{ 20, 14, 8, 6, 4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 12, 18, 34, 50, 66, 82, 98 },
-			{ 38, 22, 16, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 12, 18, 34, 50, 66 },
-			{ 56, 40, 24, 18, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 12, 18, 34 },
-			{ 88, 72, 56, 40, 24, 18, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 2, 4, 6, 12, 18 },
-			{ 108, 90, 72, 54, 36, 18, 0, 0, 4, 12, 20, 38, 56, 74, 92, 110, 128, 146, 164, 182, 200 },
-			{ 116, 98, 80, 62, 44, 26, 8, 4, 0, 0, 4, 12, 20, 38, 56, 74, 92, 110, 128, 146, 164 },
-			{ 138, 120, 102, 84, 66, 48, 30, 12, 8, 4, 0, 0, 4, 8, 16, 24, 42, 60, 78, 96, 114 },
-			{ 108, 90, 72, 54, 36, 18, 0, 0, 8, 16, 34, 52, 70, 88, 106, 124, 142, 160, 178, 196, 214 },
-			{ 116, 98, 80, 62, 44, 26, 8, 4, 0, 0, 4, 12, 20, 38, 56, 74, 92, 110, 128, 146, 164 },
-			{ 108, 90, 72, 54, 36, 18, 0, 0, 4, 12, 20, 38, 56, 74, 92, 110, 128, 146, 164, 182, 200 }
-		};
-
-		const auto result(
-			CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger2)) * 2
-			+ CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger2)) * 2
-			+ CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger2)));
-		ASSERT_EQ(polyphonic[tableRow][tableCol], result);
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger2), make_pair(note2, finger2)));
-	}
-	void Test_PartialMonoSum(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2) const
-	{
-		static const int partSum[][21] =
-		{
-			{ 10, 7, 4, 3, 2, 2, 0, 0, 0, 0, 0, 1, 2, 3, 6, 9, 22, 35, 48, 61, 74 },
-			{ 24, 11, 8, 5, 4, 4, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 6, 9, 22, 35, 48 },
-			{ 38, 25, 12, 9, 6, 6, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 6, 9, 22 },
-			{ 64, 51, 38, 25, 12, 10, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 1, 2, 3, 6, 9 },
-			{ 84, 70, 56, 42, 28, 15, 0, 0, 2, 6, 10, 24, 38, 52, 66, 80, 94, 108, 122, 136, 150 },
-			{ 88, 74, 60, 46, 32, 19, 4, 2, 0, 0, 2, 6, 10, 24, 38, 52, 66, 80, 94, 108, 122 },
-			{ 104, 90, 76, 62, 48, 35, 20, 6, 4, 2, 0, 0, 2, 4, 8, 12, 26, 40, 54, 68, 82 },
-			{ 85, 71, 57, 43, 29, 16, 1, 1, 5, 9, 23, 37, 51, 65, 79, 93, 107, 121, 135, 149, 163 },
-			{ 88, 74, 60, 46, 32, 19, 4, 2, 0, 0, 2, 6, 10, 24, 38, 52, 66, 80, 94, 108, 122 },
-			{ 84, 70, 56, 42, 28, 15, 0, 0, 2, 6, 10, 24, 38, 52, 66, 80, 94, 108, 122, 136, 150 }
-		};
-
-		const auto result(
-			CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger2))
-			+ CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger2))
-			+ CostRules::Rule7_ThreeFour(finger1, finger2)
-			+ CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger2))
-			+ CostRules::Rule15_SameNote(make_pair(note1, finger1), make_pair(note2, finger2)));
-			ASSERT_EQ(partSum[tableRow][tableCol], result);
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger1)));
-		ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger2), make_pair(note2, finger2)));
-	}
+//	virtual void SetUp() override final {}
+//	virtual void TearDown() override final {}
 };
 
-const int CostRules_F::comfort[10][21] =
+void TestRule1_Stretch(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
 {
-	{ 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14 },
-	{ 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10 },
-	{ 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6 },
-	{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4 },
-	{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 },
-	{ 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 },
-	{ 14, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14 },
-	{ 12, 10, 8, 6,	4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
-	{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 },
-	{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 }
-};
+	static const int comfort[10][21] =
+	{
+		{ 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14 },
+		{ 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10 },
+		{ 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6 },
+		{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4 },
+		{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 },
+		{ 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 },
+		{ 14, 12, 10, 8, 6, 4, 2, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14 },
+		{ 12, 10, 8, 6,	4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
+		{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 },
+		{ 12, 10, 8, 6,	4, 2, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 }
+	};
+	ASSERT_EQ(comfort[tableRow][tableCol],
+		CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger2)));
+	ASSERT_EQ(NULL, CostRules::Rule1_StretchComf(make_pair(note1, finger1), make_pair(note2, finger1)));
+	ASSERT_EQ(NULL, CostRules::Rule1_StretchComf(make_pair(note1, finger2), make_pair(note2, finger2)));
+}
+void TestRule2_Span(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
+{
+	static const int relaxed[][21] =
+	{
+		{ 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+		{ 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8 },
+		{ 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6 },
+		{ 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 1, 2, 3, 4, 5 },
+		{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
+		{ 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 },
+		{ 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 },
+		{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
+		{ 16, 14, 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 },
+		{ 12, 10, 8, 6, 4, 2, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26 },
+	};
+	ASSERT_EQ(relaxed[tableRow][tableCol],
+		CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger2)));
+	ASSERT_EQ(NULL, CostRules::Rule2_SpanRel(make_pair(note1, finger1), make_pair(note2, finger1)));
+	ASSERT_EQ(NULL, CostRules::Rule2_SpanRel(make_pair(note1, finger2), make_pair(note2, finger2)));
+}
+void TestRule14_MaxPractical(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
+{
+	static const int practical[][21] =
+	{
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50 },
+		{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30 },
+		{ 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10 },
+		{ 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 },
+		{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80 },
+		{ 70, 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50 },
+		{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110 },
+		{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80 },
+		{ 60, 50, 40, 30, 20, 10, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }
+	};
+	ASSERT_EQ(practical[tableRow][tableCol],
+		CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger2)));
+	ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger1), make_pair(note2, finger1)));
+	ASSERT_EQ(NULL, CostRules::Rule14_MaxPractical(make_pair(note1, finger2), make_pair(note2, finger2)));
+}
 
 // http://www.scriptiebank.be/sites/default/files/webform/scriptie/balliauw-matteo-2014_0.pdf
 // Page 16, Table 2
 
 TEST_F(CostRules_F, PolyphonicRules)
 {
-	vector<void(CostRules_F::*)(size_t, size_t, char, char, int16_t, int16_t) const> funcs(6);
-	funcs.at(0) = &CostRules_F::TestRule4_MONOPHONIC;
-
-	funcs.at(1) = &CostRules_F::TestRule1_Stretch;
-	funcs.at(2) = &CostRules_F::TestRule2_Span;
-	funcs.at(3) = &CostRules_F::TestRule14_MaxPractical;
-
-	funcs.at(4) = &CostRules_F::Test_PolyphonicSum;
-	funcs.at(5) = &CostRules_F::Test_PartialMonoSum;
-
-	for (const auto& func : funcs)
-		for (int16_t i(-5); i <= 15; ++i)
-		{
-# ifdef _DEBUG
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), 1, 1 - rand() % (CHAR_MAX - 2) - 2,
-				randNote1, randNote1 + i), "WRONG FINGER");
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), 2, 0,
-				randNote1, randNote1 + i), "WRONG FINGER");
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), 3, 6,
-				randNote1, randNote1 + i), "WRONG FINGER");
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), 1 - rand() % (CHAR_MAX - 2) - 2, 3,
-				randNote1, randNote1 + i), "WRONG FINGER");
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), 0, 4,
-				randNote1, randNote1 + i), "WRONG FINGER");
-			ASSERT_DEBUG_DEATH((this->*func)(0, static_cast<size_t>(i + 5), rand() % (CHAR_MAX - 6) + 6, 5,
-				randNote1, randNote1 + i), "WRONG FINGER");
-# endif
-			(this->*func)(0, static_cast<size_t>(i + 5), '\1', '\2', randNote1, randNote1 + i);
-			(this->*func)(1, static_cast<size_t>(i + 5), '\1', '\3', randNote1, randNote1 + i);
-			(this->*func)(2, static_cast<size_t>(i + 5), '\1', '\4', randNote1, randNote1 + i);
-			(this->*func)(3, static_cast<size_t>(i + 5), '\1', '\5', randNote1, randNote1 + i);
-			(this->*func)(4, static_cast<size_t>(i + 5), '\2', '\3', randNote1, randNote1 + i);
-			(this->*func)(5, static_cast<size_t>(i + 5), '\2', '\4', randNote1, randNote1 + i);
-			(this->*func)(6, static_cast<size_t>(i + 5), '\2', '\5', randNote1, randNote1 + i);
-			(this->*func)(7, static_cast<size_t>(i + 5), '\3', '\4', randNote1, randNote1 + i);
-			(this->*func)(8, static_cast<size_t>(i + 5), '\3', '\5', randNote1, randNote1 + i);
-			(this->*func)(9, static_cast<size_t>(i + 5), '\4', '\5', randNote1, randNote1 + i);
-
-			(this->*func)(0, static_cast<size_t>(i + 5), '\2', '\1', randNote1 + i, randNote1);
-			(this->*func)(1, static_cast<size_t>(i + 5), '\3', '\1', randNote1 + i, randNote1);
-			(this->*func)(2, static_cast<size_t>(i + 5), '\4', '\1', randNote1 + i, randNote1);
-			(this->*func)(3, static_cast<size_t>(i + 5), '\5', '\1', randNote1 + i, randNote1);
-			(this->*func)(4, static_cast<size_t>(i + 5), '\3', '\2', randNote1 + i, randNote1);
-			(this->*func)(5, static_cast<size_t>(i + 5), '\4', '\2', randNote1 + i, randNote1);
-			(this->*func)(6, static_cast<size_t>(i + 5), '\5', '\2', randNote1 + i, randNote1);
-			(this->*func)(7, static_cast<size_t>(i + 5), '\4', '\3', randNote1 + i, randNote1);
-			(this->*func)(8, static_cast<size_t>(i + 5), '\5', '\3', randNote1 + i, randNote1);
-			(this->*func)(9, static_cast<size_t>(i + 5), '\5', '\4', randNote1 + i, randNote1);
-		}
+	vector<CostTable::funcCostTable> funcs(3);
+	funcs.at(0) = &TestRule1_Stretch;
+	funcs.at(1) = &TestRule2_Span;
+	funcs.at(2) = &TestRule14_MaxPractical;
+	for (const auto& func : funcs) CostTable::CheckAllTableCells(func, randNote1);
 }
 
 // Rule 3 Position Change Count IS NOT FINISHED YET:
@@ -413,7 +281,7 @@ TEST_F(CostRules_F, Rule11_ThumbPassing)
 	ASSERT_EQ(NULL, CostRules::Rule11_ThumbPassing(make_pair(randNote1, '\1'), make_pair(randNote2, '\1')));
 
 	const auto result(CostRules::Rule11_ThumbPassing(make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
-	if (distance < 0 && (1 == randFinger1 || 1 == randFinger2) && (
+	if (distance < 0 && ((1 == randFinger1) ^ (1 == randFinger2)) && (
 		NoteNames::IsWhite(randNote1) && NoteNames::IsWhite(randNote2) ||
 		NoteNames::IsBlack(randNote1) && NoteNames::IsBlack(randNote2)))	ASSERT_EQ(1, result);
 	else																	ASSERT_EQ(NULL, result);
@@ -421,7 +289,7 @@ TEST_F(CostRules_F, Rule11_ThumbPassing)
 
 TEST_F(CostRules_F, Rule12_ThumbCross_Black)
 {
-	auto result1(blackNote > whiteNote ? 1 : NULL);
+	auto result1(blackNote > whiteNote ? 2 : NULL);
 	ASSERT_EQ(result1, CostRules::Rule12_ThumbCross_Black(make_pair(whiteNote, nonThumb), make_pair(blackNote, '\1')));
 	ASSERT_EQ(result1, CostRules::Rule12_ThumbCross_Black(make_pair(blackNote, '\1'), make_pair(whiteNote, nonThumb)));
 
@@ -435,8 +303,8 @@ TEST_F(CostRules_F, Rule12_ThumbCross_Black)
 	const auto result(CostRules::Rule12_ThumbCross_Black(
 		make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
 	if (distance < 0 && randFinger1 != randFinger2)
-		if		(1 == randFinger1 && NoteNames::IsBlack(randNote1) && NoteNames::IsWhite(randNote2)) ASSERT_EQ(1, result);
-		else if (1 == randFinger2 && NoteNames::IsWhite(randNote1) && NoteNames::IsBlack(randNote2)) ASSERT_EQ(1, result);
+		if		(1 == randFinger1 && NoteNames::IsBlack(randNote1) && NoteNames::IsWhite(randNote2)) ASSERT_EQ(2, result);
+		else if (1 == randFinger2 && NoteNames::IsWhite(randNote1) && NoteNames::IsBlack(randNote2)) ASSERT_EQ(2, result);
 		else																					ASSERT_EQ(NULL, result);
 	else																						ASSERT_EQ(NULL, result);
 }

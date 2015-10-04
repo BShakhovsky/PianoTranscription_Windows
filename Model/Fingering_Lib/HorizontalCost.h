@@ -9,18 +9,17 @@ namespace Model
 			HorizontalCost() = delete;
 			~HorizontalCost() = delete;
 		public:
-			static int Calculate(std::vector<std::pair<int16_t, char>> chord1,
-				std::vector<std::pair<int16_t, char>> chord2,
-				const std::vector<std::pair<int16_t, char>>* chord3 = nullptr);
+			static float Calculate(std::vector<std::pair<int16_t, char>> chord1,
+				std::vector<std::pair<int16_t, char>> chord2, std::vector<std::pair<int16_t, char>> chord3);
 		private:
-			static int CalcSingles(const std::vector<std::pair<int16_t, char>>* chord);
-			static int CalcPairs(
-				const std::vector<std::pair<int16_t, char>>* chord1,
-				const std::vector<std::pair<int16_t, char>>* chord2);
-			static int CalcTriples(
-				const std::vector<std::pair<int16_t, char>>* chord1,
-				const std::vector<std::pair<int16_t, char>>* chord2,
-				const std::vector<std::pair<int16_t, char>>* chord3);
+			static int CalcSingles(std::vector<std::pair<int16_t, char>> chord);
+			static float CalcPairs(
+				std::vector<std::pair<int16_t, char>> chord1,
+				std::vector<std::pair<int16_t, char>> chord2);
+			static float CalcTriples(
+				std::vector<std::pair<int16_t, char>> chord1,
+				std::vector<std::pair<int16_t, char>> chord2,
+				std::vector<std::pair<int16_t, char>> chord3);
 		};
 	}
 }

@@ -56,7 +56,7 @@
 *************************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent_Skip.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 using testing::FLAGS_gtest_break_on_failure;
 

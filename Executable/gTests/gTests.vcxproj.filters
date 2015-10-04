@@ -43,6 +43,18 @@
     <Filter Include="Source Files\Fingering">
       <UniqueIdentifier>{3beaba3f-35a2-4b19-9375-565a905d2d68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Fingering\Input Data Values">
+      <UniqueIdentifier>{ff253d16-a415-474f-ba7e-24c3199e5796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Final Hand Costs">
+      <UniqueIdentifier>{2b5447aa-677a-4e96-be92-a5449b87ee92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Intermediate Calculator">
+      <UniqueIdentifier>{353d06c3-c3cb-40ca-95dc-5f1e6d1f3ac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Fingering">
+      <UniqueIdentifier>{b152b19a-eaef-443d-bc8c-6976f7914c20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -51,85 +63,109 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileParser_Mock.h">
-      <Filter>Header Files\MidiParser\Parser</Filter>
+    <ClInclude Include="Fingering_CostTable.h">
+      <Filter>Header Files\Fingering</Filter>
     </ClInclude>
-    <ClInclude Include="CurrentFileName.h">
-      <Filter>Header Files\MidiParser\Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="TestFixture_Event.h">
+    <ClInclude Include="MidiParser_EventCommon.h">
       <Filter>Header Files\MidiParser\Event</Filter>
     </ClInclude>
-    <ClInclude Include="EventCommon.h">
-      <Filter>Header Files\MidiParser\Event</Filter>
+    <ClInclude Include="MidiParser_FileParser_Mock.h">
+      <Filter>Header Files\MidiParser\Parser</Filter>
     </ClInclude>
     <ClInclude Include="MidiParser_Mock.h">
       <Filter>Header Files\MidiParser\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="MidiParser_TestFixture_Event.h">
+      <Filter>Header Files\MidiParser\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="CurrentFileName.h">
+      <Filter>Header Files\MidiParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Fingering_CostCommon.h">
+      <Filter>Header Files\Fingering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CodeMetrics_test.cpp">
+    <ClCompile Include="Test_CodeMetrics.cpp">
       <Filter>Source Files\CodeMetrics</Filter>
     </ClCompile>
-    <ClCompile Include="MidiStruct_test.cpp">
+    <ClCompile Include="Fingering_CostTable.cpp">
+      <Filter>Source Files\Fingering</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_CostRules.cpp">
+      <Filter>Source Files\Fingering\Input Data Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_DistanceTable.cpp">
+      <Filter>Source Files\Fingering\Input Data Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_PolyCosts.cpp">
+      <Filter>Source Files\Fingering\Intermediate Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_VerticalCost.cpp">
+      <Filter>Source Files\Fingering\Final Hand Costs</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_NoteNames.cpp">
       <Filter>Source Files\MidiParser\Struct</Filter>
     </ClCompile>
-    <ClCompile Include="NoteNames_test.cpp">
+    <ClCompile Include="Test_MidiParser_MidiStruct.cpp">
       <Filter>Source Files\MidiParser\Struct</Filter>
     </ClCompile>
-    <ClCompile Include="FileParser_Mock.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_FileParser.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_SystemEvent.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiEvent.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent_EndTrack.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="TestFixture_Event.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent_Tempo.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent_Skip.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent_Text.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent_KeySign.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MetaEvent.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_Event.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiChunksReader.cpp">
+    <ClCompile Include="MidiParser_FileParser_Mock.cpp">
       <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
     <ClCompile Include="MidiParser_Mock.cpp">
       <Filter>Source Files\MidiParser\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="DistanceTable_test.cpp">
+    <ClCompile Include="Test_MidiParser.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_FileParser.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MidiChunksReader.cpp">
+      <Filter>Source Files\MidiParser\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiParser_TestFixture_Event.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_Event.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_SystemEvent.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MidiEvent.cpp">
+      <Filter>Source Files\MidiParser\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent_EndTrack.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent_KeySign.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent_Skip.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent_Tempo.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_MidiParser_MetaEvent_Text.cpp">
+      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="Fingering_CostCommon.cpp">
       <Filter>Source Files\Fingering</Filter>
     </ClCompile>
-    <ClCompile Include="CostRules_test.cpp">
-      <Filter>Source Files\Fingering</Filter>
+    <ClCompile Include="Test_Fingering_MonoCosts.cpp">
+      <Filter>Source Files\Fingering\Intermediate Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_HorizontalCost.cpp">
+      <Filter>Source Files\Fingering\Final Hand Costs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

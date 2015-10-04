@@ -11,7 +11,7 @@ namespace Model
 			{
 				return CostOfSingle_impl(finger1);
 			}
-			int CostOfPair(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2) const
+			float CostOfPair(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2) const
 			{
 				return CostOfPair_impl(note1, note2);
 			}
@@ -29,7 +29,7 @@ namespace Model
 			{
 				PURE_VIRTUAL;
 			}
-			virtual int CostOfPair_impl(std::pair<int16_t, char>, std::pair<int16_t, char>) const = 0
+			virtual float CostOfPair_impl(std::pair<int16_t, char>, std::pair<int16_t, char>) const = 0
 			{
 				PURE_VIRTUAL;
 			}

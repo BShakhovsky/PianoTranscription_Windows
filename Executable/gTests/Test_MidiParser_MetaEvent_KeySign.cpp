@@ -59,7 +59,7 @@
 *******************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent_KeySign.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 using std::runtime_error;
 using testing::FLAGS_gtest_break_on_failure;

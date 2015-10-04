@@ -67,7 +67,7 @@
 ******************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 using std::runtime_error;
 using namespace Model::MidiParser;

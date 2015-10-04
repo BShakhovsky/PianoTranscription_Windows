@@ -65,7 +65,7 @@
 **********************************************/
 
 # include "..\..\Model\MidiParserLib\MetaEvent_Text.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 using namespace testing;
 

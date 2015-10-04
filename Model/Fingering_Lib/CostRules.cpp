@@ -38,10 +38,10 @@ int CostRules::Rule2_SpanRel(const pair<int16_t, char> note1, const pair<int16_t
 }
 
 // not covered by unit tests:
-char CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair<int16_t, char> note2,
+int CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair<int16_t, char> note2,
 	const pair<int16_t, char> note3)
 {
-	auto result('\0');
+	auto result(Rule4_PositionSize(note1, note3));
 
 	auto distance(note3.first - note1.first);
 	if (note1.second == note2.second || note2.second == note3.second ||
@@ -58,18 +58,6 @@ char CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair
 	if (note1.first == note3.first /*&& note1.second != note3.second*/)	++result;
 
 	return result;
-}
-char CostRules::Rule4_PositionSize(const pair<int16_t, char> note1, const pair<int16_t, char> note3)
-{
-	auto distance(note3.first - note1.first);
-	if (note1.second == note3.second) return NULL;
-	else if (note1.second > note3.second) distance *= -1;
-
-	if (distance < DistanceTable::MinComf(note1.second, note3.second))
-		return (DistanceTable::MinComf(note1.second, note3.second) - distance);
-	else if (distance > DistanceTable::MaxComf(note1.second, note3.second))
-		return (distance - DistanceTable::MaxComf(note1.second, note3.second));
-	else return NULL;
 }
 
 char CostRules::Rule5_WeakFinger(const char finger)
@@ -152,8 +140,8 @@ char CostRules::Rule12_ThumbCross_Black(const pair<int16_t, char> note1, const p
 	else if (note1.second > note2.second)	distance *= -1;
 
 	if (distance < 0)
-		if		(1 == note1.second && NoteNames::IsBlack(note1.first) && NoteNames::IsWhite(note2.first))	return 1;
-		else if (1 == note2.second && NoteNames::IsWhite(note1.first) && NoteNames::IsBlack(note2.first))	return 1;
+		if		(1 == note1.second && NoteNames::IsBlack(note1.first) && NoteNames::IsWhite(note2.first))	return 2;
+		else if (1 == note2.second && NoteNames::IsWhite(note1.first) && NoteNames::IsBlack(note2.first))	return 2;
 		else																								return NULL;
 	else																									return NULL;
 }

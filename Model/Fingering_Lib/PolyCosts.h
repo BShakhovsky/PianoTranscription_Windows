@@ -17,7 +17,7 @@ namespace Model
 				return NULL;
 			}
 
-			virtual int CostOfPair_impl(std::pair<int16_t, char> note1,
+			virtual float CostOfPair_impl(std::pair<int16_t, char> note1,
 				std::pair<int16_t, char> note2) const override final;
 
 			virtual int CostOfThree_impl(std::pair<int16_t, char>, std::pair<int16_t, char>,

@@ -1,8 +1,8 @@
 # include "stdafx.h"
-# include "TestFixture_Event.h"
+# include "MidiParser_TestFixture_Event.h"
 # include "..\..\Model\MidiParserLib\Event.h"
 # include "..\..\Model\MidiParserLib\MidiStruct.h"
-# include "FileParser_Mock.h"
+# include "MidiParser_FileParser_Mock.h"
 
 using std::make_shared;
 using testing::FLAGS_gtest_break_on_failure;

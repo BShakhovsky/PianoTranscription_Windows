@@ -1,7 +1,7 @@
 # pragma once
 
-# include "TestFixture_Event.h"
-# include "FileParser_Mock.h"
+# include "MidiParser_TestFixture_Event.h"
+# include "MidiParser_FileParser_Mock.h"
 # include "CurrentFileName.h"
 
 # define FIXTURE(CLASS_NAME, BYTES_REMAINED)								\

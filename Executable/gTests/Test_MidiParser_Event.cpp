@@ -24,7 +24,7 @@
 *************************/
 
 # include "..\..\Model\MidiParserLib\Event.h"
-# include "EventCommon.h"
+# include "MidiParser_EventCommon.h"
 
 FIXTURE(Event, 23);
 
