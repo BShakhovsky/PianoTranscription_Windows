@@ -135,8 +135,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Fingering_Include\GraphStruct.h" />
+    <ClInclude Include="..\TrellisGraph_Facade.h" />
+    <ClInclude Include="ChordFingVariations.h" />
     <ClInclude Include="ICostsCalculator.h" />
     <ClInclude Include="MonoCosts.h" />
+    <ClInclude Include="NodesLinker.h" />
     <ClInclude Include="PolyCosts.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -146,7 +150,9 @@
     <ClInclude Include="VerticalCost.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ChordFingVariations.cpp" />
     <ClCompile Include="MonoCosts.cpp" />
+    <ClCompile Include="NodesLinker.cpp" />
     <ClCompile Include="PolyCosts.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -157,6 +163,7 @@
     <ClCompile Include="CostRules.cpp" />
     <ClCompile Include="DistanceTable.cpp" />
     <ClCompile Include="HorizontalCost.cpp" />
+    <ClCompile Include="TrellisGraph_Facade.cpp" />
     <ClCompile Include="VerticalCost.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@ using testing::FLAGS_gtest_break_on_failure;
 using Model::MidiParser::Event;
 using gTest::TestFixture_Event;
 
-TestFixture_Event::TestFixture_Event(const char* fileName, const int bytesRemained) :
+TestFixture_Event::TestFixture_Event(const char* fileName, const int bytesRemained) : Test(),
 	file_(make_shared<FileParser_Mock>(fileName)),
 	bytesRemained_(bytesRemained),
 	result_(nullptr)

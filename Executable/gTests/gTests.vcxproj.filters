@@ -43,17 +43,26 @@
     <Filter Include="Source Files\Fingering">
       <UniqueIdentifier>{3beaba3f-35a2-4b19-9375-565a905d2d68}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Fingering\Input Data Values">
-      <UniqueIdentifier>{ff253d16-a415-474f-ba7e-24c3199e5796}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Fingering\Final Hand Costs">
-      <UniqueIdentifier>{2b5447aa-677a-4e96-be92-a5449b87ee92}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Fingering\Intermediate Calculator">
-      <UniqueIdentifier>{353d06c3-c3cb-40ca-95dc-5f1e6d1f3ac9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Fingering">
       <UniqueIdentifier>{b152b19a-eaef-443d-bc8c-6976f7914c20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Fingering\Hand Cost Functions">
+      <UniqueIdentifier>{1d09d5bf-a616-4d80-959a-59495c8a8f66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Hand Cost Functions">
+      <UniqueIdentifier>{786f6809-09db-4217-9bb2-bf9fbd8fb543}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Hand Cost Functions\Intermediate Calculator">
+      <UniqueIdentifier>{353d06c3-c3cb-40ca-95dc-5f1e6d1f3ac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Hand Cost Functions\Input Data Values">
+      <UniqueIdentifier>{ff253d16-a415-474f-ba7e-24c3199e5796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Hand Cost Functions\Final Hand Costs">
+      <UniqueIdentifier>{2b5447aa-677a-4e96-be92-a5449b87ee92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fingering\Trellis Graph">
+      <UniqueIdentifier>{d10800ec-9a67-48a3-88f9-ef42ff342316}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fingering_CostTable.h">
-      <Filter>Header Files\Fingering</Filter>
     </ClInclude>
     <ClInclude Include="MidiParser_EventCommon.h">
       <Filter>Header Files\MidiParser\Event</Filter>
@@ -82,6 +88,12 @@
       <Filter>Header Files\MidiParser</Filter>
     </ClInclude>
     <ClInclude Include="Fingering_CostCommon.h">
+      <Filter>Header Files\Fingering\Hand Cost Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Fingering_CostTable.h">
+      <Filter>Header Files\Fingering\Hand Cost Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="TrellisGraph_Common.h">
       <Filter>Header Files\Fingering</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,20 +104,17 @@
     <ClCompile Include="Test_CodeMetrics.cpp">
       <Filter>Source Files\CodeMetrics</Filter>
     </ClCompile>
-    <ClCompile Include="Fingering_CostTable.cpp">
-      <Filter>Source Files\Fingering</Filter>
-    </ClCompile>
     <ClCompile Include="Test_Fingering_CostRules.cpp">
-      <Filter>Source Files\Fingering\Input Data Values</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Input Data Values</Filter>
     </ClCompile>
     <ClCompile Include="Test_Fingering_DistanceTable.cpp">
-      <Filter>Source Files\Fingering\Input Data Values</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Input Data Values</Filter>
     </ClCompile>
     <ClCompile Include="Test_Fingering_PolyCosts.cpp">
-      <Filter>Source Files\Fingering\Intermediate Calculator</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Intermediate Calculator</Filter>
     </ClCompile>
     <ClCompile Include="Test_Fingering_VerticalCost.cpp">
-      <Filter>Source Files\Fingering\Final Hand Costs</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Final Hand Costs</Filter>
     </ClCompile>
     <ClCompile Include="Test_MidiParser_NoteNames.cpp">
       <Filter>Source Files\MidiParser\Struct</Filter>
@@ -158,14 +167,26 @@
     <ClCompile Include="Test_MidiParser_MetaEvent_Text.cpp">
       <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
     </ClCompile>
-    <ClCompile Include="Fingering_CostCommon.cpp">
-      <Filter>Source Files\Fingering</Filter>
-    </ClCompile>
     <ClCompile Include="Test_Fingering_MonoCosts.cpp">
-      <Filter>Source Files\Fingering\Intermediate Calculator</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Intermediate Calculator</Filter>
     </ClCompile>
     <ClCompile Include="Test_Fingering_HorizontalCost.cpp">
-      <Filter>Source Files\Fingering\Final Hand Costs</Filter>
+      <Filter>Source Files\Fingering\Hand Cost Functions\Final Hand Costs</Filter>
+    </ClCompile>
+    <ClCompile Include="Fingering_CostCommon.cpp">
+      <Filter>Source Files\Fingering\Hand Cost Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Fingering_CostTable.cpp">
+      <Filter>Source Files\Fingering\Hand Cost Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_ChordFingVariations.cpp">
+      <Filter>Source Files\Fingering\Trellis Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_NodesLinker.cpp">
+      <Filter>Source Files\Fingering\Trellis Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_TrellisGraph_Facade.cpp">
+      <Filter>Source Files\Fingering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

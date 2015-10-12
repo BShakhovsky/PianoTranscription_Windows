@@ -241,6 +241,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     <ClInclude Include="MidiParser_TestFixture_Event.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TrellisGraph_Common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fingering_CostCommon.cpp" />
@@ -248,6 +249,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     <ClCompile Include="MidiParser_FileParser_Mock.cpp" />
     <ClCompile Include="MidiParser_Mock.cpp" />
     <ClCompile Include="MidiParser_TestFixture_Event.cpp" />
+    <ClCompile Include="Test_Fingering_ChordFingVariations.cpp" />
     <ClCompile Include="Test_Fingering_HorizontalCost.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -259,7 +261,9 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     <ClCompile Include="Test_Fingering_CostRules.cpp" />
     <ClCompile Include="Test_Fingering_DistanceTable.cpp" />
     <ClCompile Include="Test_Fingering_MonoCosts.cpp" />
+    <ClCompile Include="Test_Fingering_NodesLinker.cpp" />
     <ClCompile Include="Test_Fingering_PolyCosts.cpp" />
+    <ClCompile Include="Test_Fingering_TrellisGraph_Facade.cpp" />
     <ClCompile Include="Test_Fingering_VerticalCost.cpp" />
     <ClCompile Include="Test_MidiParser.cpp" />
     <ClCompile Include="Test_MidiParser_Event.cpp" />

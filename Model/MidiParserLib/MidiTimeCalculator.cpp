@@ -3,7 +3,7 @@
 # include "MidiTracksCollector.h"
 # include "MidiChunksReader.h"
 # include "MidiStruct.h"
-# include "NoteNames.h"
+# include "..\MidiParser_Include\NoteNames.h"
 
 using namespace std;
 using namespace Model::MidiParser;

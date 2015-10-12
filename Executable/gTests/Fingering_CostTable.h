@@ -7,8 +7,8 @@ namespace gTest
 		CostTable() = delete;
 		~CostTable() = delete;
 	public:
-		typedef void(*funcCostTable)(size_t, size_t, char, char, int16_t, int16_t);
-		static void CheckTableCells(funcCostTable, int16_t note1, int16_t note2);
-		static void CheckAllTableCells(funcCostTable, int16_t randNote);
+		typedef boost::function<void(size_t, size_t, char, char, int16_t, int16_t)> FUNC_COST_TABLE;
+		static void CheckTableCells(FUNC_COST_TABLE, int16_t note1, int16_t note2);
+		static void CheckAllTableCells(FUNC_COST_TABLE, int16_t randNote);
 	};
 }

@@ -1,6 +1,6 @@
 # include "stdafx.h"
 # include "KeyboardStruct.h"
-# include "..\..\..\Model\MidiParserLib\NoteNames.h"
+# include "..\..\..\Model\MidiParser_Include\NoteNames.h"
 
 using namespace std;
 using Interface::View::KeyboardStruct;

@@ -10,7 +10,7 @@ class HorizontalCost_F : public Test
 public:
 	vector<pair<int16_t, char>> emptyChord;
 
-	HorizontalCost_F() :
+	HorizontalCost_F() : Test(),
 		emptyChord()
 	{}
 	HorizontalCost_F(const HorizontalCost_F&) = default;
@@ -67,9 +67,9 @@ TEST_F(HorizontalCost_F, CostOfPair)
 	ASSERT_EQ(5.25, HorizontalCost::Calculate(chord1, chord2, emptyChord))
 		<< "single cost = 2, cost of pair = 2 + 4 + 6 + 1(pinky on black) = 13 / 4 = 3.25";
 	chord1.emplace_back(make_pair(0i16, '\3'));
-	ASSERT_EQ(8, HorizontalCost::Calculate(chord1, chord2, emptyChord))
-		<< "single = again 2, additional pairs = 28 + 0 + 1(three-four) + 1(four on black)"
-		<< " + 1(pinky on black again) + 4 = 35, total = 48 / 8 = 6";
+	ASSERT_EQ(9, HorizontalCost::Calculate(chord1, chord2, emptyChord))
+		<< "single = again 2, additional pairs = 28 + 8(same finger) + 1(three-four) + 1(four on black)"
+		<< " + 1(pinky on black again) + 4 = 43, total = 56 / 8 = 7";
 }
 
 TEST_F(HorizontalCost_F, CostOfTriple)

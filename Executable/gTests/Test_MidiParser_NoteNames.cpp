@@ -1,5 +1,5 @@
 # include "stdafx.h"
-# include "..\..\Model\MidiParserLib\NoteNames.h"
+# include "..\..\Model\MidiParser_Include\NoteNames.h"
 
 using namespace Model::MidiParser;
 

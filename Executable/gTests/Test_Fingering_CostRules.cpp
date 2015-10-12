@@ -1,6 +1,6 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\CostRules.h"
-# include "..\..\Model\MidiParserLib\NoteNames.h"
+# include "..\..\Model\MidiParser_Include\NoteNames.h"
 # include "Fingering_CostCommon.h"
 # include "Fingering_CostTable.h"
 
@@ -12,11 +12,17 @@ using namespace gTest;
 class CostRules_F : public CostCommon
 {
 public:
-	CostRules_F() = default;
+	CostRules_F() : CostCommon() {}
 	virtual ~CostRules_F() override = default;
 
-//	virtual void SetUp() override final {}
-//	virtual void TearDown() override final {}
+	virtual void SetUp() override final
+	{
+		CostCommon::SetUp();
+	}
+	virtual void TearDown() override final
+	{
+		CostCommon::TearDown();
+	}
 };
 
 void TestRule1_Stretch(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
@@ -85,11 +91,8 @@ void TestRule14_MaxPractical(size_t tableRow, size_t tableCol, char finger1, cha
 
 TEST_F(CostRules_F, PolyphonicRules)
 {
-	vector<CostTable::funcCostTable> funcs(3);
-	funcs.at(0) = &TestRule1_Stretch;
-	funcs.at(1) = &TestRule2_Span;
-	funcs.at(2) = &TestRule14_MaxPractical;
-	for (const auto& func : funcs) CostTable::CheckAllTableCells(func, randNote1);
+	for (const auto& func : { TestRule1_Stretch, TestRule2_Span, TestRule14_MaxPractical })
+		CostTable::CheckAllTableCells(func, randNote1);
 }
 
 // Rule 3 Position Change Count IS NOT FINISHED YET:
@@ -98,10 +101,20 @@ TEST_F(CostRules_F, RulesForTriples)
 	// Rule 3 Position Change Count (NOT FINISHED):
 	ASSERT_EQ(NULL, CostRules::Rule3_PositionChange(
 		make_pair(randNote1, randFinger1), make_pair(randNote1, randFinger2), make_pair(randNote2, randFinger1)));
-	ASSERT_EQ(NULL, CostRules::Rule3_PositionChange(
-		make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger1), make_pair(randNote1, randFinger2)));
-	ASSERT_EQ(NULL, CostRules::Rule3_PositionChange(
-		make_pair(randNote2, randFinger1), make_pair(randNote2, randFinger2), make_pair(randNote1, randFinger2)));
+	if (randFinger1 == randFinger2)
+	{
+		ASSERT_EQ(NULL, CostRules::Rule3_PositionChange(
+			make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger1), make_pair(randNote1, randFinger2)));
+		ASSERT_EQ(NULL, CostRules::Rule3_PositionChange(
+			make_pair(randNote2, randFinger1), make_pair(randNote2, randFinger2), make_pair(randNote1, randFinger2)));
+	}
+	else
+	{
+		ASSERT_NE(NULL, CostRules::Rule3_PositionChange(
+			make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger1), make_pair(randNote1, randFinger2)));
+		ASSERT_NE(NULL, CostRules::Rule3_PositionChange(
+			make_pair(randNote2, randFinger1), make_pair(randNote1, randFinger2), make_pair(randNote2, randFinger2)));
+	}
 
 	ASSERT_LE(1, CostRules::Rule3_PositionChange(
 		make_pair(randNote1, '\2'), make_pair(randNote2, '\3'), make_pair(randNote1, '\4')));

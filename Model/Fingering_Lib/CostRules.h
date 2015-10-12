@@ -35,6 +35,9 @@ namespace Model {
 
 			static int Rule14_MaxPractical(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
 			static char Rule15_SameNote(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
+
+			// My own rule:
+			static char Rule16_SameFinger(std::pair<int16_t, char> note1, std::pair<int16_t, char> note2);
 		};
 	}
 }

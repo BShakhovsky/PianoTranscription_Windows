@@ -10,11 +10,17 @@ using namespace gTest;
 class PolyCosts_F : public CostCommon
 {
 public:
-	PolyCosts_F() = default;
+	PolyCosts_F() : CostCommon() {}
 	virtual ~PolyCosts_F() override = default;
 
-	//	virtual void SetUp() override final {}
-	//	virtual void TearDown() override final {}
+	virtual void SetUp() override final
+	{
+		CostCommon::SetUp();
+	}
+	virtual void TearDown() override final
+	{
+		CostCommon::TearDown();
+	}
 };
 
 void Test_PolyphonicSum(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
@@ -45,5 +51,5 @@ void Test_PolyphonicSum(size_t tableRow, size_t tableCol, char finger1, char fin
 
 TEST_F(PolyCosts_F, CostOfPair)
 {
-	CostTable::CheckAllTableCells(&Test_PolyphonicSum, randNote1);
+	CostTable::CheckAllTableCells(Test_PolyphonicSum, randNote1);
 }

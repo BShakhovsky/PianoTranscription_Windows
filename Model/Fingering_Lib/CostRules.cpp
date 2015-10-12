@@ -1,7 +1,7 @@
 # include "stdafx.h"
 # include "CostRules.h"
 # include "DistanceTable.h"
-# include "..\MidiParserLib\NoteNames.h"
+# include "..\MidiParser_Include\NoteNames.h"
 
 using std::pair;
 using namespace Model;
@@ -44,7 +44,7 @@ int CostRules::Rule3_PositionChange(const pair<int16_t, char> note1, const pair<
 	auto result(Rule4_PositionSize(note1, note3));
 
 	auto distance(note3.first - note1.first);
-	if (note1.second == note2.second || note2.second == note3.second ||
+	if (//note1.second == note2.second || note2.second == note3.second ||
 		note3.second == note1.second)									return NULL;
 	else if (note1.second > note3.second)								distance *= -1;
 
@@ -170,5 +170,12 @@ int CostRules::Rule14_MaxPractical(const pair<int16_t, char> note1, const pair<i
 char CostRules::Rule15_SameNote(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
 	if (note1.first == note2.first && note1.second != note2.second)	return 1;
+	else															return NULL;
+}
+
+// my own rule, not tested:
+char CostRules::Rule16_SameFinger(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
+{
+	if (note1.first != note2.first && note1.second == note2.second)	return static_cast<char>(8);
 	else															return NULL;
 }

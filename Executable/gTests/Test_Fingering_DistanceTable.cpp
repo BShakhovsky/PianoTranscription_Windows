@@ -1,13 +1,14 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\DistanceTable.h"
 
+using boost::function;
 using testing::FLAGS_gtest_break_on_failure;
 using Model::Fingering::DistanceTable;
 
 // http://www.diva-portal.org/smash/get/diva2:769592/FULLTEXT01.pdf
 // Page 9, Table 1
 
-void TestColumn(char(*func)(char, char), char fin12, char fin13, char fin14, char fin15,
+void TestColumn(function<char(char, char)> func, char fin12, char fin13, char fin14, char fin15,
 	char fin23, char fin24, char fin25, char fin34, char fin35, char fin45)
 {
 	srand(static_cast<unsigned>(time(NULL)));
@@ -38,10 +39,10 @@ void TestColumn(char(*func)(char, char), char fin12, char fin13, char fin14, cha
 TEST(DistanceTable, MinMax)
 {
 	FLAGS_gtest_break_on_failure = true;
-	TestColumn(&DistanceTable::MinPrac, -5, -4, -3, -1, 1, 1, 2, 1, 1, 1);
-	TestColumn(&DistanceTable::MaxPrac, 10, 12, 14, 15, 5, 7, 10, 4, 7, 5);
-	TestColumn(&DistanceTable::MinRel, 1, 3, 5, 7, 1, 3, 5, 1, 3, 1);
-	TestColumn(&DistanceTable::MaxRel, 5, 7, 9, 10, 2, 4, 6, 2, 4, 2);
-	TestColumn(&DistanceTable::MinComf, -3, -2, -1, 1, 1, 1, 2, 1, 1, 1);
-	TestColumn(&DistanceTable::MaxComf, 8, 10, 12, 13, 3, 5, 8, 2, 5, 3);
+	TestColumn(DistanceTable::MinPrac, -5, -4, -3, -1, 1, 1, 2, 1, 1, 1);
+	TestColumn(DistanceTable::MaxPrac, 10, 12, 14, 15, 5, 7, 10, 4, 7, 5);
+	TestColumn(DistanceTable::MinRel, 1, 3, 5, 7, 1, 3, 5, 1, 3, 1);
+	TestColumn(DistanceTable::MaxRel, 5, 7, 9, 10, 2, 4, 6, 2, 4, 2);
+	TestColumn(DistanceTable::MinComf, -3, -2, -1, 1, 1, 1, 2, 1, 1, 1);
+	TestColumn(DistanceTable::MaxComf, 8, 10, 12, 13, 3, 5, 8, 2, 5, 3);
 }

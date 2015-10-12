@@ -1,12 +1,9 @@
 #include "stdafx.h"
-#include "NoteNames.h"
+#include "..\MidiParser_Include\NoteNames.h"
 
 using Model::MidiParser::NoteNames;
 
 # pragma warning(push)
-#	ifdef _DEBUG
-#		pragma warning(disable:4715)	// not all control paths return a value
-#	endif
 # pragma warning(disable:4711)	// automatic inline expansion
 bool NoteNames::IsBlack(const int16_t noteNumber)
 {
@@ -27,6 +24,7 @@ bool NoteNames::IsBlack(const int16_t noteNumber)
 	case NOTE_NAMES::G1:
 	case NOTE_NAMES::A1: return true; break;
 	default: assert(!"WRONG NOTE NAME");
+						return false;
 	}
 }
 # pragma warning(pop)

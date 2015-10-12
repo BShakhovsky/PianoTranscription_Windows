@@ -1,11 +1,12 @@
 # include "stdafx.h"
 # include "Fingering_CostCommon.h"
-# include "..\..\Model\MidiParserLib\NoteNames.h"
+# include "..\..\Model\MidiParser_Include\NoteNames.h"
 
+using testing::Test;
 using Model::MidiParser::NoteNames;
 using gTest::CostCommon;
 
-CostCommon::CostCommon() :
+CostCommon::CostCommon() : Test(),
 	whiteNote(NULL),
 	blackNote(NULL),
 	randNote1(NULL),

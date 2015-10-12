@@ -31,6 +31,9 @@ namespace gTest
 
 		virtual void SetUp() override = 0;
 		virtual void TearDown() override = 0;
+
+		TestFixture_Event(const TestFixture_Event&) = default;
+		TestFixture_Event& operator = (const TestFixture_Event&) = default;
 	protected:
 		explicit TestFixture_Event(const char* fileName, int bytesRemained);
 	private:

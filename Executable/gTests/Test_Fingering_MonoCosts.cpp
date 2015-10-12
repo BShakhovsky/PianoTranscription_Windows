@@ -1,6 +1,6 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\MonoCosts.h"
-# include "..\..\Model\MidiParserLib\NoteNames.h"
+# include "..\..\Model\MidiParser_Include\NoteNames.h"
 # include "Fingering_CostCommon.h"
 # include "Fingering_CostTable.h"
 
@@ -12,11 +12,17 @@ using namespace gTest;
 class MonoCosts_F : public CostCommon
 {
 public:
-	MonoCosts_F() = default;
+	MonoCosts_F() : CostCommon() {}
 	virtual ~MonoCosts_F() override = default;
 
-//	virtual void SetUp() override final {}
-//	virtual void TearDown() override final {}
+	virtual void SetUp() override final
+	{
+		CostCommon::SetUp();
+	}
+	virtual void TearDown() override final
+	{
+		CostCommon::TearDown();
+	}
 private:
 	static const int partSum[][21];
 	friend void Test_PartialMonoSum(size_t, size_t, char, char, int16_t, int16_t);
@@ -179,8 +185,12 @@ void Test_PartialMonoSum(size_t tableRow, size_t tableCol, char finger1, char fi
 	ASSERT_EQ(MonoCosts_F::partSum[tableRow][tableCol],
 		MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger2)));
 
-	const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
+	if (note1 == note2)
+	{
+		const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
+	}
+	else ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note1, '\2'), make_pair(note2, '\2')));
 }
 
 
@@ -202,8 +212,16 @@ void Test_White_White(size_t tableRow, size_t tableCol, char finger1, char finge
 	ASSERT_EQ(white_white[tableRow][tableCol] + MonoCosts_F::partSum[tableRow][tableCol],
 		MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger2)));
 
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger1)));
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, finger2), make_pair(note1, finger2)));
+	if (note1 == note2)
+	{
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger1)));
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, finger2), make_pair(note1, finger2)));
+	}
+	else
+	{
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger1)));
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note2, finger2), make_pair(note1, finger2)));
+	}
 }
 
 void Test_White_Black(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
@@ -224,9 +242,17 @@ void Test_White_Black(size_t tableRow, size_t tableCol, char finger1, char finge
 	ASSERT_EQ(white_black[tableRow][tableCol] + MonoCosts_F::partSum[tableRow][tableCol],
 		MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger2)));
 
-	const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	if (note1 == note2)
+	{
+		const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	}
+	else
+	{
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note1, '\3'), make_pair(note2, '\3')));
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note2, '\4'), make_pair(note1, '\4')));
+	}
 }
 
 void Test_Black_White(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
@@ -247,9 +273,17 @@ void Test_Black_White(size_t tableRow, size_t tableCol, char finger1, char finge
 	ASSERT_EQ(black_white[tableRow][tableCol] + MonoCosts_F::partSum[tableRow][tableCol],
 		MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger2)));
 
-	const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	if (note1 == note2)
+	{
+		const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	}
+	else
+	{
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note1, '\4'), make_pair(note2, '\4')));
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note2, '\5'), make_pair(note1, '\5')));
+	}
 }
 
 void Test_Black_Black(size_t tableRow, size_t tableCol, char finger1, char finger2, int16_t note1, int16_t note2)
@@ -270,9 +304,17 @@ void Test_Black_Black(size_t tableRow, size_t tableCol, char finger1, char finge
 	ASSERT_EQ(black_black[tableRow][tableCol] + MonoCosts_F::partSum[tableRow][tableCol],
 		MonoCosts().CostOfPair(make_pair(note1, finger1), make_pair(note2, finger2)));
 
-	const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
-	ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	if (note1 == note2)
+	{
+		const auto nonThumb(MonoCosts_F_PartialMonoSum_Test().nonThumb);
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note1, nonThumb), make_pair(note2, nonThumb)));
+		ASSERT_EQ(NULL, MonoCosts().CostOfPair(make_pair(note2, nonThumb), make_pair(note1, nonThumb)));
+	}
+	else
+	{
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note1, '\2'), make_pair(note2, '\2')));
+		ASSERT_EQ(8, MonoCosts().CostOfPair(make_pair(note2, '\4'), make_pair(note1, '\4')));
+	}
 }
 
 # pragma warning(pop)
@@ -283,18 +325,18 @@ TEST_F(MonoCosts_F, CostOfPairs)
 	for (int16_t i(-5); i <= 15; ++i)
 	{
 		while (NoteNames::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsBlack(note + i));
-		CostTable::CheckTableCells(&Test_White_White, note, note + i);
+		CostTable::CheckTableCells(Test_White_White, note, note + i);
 		if (i && i != 12)
 		{
 			while (NoteNames::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsWhite(note + i));
-			CostTable::CheckTableCells(&Test_White_Black, note, note + i);
+			CostTable::CheckTableCells(Test_White_Black, note, note + i);
 			while (NoteNames::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsBlack(note + i));
-			CostTable::CheckTableCells(&Test_Black_White, note, note + i);
+			CostTable::CheckTableCells(Test_Black_White, note, note + i);
 		}
 		if (i != -1 && i != 1 && i != 6 && i != 11 && i != 13)
 		{
 			while (NoteNames::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsWhite(note + i));
-			CostTable::CheckTableCells(&Test_Black_Black, note, note + i);
+			CostTable::CheckTableCells(Test_Black_Black, note, note + i);
 		}
 	}
 }

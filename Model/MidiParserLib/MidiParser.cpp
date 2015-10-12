@@ -3,7 +3,7 @@
 
 # include "FileParser.h"
 # include "MidiStruct.h"
-# include "NoteNames.h"
+# include "..\MidiParser_Include\NoteNames.h"
 
 # include "Event.h"
 

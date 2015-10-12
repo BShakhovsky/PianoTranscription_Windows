@@ -12,7 +12,7 @@ int MonoCosts::CostOfSingle_impl(const char finger) const
 }
 
 // fully tested:
-float MonoCosts::CostOfPair_impl(const pair<int16_t, char> note1, const std::pair<int16_t, char> note2) const
+float MonoCosts::CostOfPair_impl(const pair<int16_t, char> note1, const pair<int16_t, char> note2) const
 {
 	return CostRules::Rule1_StretchComf(note1, note2)
 		+ CostRules::Rule2_SpanRel(note1, note2)
@@ -23,7 +23,8 @@ float MonoCosts::CostOfPair_impl(const pair<int16_t, char> note1, const std::pai
 		+ CostRules::Rule11_ThumbPassing(note1, note2)
 		+ CostRules::Rule12_ThumbCross_Black(note1, note2)
 		+ CostRules::Rule14_MaxPractical(note1, note2)
-		+ CostRules::Rule15_SameNote(note1, note2);
+		+ CostRules::Rule15_SameNote(note1, note2)
+		+ CostRules::Rule16_SameFinger(note1, note2);	// my own rule
 }
 
 // not tested (do not know how - 3D-table?):

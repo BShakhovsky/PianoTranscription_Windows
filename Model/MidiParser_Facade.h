@@ -6,6 +6,9 @@ namespace Model
 	{
 		class MidiParser_Facade : private boost::noncopyable
 		{
+			// http://www.cs.cmu.edu/~music/cmsip/readings/Standard-MIDI-file-format-updated.pdf
+			// http://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf
+
 			std::unique_ptr<class MidiTimeCalculator> midiFile_;
 
 			typedef std::vector<std::vector<unsigned>> Times_;
