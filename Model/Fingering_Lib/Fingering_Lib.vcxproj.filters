@@ -96,6 +96,9 @@
     <ClInclude Include="..\Fingering_Include\GraphStruct.h">
       <Filter>Header Files\Include\Trellis Graph</Filter>
     </ClInclude>
+    <ClInclude Include="BlackWhiteKeys.h">
+      <Filter>Header Files\Lib\Hand Cost Functions\Input Data Values</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -127,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="TrellisGraph_Facade.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlackWhiteKeys.cpp">
+      <Filter>Source Files\Lib\Hand Cost Functions\Input Data Values</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -83,6 +83,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -97,6 +103,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -115,6 +127,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -133,10 +151,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Fingering_Include\GraphStruct.h" />
     <ClInclude Include="..\TrellisGraph_Facade.h" />
+    <ClInclude Include="BlackWhiteKeys.h" />
     <ClInclude Include="ChordFingVariations.h" />
     <ClInclude Include="ICostsCalculator.h" />
     <ClInclude Include="MonoCosts.h" />
@@ -150,6 +175,7 @@
     <ClInclude Include="VerticalCost.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BlackWhiteKeys.cpp" />
     <ClCompile Include="ChordFingVariations.cpp" />
     <ClCompile Include="MonoCosts.cpp" />
     <ClCompile Include="NodesLinker.cpp" />
@@ -165,11 +191,6 @@
     <ClCompile Include="HorizontalCost.cpp" />
     <ClCompile Include="TrellisGraph_Facade.cpp" />
     <ClCompile Include="VerticalCost.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MidiParserLib\MidiParserLib.vcxproj">
-      <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

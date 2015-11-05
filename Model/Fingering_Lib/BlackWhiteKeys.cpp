@@ -1,15 +1,15 @@
-#include "stdafx.h"
-#include "..\MidiParser_Include\NoteNames.h"
+# include "stdafx.h"
+# include "BlackWhiteKeys.h"
 
-using Model::MidiParser::NoteNames;
+using Model::Fingering::BlackWhiteKeys;
 
-# pragma warning(push)
-# pragma warning(disable:4711)	// automatic inline expansion
-bool NoteNames::IsBlack(const int16_t noteNumber)
+bool BlackWhiteKeys::IsBlack(const int16_t noteNumber)
 {
 	assert("NOTE MUST BE A POSITIVE NUMBER" && noteNumber >= 0);
 
-	switch (GetNoteName(noteNumber))
+	enum class NOTE_NAMES { C, C1, D, D1, E, F, F1, G, G1, A, A1, B };
+
+	switch (static_cast<NOTE_NAMES>(noteNumber % 12))
 	{
 	case NOTE_NAMES::C:
 	case NOTE_NAMES::D:
@@ -24,7 +24,6 @@ bool NoteNames::IsBlack(const int16_t noteNumber)
 	case NOTE_NAMES::G1:
 	case NOTE_NAMES::A1: return true; break;
 	default: assert(!"WRONG NOTE NAME");
-						return false;
+		return false;
 	}
 }
-# pragma warning(pop)

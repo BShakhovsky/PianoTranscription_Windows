@@ -154,6 +154,7 @@
     <ClInclude Include="Keyboard_Win32.h" />
     <ClInclude Include="MidiLog_Console.h" />
     <ClInclude Include="MidiLog_Win32.h" />
+    <ClInclude Include="NoteNames.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

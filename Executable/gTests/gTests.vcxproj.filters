@@ -13,33 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\CodeMetrics">
-      <UniqueIdentifier>{432c9751-7a9f-470f-be24-9c8606079a99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MidiParser">
-      <UniqueIdentifier>{a8d42ef9-4342-4bbb-9491-19f1674f91af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MidiParser\Struct">
-      <UniqueIdentifier>{b6d7f16e-2ff3-4f50-87aa-5cdfe513cafa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MidiParser\Parser">
-      <UniqueIdentifier>{8ad1ae2b-e685-4192-9336-01044a5db4b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MidiParser\Event">
-      <UniqueIdentifier>{bf8fb3be-2309-4725-bd3d-08a3219444d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MidiParser\Event\MetaEvent">
-      <UniqueIdentifier>{890a64d4-9668-4984-94dc-94721aab2af0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\MidiParser">
-      <UniqueIdentifier>{b632cee4-3c32-4847-a8d5-24485cc08585}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\MidiParser\Parser">
-      <UniqueIdentifier>{8273cd53-5a47-4d7c-a680-84d632e55c80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\MidiParser\Event">
-      <UniqueIdentifier>{5f9047d9-cdbc-40d7-968b-4a3135fb4706}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Fingering">
       <UniqueIdentifier>{3beaba3f-35a2-4b19-9375-565a905d2d68}</UniqueIdentifier>
     </Filter>
@@ -64,6 +37,9 @@
     <Filter Include="Source Files\Fingering\Trellis Graph">
       <UniqueIdentifier>{d10800ec-9a67-48a3-88f9-ef42ff342316}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\View">
+      <UniqueIdentifier>{c6aa589b-b778-46ad-ad60-9570ecf6006a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -71,21 +47,6 @@
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MidiParser_EventCommon.h">
-      <Filter>Header Files\MidiParser\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="MidiParser_FileParser_Mock.h">
-      <Filter>Header Files\MidiParser\Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="MidiParser_Mock.h">
-      <Filter>Header Files\MidiParser\Parser</Filter>
-    </ClInclude>
-    <ClInclude Include="MidiParser_TestFixture_Event.h">
-      <Filter>Header Files\MidiParser\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="CurrentFileName.h">
-      <Filter>Header Files\MidiParser</Filter>
     </ClInclude>
     <ClInclude Include="Fingering_CostCommon.h">
       <Filter>Header Files\Fingering\Hand Cost Functions</Filter>
@@ -101,9 +62,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Test_CodeMetrics.cpp">
-      <Filter>Source Files\CodeMetrics</Filter>
-    </ClCompile>
     <ClCompile Include="Test_Fingering_CostRules.cpp">
       <Filter>Source Files\Fingering\Hand Cost Functions\Input Data Values</Filter>
     </ClCompile>
@@ -115,57 +73,6 @@
     </ClCompile>
     <ClCompile Include="Test_Fingering_VerticalCost.cpp">
       <Filter>Source Files\Fingering\Hand Cost Functions\Final Hand Costs</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_NoteNames.cpp">
-      <Filter>Source Files\MidiParser\Struct</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MidiStruct.cpp">
-      <Filter>Source Files\MidiParser\Struct</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiParser_FileParser_Mock.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiParser_Mock.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_FileParser.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MidiChunksReader.cpp">
-      <Filter>Source Files\MidiParser\Parser</Filter>
-    </ClCompile>
-    <ClCompile Include="MidiParser_TestFixture_Event.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_Event.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_SystemEvent.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MidiEvent.cpp">
-      <Filter>Source Files\MidiParser\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent_EndTrack.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent_KeySign.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent_Skip.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent_Tempo.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_MidiParser_MetaEvent_Text.cpp">
-      <Filter>Source Files\MidiParser\Event\MetaEvent</Filter>
     </ClCompile>
     <ClCompile Include="Test_Fingering_MonoCosts.cpp">
       <Filter>Source Files\Fingering\Hand Cost Functions\Intermediate Calculator</Filter>
@@ -187,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Test_Fingering_TrellisGraph_Facade.cpp">
       <Filter>Source Files\Fingering</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_View_NoteNames.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Fingering_BlackWhiteKeys.cpp">
+      <Filter>Source Files\Fingering\Hand Cost Functions\Input Data Values</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

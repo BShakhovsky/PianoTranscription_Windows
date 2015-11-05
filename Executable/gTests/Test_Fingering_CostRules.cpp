@@ -1,12 +1,11 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\CostRules.h"
-# include "..\..\Model\MidiParser_Include\NoteNames.h"
+# include "..\..\Model\Fingering_Lib\BlackWhiteKeys.h"
 # include "Fingering_CostCommon.h"
 # include "Fingering_CostTable.h"
 
 using namespace std;
-using Model::Fingering::CostRules;
-using Model::MidiParser::NoteNames;
+using namespace Model::Fingering;
 using namespace gTest;
 
 class CostRules_F : public CostCommon
@@ -207,10 +206,10 @@ TEST_F(CostRules_F, Rule8_FourOnBlack)
 
 	const auto result(CostRules::Rule8_FourOnBlack(make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
 	if		(3 == randFinger1 && 4 == randFinger2
-		&& NoteNames::IsWhite(randNote1) && NoteNames::IsBlack(randNote2))	ASSERT_EQ(1, result);
+		&& BlackWhiteKeys::IsWhite(randNote1) && BlackWhiteKeys::IsBlack(randNote2))	ASSERT_EQ(1, result);
 	else if (4 == randFinger1 && 3 == randFinger2
-		&& NoteNames::IsBlack(randNote1) && NoteNames::IsWhite(randNote2))	ASSERT_EQ(1, result);
-	else																	ASSERT_EQ(NULL, result);
+		&& BlackWhiteKeys::IsBlack(randNote1) && BlackWhiteKeys::IsWhite(randNote2))	ASSERT_EQ(1, result);
+	else																				ASSERT_EQ(NULL, result);
 }
 
 TEST_F(CostRules_F, Rule9_ThumbOnBlack)
@@ -230,13 +229,13 @@ TEST_F(CostRules_F, Rule9_ThumbOnBlack)
 	ASSERT_EQ(NULL, CostRules::Rule9_ThumbOnBlack(make_pair(whiteNote, '\1'), make_pair(whiteNote, '\1')));
 
 	const auto result(CostRules::Rule9_ThumbOnBlack(make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
-	if		(1 == randFinger1 && NoteNames::IsBlack(randNote1))
-		if	(1 != randFinger2 && NoteNames::IsWhite(randNote2))	ASSERT_EQ(1.5, result);
-		else													ASSERT_EQ(0.5, result);
-	else if	(1 == randFinger2 && NoteNames::IsBlack(randNote2))
-		if	(1 != randFinger1 && NoteNames::IsWhite(randNote1))	ASSERT_EQ(1.5, result);
-		else													ASSERT_EQ(0.5, result);
-	else														ASSERT_EQ(NULL, result);
+	if		(1 == randFinger1 && BlackWhiteKeys::IsBlack(randNote1))
+		if	(1 != randFinger2 && BlackWhiteKeys::IsWhite(randNote2))	ASSERT_EQ(1.5, result);
+		else															ASSERT_EQ(0.5, result);
+	else if	(1 == randFinger2 && BlackWhiteKeys::IsBlack(randNote2))
+		if	(1 != randFinger1 && BlackWhiteKeys::IsWhite(randNote1))	ASSERT_EQ(1.5, result);
+		else															ASSERT_EQ(0.5, result);
+	else																ASSERT_EQ(NULL, result);
 }
 
 TEST_F(CostRules_F, Rule10_PinkyOnBlack)
@@ -253,20 +252,20 @@ TEST_F(CostRules_F, Rule10_PinkyOnBlack)
 	ASSERT_EQ(NULL, CostRules::Rule10_PinkyOnBlack(make_pair(blackNote, '\5'), make_pair(blackNote, '\5')));
 
 	const auto result(CostRules::Rule10_PinkyOnBlack(make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
-	if (5 == randFinger1 && NoteNames::IsBlack(randNote1)
-		&& 5 != randFinger2 && NoteNames::IsWhite(randNote2))	ASSERT_EQ(1, result);
-	else if (5 == randFinger2 && NoteNames::IsBlack(randNote2)
-		&& 5 != randFinger1 && NoteNames::IsWhite(randNote1))	ASSERT_EQ(1, result);
-	else														ASSERT_EQ(NULL, result);
+	if (5 == randFinger1 && BlackWhiteKeys::IsBlack(randNote1)
+		&& 5 != randFinger2 && BlackWhiteKeys::IsWhite(randNote2))	ASSERT_EQ(1, result);
+	else if (5 == randFinger2 && BlackWhiteKeys::IsBlack(randNote2)
+		&& 5 != randFinger1 && BlackWhiteKeys::IsWhite(randNote1))	ASSERT_EQ(1, result);
+	else															ASSERT_EQ(NULL, result);
 }
 
 
 TEST_F(CostRules_F, Rule11_ThumbPassing)
 {
 	int16_t anotherWhite(NULL), anotherBlack(NULL);
-	while (NoteNames::IsBlack(anotherWhite = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1))
+	while (BlackWhiteKeys::IsBlack(anotherWhite = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1))
 		|| anotherWhite == whiteNote);
-	while (NoteNames::IsWhite(anotherBlack = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1))
+	while (BlackWhiteKeys::IsWhite(anotherBlack = static_cast<int16_t>(rand() % (INT16_MAX - 1) + 1))
 		|| anotherBlack == blackNote);
 
 	ASSERT_EQ(1, CostRules::Rule11_ThumbPassing(make_pair(min(whiteNote, anotherWhite), nonThumb),
@@ -295,9 +294,9 @@ TEST_F(CostRules_F, Rule11_ThumbPassing)
 
 	const auto result(CostRules::Rule11_ThumbPassing(make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
 	if (distance < 0 && ((1 == randFinger1) ^ (1 == randFinger2)) && (
-		NoteNames::IsWhite(randNote1) && NoteNames::IsWhite(randNote2) ||
-		NoteNames::IsBlack(randNote1) && NoteNames::IsBlack(randNote2)))	ASSERT_EQ(1, result);
-	else																	ASSERT_EQ(NULL, result);
+		BlackWhiteKeys::IsWhite(randNote1) && BlackWhiteKeys::IsWhite(randNote2) ||
+		BlackWhiteKeys::IsBlack(randNote1) && BlackWhiteKeys::IsBlack(randNote2)))	ASSERT_EQ(1, result);
+	else																			ASSERT_EQ(NULL, result);
 }
 
 TEST_F(CostRules_F, Rule12_ThumbCross_Black)
@@ -316,10 +315,12 @@ TEST_F(CostRules_F, Rule12_ThumbCross_Black)
 	const auto result(CostRules::Rule12_ThumbCross_Black(
 		make_pair(randNote1, randFinger1), make_pair(randNote2, randFinger2)));
 	if (distance < 0 && randFinger1 != randFinger2)
-		if		(1 == randFinger1 && NoteNames::IsBlack(randNote1) && NoteNames::IsWhite(randNote2)) ASSERT_EQ(2, result);
-		else if (1 == randFinger2 && NoteNames::IsWhite(randNote1) && NoteNames::IsBlack(randNote2)) ASSERT_EQ(2, result);
-		else																					ASSERT_EQ(NULL, result);
-	else																						ASSERT_EQ(NULL, result);
+		if		(1 == randFinger1 && BlackWhiteKeys::IsBlack(randNote1)
+			&& BlackWhiteKeys::IsWhite(randNote2))	ASSERT_EQ(2, result);
+		else if (1 == randFinger2 && BlackWhiteKeys::IsWhite(randNote1)
+			&& BlackWhiteKeys::IsBlack(randNote2))	ASSERT_EQ(2, result);
+		else										ASSERT_EQ(NULL, result);
+	else											ASSERT_EQ(NULL, result);
 }
 
 

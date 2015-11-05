@@ -1,12 +1,11 @@
 # include "stdafx.h"
 # include "CostRules.h"
 # include "DistanceTable.h"
-# include "..\MidiParser_Include\NoteNames.h"
+# include "BlackWhiteKeys.h"
 
 using std::pair;
 using namespace Model;
 using namespace Fingering;
-using namespace MidiParser;
 
 int CostRules::Rule1_StretchComf(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
@@ -89,25 +88,25 @@ char CostRules::Rule7_ThreeFour(const char finger1, const char finger2)
 char CostRules::Rule8_FourOnBlack(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
 	if		(3 == note1.second && 4 == note2.second
-		&& NoteNames::IsWhite(note1.first) && NoteNames::IsBlack(note2.first))	return 1;
+		&& BlackWhiteKeys::IsWhite(note1.first) && BlackWhiteKeys::IsBlack(note2.first))	return 1;
 	else if (4 == note1.second && 3 == note2.second
-		&& NoteNames::IsBlack(note1.first) && NoteNames::IsWhite(note2.first))	return 1;
-	else																		return NULL;
+		&& BlackWhiteKeys::IsBlack(note1.first) && BlackWhiteKeys::IsWhite(note2.first))	return 1;
+	else																					return NULL;
 }
 float CostRules::Rule9_ThumbOnBlack(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
 	auto result(0.f);
 
-	if (1 == note1.second && NoteNames::IsBlack(note1.first))
+	if (1 == note1.second && BlackWhiteKeys::IsBlack(note1.first))
 	{
 		result += 0.5;
-		if (1 != note2.second && NoteNames::IsWhite(note2.first))
+		if (1 != note2.second && BlackWhiteKeys::IsWhite(note2.first))
 			++result;
 	}
-	else if (1 == note2.second && NoteNames::IsBlack(note2.first))
+	else if (1 == note2.second && BlackWhiteKeys::IsBlack(note2.first))
 	{
 		result += 0.5;
-		if (1 != note1.second && NoteNames::IsWhite(note1.first))
+		if (1 != note1.second && BlackWhiteKeys::IsWhite(note1.first))
 			++result;
 	}
 
@@ -115,11 +114,11 @@ float CostRules::Rule9_ThumbOnBlack(const pair<int16_t, char> note1, const pair<
 }
 char CostRules::Rule10_PinkyOnBlack(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
-	if		(5 == note1.second && NoteNames::IsBlack(note1.first)
-		&& 5 != note2.second && NoteNames::IsWhite(note2.first))	return 1;
-	else if (5 == note2.second && NoteNames::IsBlack(note2.first)
-		&& 5 != note1.second && NoteNames::IsWhite(note1.first))	return 1;
-	else															return NULL;
+	if		(5 == note1.second && BlackWhiteKeys::IsBlack(note1.first)
+		&& 5 != note2.second && BlackWhiteKeys::IsWhite(note2.first))	return 1;
+	else if (5 == note2.second && BlackWhiteKeys::IsBlack(note2.first)
+		&& 5 != note1.second && BlackWhiteKeys::IsWhite(note1.first))	return 1;
+	else																return NULL;
 }
 
 char CostRules::Rule11_ThumbPassing(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
@@ -129,9 +128,9 @@ char CostRules::Rule11_ThumbPassing(const pair<int16_t, char> note1, const pair<
 	else if (note1.second > note2.second)	distance *= -1;
 
 	if (distance < 0 && (1 == note1.second || 1 == note2.second) && (
-		NoteNames::IsWhite(note1.first) && NoteNames::IsWhite(note2.first) ||
-		NoteNames::IsBlack(note1.first) && NoteNames::IsBlack(note2.first)))	return 1;
-	else																		return NULL;
+		BlackWhiteKeys::IsWhite(note1.first) && BlackWhiteKeys::IsWhite(note2.first) ||
+		BlackWhiteKeys::IsBlack(note1.first) && BlackWhiteKeys::IsBlack(note2.first)))	return 1;
+	else																				return NULL;
 }
 char CostRules::Rule12_ThumbCross_Black(const pair<int16_t, char> note1, const pair<int16_t, char> note2)
 {
@@ -140,10 +139,12 @@ char CostRules::Rule12_ThumbCross_Black(const pair<int16_t, char> note1, const p
 	else if (note1.second > note2.second)	distance *= -1;
 
 	if (distance < 0)
-		if		(1 == note1.second && NoteNames::IsBlack(note1.first) && NoteNames::IsWhite(note2.first))	return 2;
-		else if (1 == note2.second && NoteNames::IsWhite(note1.first) && NoteNames::IsBlack(note2.first))	return 2;
-		else																								return NULL;
-	else																									return NULL;
+		if		(1 == note1.second && BlackWhiteKeys::IsBlack(note1.first)
+			&& BlackWhiteKeys::IsWhite(note2.first))	return 2;
+		else if (1 == note2.second && BlackWhiteKeys::IsWhite(note1.first)
+			&& BlackWhiteKeys::IsBlack(note2.first))	return 2;
+		else											return NULL;
+	else												return NULL;
 }
 
 char CostRules::Rule13_ThreeSameFinger(const pair<int16_t, char> note1, const pair<int16_t, char> note2,

@@ -183,14 +183,6 @@
     <Image Include="small.ico" />
     <Image Include="Win32.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
-      <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Model\MidiParserLib\MidiParserLib.vcxproj">
-      <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

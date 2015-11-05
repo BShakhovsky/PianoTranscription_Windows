@@ -232,13 +232,8 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CurrentFileName.h" />
     <ClInclude Include="Fingering_CostCommon.h" />
     <ClInclude Include="Fingering_CostTable.h" />
-    <ClInclude Include="MidiParser_EventCommon.h" />
-    <ClInclude Include="MidiParser_FileParser_Mock.h" />
-    <ClInclude Include="MidiParser_Mock.h" />
-    <ClInclude Include="MidiParser_TestFixture_Event.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrellisGraph_Common.h" />
@@ -246,9 +241,7 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
   <ItemGroup>
     <ClCompile Include="Fingering_CostCommon.cpp" />
     <ClCompile Include="Fingering_CostTable.cpp" />
-    <ClCompile Include="MidiParser_FileParser_Mock.cpp" />
-    <ClCompile Include="MidiParser_Mock.cpp" />
-    <ClCompile Include="MidiParser_TestFixture_Event.cpp" />
+    <ClCompile Include="Test_Fingering_BlackWhiteKeys.cpp" />
     <ClCompile Include="Test_Fingering_ChordFingVariations.cpp" />
     <ClCompile Include="Test_Fingering_HorizontalCost.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -257,7 +250,6 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Test_CodeMetrics.cpp" />
     <ClCompile Include="Test_Fingering_CostRules.cpp" />
     <ClCompile Include="Test_Fingering_DistanceTable.cpp" />
     <ClCompile Include="Test_Fingering_MonoCosts.cpp" />
@@ -265,30 +257,11 @@ xCopy /Y "$(SolutionDir)*.txt" "$(USERPROFILE)\OneDrive\Documents\Midi-Parser\$(
     <ClCompile Include="Test_Fingering_PolyCosts.cpp" />
     <ClCompile Include="Test_Fingering_TrellisGraph_Facade.cpp" />
     <ClCompile Include="Test_Fingering_VerticalCost.cpp" />
-    <ClCompile Include="Test_MidiParser.cpp" />
-    <ClCompile Include="Test_MidiParser_Event.cpp" />
-    <ClCompile Include="Test_MidiParser_FileParser.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent_EndTrack.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent_KeySign.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent_Skip.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent_Tempo.cpp" />
-    <ClCompile Include="Test_MidiParser_MetaEvent_Text.cpp" />
-    <ClCompile Include="Test_MidiParser_MidiChunksReader.cpp" />
-    <ClCompile Include="Test_MidiParser_MidiEvent.cpp" />
-    <ClCompile Include="Test_MidiParser_MidiStruct.cpp" />
-    <ClCompile Include="Test_MidiParser_NoteNames.cpp" />
-    <ClCompile Include="Test_MidiParser_SystemEvent.cpp" />
+    <ClCompile Include="Test_View_NoteNames.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
-      <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Model\Fingering_Lib\Fingering_Lib.vcxproj">
       <Project>{ee8c95d4-1ba5-41e0-9140-75f29d0f6e97}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Model\MidiParserLib\MidiParserLib.vcxproj">
-      <Project>{11c92b13-d477-473a-820e-724711d8de72}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

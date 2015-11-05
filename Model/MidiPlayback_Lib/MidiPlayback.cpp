@@ -1,6 +1,6 @@
 # include "stdafx.h"
 # include "MidiPlayback.h"
-# include "..\MidiParser_Facade.h"
+# include "MidiParser_Facade.h"
 # include "..\..\Interface\View\ViewFactory.h"
 # include "..\..\Interface\Sound\Sound_Lib\DirectHarmonics.h"
 

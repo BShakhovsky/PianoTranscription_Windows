@@ -2,10 +2,8 @@
 
 # include "stdafx.h"
 # include "Win32.h"
-# include "..\..\CodeMetrics\CodeMetrics.h"
 
 using namespace std;
-using Unmanaged_StatLib::CodeMetrics;
 
 #define MAX_LOADSTRING 100
 
@@ -27,10 +25,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-# ifdef _DEBUG
-	CodeMetrics().SolutionLines("");
-# endif
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);

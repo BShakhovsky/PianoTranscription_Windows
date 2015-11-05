@@ -1,12 +1,11 @@
 # include "stdafx.h"
 # include "..\..\Model\Fingering_Lib\MonoCosts.h"
-# include "..\..\Model\MidiParser_Include\NoteNames.h"
+# include "..\..\Model\Fingering_Lib\BlackWhiteKeys.h"
 # include "Fingering_CostCommon.h"
 # include "Fingering_CostTable.h"
 
 using std::make_pair;
-using Model::Fingering::MonoCosts;
-using Model::MidiParser::NoteNames;
+using namespace Model::Fingering;
 using namespace gTest;
 
 class MonoCosts_F : public CostCommon
@@ -75,7 +74,7 @@ TEST_F(MonoCosts_F, PartialMonoSum)
 # endif
 	for (int16_t i(NULL); i <= 5; ++i)
 	{
-		if (NoteNames::IsBlack(whiteNote - i))
+		if (BlackWhiteKeys::IsBlack(whiteNote - i))
 		{
 			Test_PartialMonoSum(0, static_cast<size_t>(5 - i), '\1', '\2', whiteNote, whiteNote - i);
 			Test_PartialMonoSum(1, static_cast<size_t>(5 - i), '\1', '\3', whiteNote, whiteNote - i);
@@ -100,7 +99,7 @@ TEST_F(MonoCosts_F, PartialMonoSum)
 			Test_PartialMonoSum(9, static_cast<size_t>(5 - i), '\5', '\4', whiteNote - i, whiteNote);
 		}
 		
-		if (NoteNames::IsWhite(blackNote + i))
+		if (BlackWhiteKeys::IsWhite(blackNote + i))
 		{
 			Test_PartialMonoSum(0, static_cast<size_t>(5 - i), '\1', '\2', blackNote + i, blackNote);
 			Test_PartialMonoSum(1, static_cast<size_t>(5 - i), '\1', '\3', blackNote + i, blackNote);
@@ -134,7 +133,7 @@ TEST_F(MonoCosts_F, PartialMonoSum)
 
 	for (int16_t i(NULL); i <= 15; ++i)
 	{
-		if (NoteNames::IsWhite(whiteNote - i))
+		if (BlackWhiteKeys::IsWhite(whiteNote - i))
 		{
 			Test_PartialMonoSum(0, static_cast<size_t>(i + 5), '\1', '\2', whiteNote - i, whiteNote);
 			Test_PartialMonoSum(1, static_cast<size_t>(i + 5), '\1', '\3', whiteNote - i, whiteNote);
@@ -146,7 +145,7 @@ TEST_F(MonoCosts_F, PartialMonoSum)
 			Test_PartialMonoSum(2, static_cast<size_t>(i + 5), '\4', '\1', whiteNote, whiteNote - i);
 			Test_PartialMonoSum(3, static_cast<size_t>(i + 5), '\5', '\1', whiteNote, whiteNote - i);
 		}
-		else if (NoteNames::IsWhite(blackNote - i))
+		else if (BlackWhiteKeys::IsWhite(blackNote - i))
 		{
 			Test_PartialMonoSum(0, static_cast<size_t>(i + 5), '\1', '\2', blackNote - i, blackNote);
 			Test_PartialMonoSum(1, static_cast<size_t>(i + 5), '\1', '\3', blackNote - i, blackNote);
@@ -324,18 +323,18 @@ TEST_F(MonoCosts_F, CostOfPairs)
 	int16_t note(NULL);
 	for (int16_t i(-5); i <= 15; ++i)
 	{
-		while (NoteNames::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsBlack(note + i));
+		while (BlackWhiteKeys::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || BlackWhiteKeys::IsBlack(note + i));
 		CostTable::CheckTableCells(Test_White_White, note, note + i);
 		if (i && i != 12)
 		{
-			while (NoteNames::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsWhite(note + i));
+			while (BlackWhiteKeys::IsBlack(note = rand() % (INT16_MAX - 30) + 15) || BlackWhiteKeys::IsWhite(note + i));
 			CostTable::CheckTableCells(Test_White_Black, note, note + i);
-			while (NoteNames::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsBlack(note + i));
+			while (BlackWhiteKeys::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || BlackWhiteKeys::IsBlack(note + i));
 			CostTable::CheckTableCells(Test_Black_White, note, note + i);
 		}
 		if (i != -1 && i != 1 && i != 6 && i != 11 && i != 13)
 		{
-			while (NoteNames::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || NoteNames::IsWhite(note + i));
+			while (BlackWhiteKeys::IsWhite(note = rand() % (INT16_MAX - 30) + 15) || BlackWhiteKeys::IsWhite(note + i));
 			CostTable::CheckTableCells(Test_Black_Black, note, note + i);
 		}
 	}

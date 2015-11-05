@@ -1,8 +1,8 @@
 # pragma once
 
-namespace Model
+namespace Interface
 {
-	namespace MidiParser
+	namespace View
 	{
 		class NoteNames abstract : private boost::noncopyable
 		{
@@ -20,12 +20,6 @@ namespace Model
 				assert("NOTE MUST BE A POSITIVE NUMBER" && noteNumber >= 0);
 				return static_cast<NOTE_NAMES>(noteNumber % NUM_NOTES);
 			}
-
-			static bool IsWhite(int16_t noteNumber)
-			{
-				return !IsBlack(noteNumber);
-			}
-			static bool IsBlack(int16_t noteNumber);
 		private:
 			NoteNames() = delete;
 			~NoteNames() = delete;

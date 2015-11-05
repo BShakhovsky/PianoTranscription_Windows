@@ -75,6 +75,9 @@
     <ClInclude Include="MidiLog_Win32.h">
       <Filter>Header Files\Lib\MidiLog</Filter>
     </ClInclude>
+    <ClInclude Include="NoteNames.h">
+      <Filter>Header Files\Lib\Keyboard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -4,24 +4,32 @@
 
 using namespace std;
 using namespace Model::Fingering;
-
-# define NOTE_MI 136i16		// note "mi" for left hand is mirrowed equivalent to note "do" for right hand
+using GraphStruct::Chord_;
 
 TrellisGraph::TrellisGraph(const vector<vector<int16_t>> chords, const bool leftHand) :
-	graph_()
+	result_()
 {
+	const auto NOTE_MI(136i16);		// note "mi" for left hand is mirrow-equivalent to note "do" for right hand
+
 	NodesLinker trellis;
-	if (leftHand) for (const auto& chord : chords)
+	for (const auto& chord : chords)
 	{
 		auto mirrowedChord(chord);
-		transform(chord.crbegin(), chord.crend(), mirrowedChord.begin(), bind1st(minus<int16_t>(), NOTE_MI));
-												trellis.LinkNewNodes(mirrowedChord);
+		if (leftHand) transform(chord.crbegin(), chord.crend(), mirrowedChord.begin(), bind1st(minus<int16_t>(), NOTE_MI));
+		trellis.LinkNewNodes(mirrowedChord);
 	}
-	else		for (const auto& chord : chords) trellis.LinkNewNodes(chord);
 
 	trellis.RemoveExpensivePaths();
 
-	graph_ = trellis.GetResultedGraph();
-	if (leftHand) for (auto& path : graph_) for (auto& node : path)
-		for (auto& note : node->first) note.first = NOTE_MI - note.first;
+	result_.reserve(trellis.GetResultedGraph().size());
+	for (const auto& path : trellis.GetResultedGraph())
+	{
+		result_.emplace_back(vector<Chord_>());
+		result_.back().reserve(path.size());
+		for (const auto& node : path)
+		{
+			result_.back().push_back(node->first);
+			if (leftHand) for (auto& note : result_.back().back()) note.first = NOTE_MI - note.first;
+		}
+	}
 }

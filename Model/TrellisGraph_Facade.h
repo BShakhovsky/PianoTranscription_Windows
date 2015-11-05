@@ -12,12 +12,12 @@ namespace Model
 			explicit TrellisGraph(std::vector<std::vector<int16_t>> chords, bool leftHand = false);
 			~TrellisGraph() = default;
 
-			GraphStruct::Graph_ GetGraph() const
+			std::vector<std::vector<GraphStruct::Chord_>> GetResult() const
 			{
-				return graph_;
+				return result_;
 			}
 		private:
-			GraphStruct::Graph_ graph_;
+			std::vector<std::vector<GraphStruct::Chord_>> result_;
 		};
 	}
 }

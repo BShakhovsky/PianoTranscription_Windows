@@ -1,10 +1,8 @@
 # include "stdafx.h"
 # include "DirectSound_buffer.h"
 # include "DirectSound_locker.h"
-# include "..\..\..\Model\MidiParserLib\MidiStruct.h"
 
 using Interface::Sound::DirectSound_buffer;
-using namespace Model::MidiParser::MidiStruct;
 
 DirectSound_buffer::DirectSound_buffer() :
 	buffer_(),
@@ -17,7 +15,7 @@ DirectSound_buffer::DirectSound_buffer() :
 	format_.nChannels = 1;
 	format_.nSamplesPerSec = 22'050;
 
-	format_.wBitsPerSample = Bytes::byteSize * sizeof QUALITY;
+	format_.wBitsPerSample = 8 * sizeof QUALITY;
 	format_.nBlockAlign = static_cast<WORD>(sizeof QUALITY * format_.nChannels);
 	format_.nAvgBytesPerSec = format_.nSamplesPerSec * format_.nBlockAlign;
 }
@@ -36,7 +34,7 @@ void DirectSound_buffer::Init(HWND hWnd, const unsigned totalMilliSeconds)
 	ZeroMemory(&bufferStruct, sizeof bufferStruct);
 	bufferStruct.dwSize = sizeof bufferStruct;
 	bufferStruct.dwBufferBytes = static_cast<unsigned>(static_cast<unsigned long long>(format_.nAvgBytesPerSec)
-																	* totalMilliSeconds / TrackEvent::milliSec);
+																			* totalMilliSeconds / 1'000'000);
 	bufferStruct.lpwfxFormat = &format_;
 
 	if (FAILED(sound->CreateSoundBuffer(&bufferStruct, &buffer_, NULL))) WARNING("Failed to create sound buffer");

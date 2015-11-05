@@ -66,8 +66,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,8 +87,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>MidiParser.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\MidiParser\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -103,9 +103,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CodeMetrics\CodeMetricsLib\CodeMetricsLib.vcxproj">
-      <Project>{e6c97822-4194-48ae-96c9-7d8caa8af66d}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Model\MidiPlayback_Lib\MidiPlayback_Lib.vcxproj">
       <Project>{a7866a30-7f37-4b20-8a9c-396333a46d8f}</Project>
     </ProjectReference>
