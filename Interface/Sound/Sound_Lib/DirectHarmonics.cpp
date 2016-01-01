@@ -2,16 +2,18 @@
 # include "DirectHarmonics.h"
 # include "DirectSound_buffer.h"
 
-using std::make_unique;
 using namespace Interface::Sound;
 
 DirectHarmonics::DirectHarmonics(HWND hWnd, const unsigned totalMilliSeconds) :
-	buffer_(make_unique<DirectSound_buffer>())
+	buffer_(new DirectSound_buffer())
 {
 	buffer_->Init(hWnd, totalMilliSeconds);
 }
 
-DirectHarmonics::~DirectHarmonics() {}
+DirectHarmonics::~DirectHarmonics()
+{
+	delete buffer_;
+}
 
 void DirectHarmonics::AddNote(const int note, const unsigned start, const unsigned duration) const
 {

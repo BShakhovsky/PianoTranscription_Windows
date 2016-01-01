@@ -1,10 +1,9 @@
-# pragma once
+#pragma once
 
-# include "targetver.h"
+#include "targetver.h"
 
-# include "..\..\..\SharedHeader.h"
-
-# pragma warning(push)
-# pragma warning(disable:5026 5027)	// non-copyable classes
-#	include <boost\serialization\singleton.hpp>
-# pragma warning(pop)
+#define WIN32_LEAN_AND_MEAN
+#pragma warning(disable:4514)
+#pragma warning(push, 3)
+#	include <Windows.h>
+#pragma warning(pop)

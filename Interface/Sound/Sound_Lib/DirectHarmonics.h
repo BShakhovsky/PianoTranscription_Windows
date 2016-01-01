@@ -4,7 +4,7 @@ namespace Interface
 {
 	namespace Sound
 	{
-		class DirectHarmonics : private boost::noncopyable
+		class DirectHarmonics
 		{
 			const int
 				noteMin_ = 21,	// Lya of second octave, 55 Hz
@@ -20,7 +20,12 @@ namespace Interface
 			void Stop() const;
 			void Clear() const;
 		private:
-			const std::unique_ptr<class DirectSound_buffer> buffer_;
+			class DirectSound_buffer* buffer_;
+
+			DirectHarmonics(const DirectHarmonics&) = delete;
+			DirectHarmonics(const DirectHarmonics&&) = delete;
+			DirectHarmonics& operator=(const DirectHarmonics&) = delete;
+			DirectHarmonics&& operator=(const DirectHarmonics&&) = delete;
 		};
 	}
 }
