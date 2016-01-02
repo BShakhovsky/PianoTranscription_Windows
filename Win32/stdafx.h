@@ -8,8 +8,9 @@
 #	include <WindowsX.h>
 #pragma warning(pop)
 
-#pragma warning(disable:4625 4626 5026 5027)
+#pragma warning(disable:4625 4626)
 #pragma warning(push, 3)
+#pragma warning(disable:5026 5027)
 #	include <boost\noncopyable.hpp>
 #pragma warning(pop)
 
@@ -17,6 +18,7 @@
 #pragma warning(push, 2)
 #pragma warning(disable:4711)
 #	include <boost\lexical_cast.hpp>
+#	include <boost\format.hpp>
 #pragma warning(pop)
 
 #include <cassert>

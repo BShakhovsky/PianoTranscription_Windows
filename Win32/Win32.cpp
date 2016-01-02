@@ -10,6 +10,7 @@ using boost::lexical_cast;
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
 Keyboard gKeyboard;
 wstring gErrBuf;
+UINT gTimerTick(7);
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 {
@@ -28,23 +29,35 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 	return FALSE;
 }
 
-/*
-void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD)
+
+void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 {
-	static auto start(time(nullptr));
-	static auto index(1);
-	const auto wait(start * 1'000 + gMidi->GetMilliSeconds().at(1).at(index)
-		- gMidi->GetMilliSeconds().at(1).at(index - 1) - time(nullptr));
-	if (wait > 0)
+	static DWORD start(0);
+	static size_t index(0);
+	static auto prevTime(gMidi->GetMilliSeconds().at(1).at(index));
+	if (static_cast<time_t>(dwTime + prevTime) -
+		static_cast<time_t>(start + gMidi->GetMilliSeconds().at(1).at(index)) > 0)
 	{
-//		gKeyboard.ReleaseAllKeys(hdc);
-//		gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
-		start = time(nullptr);
-		++index;
-		if (index >= gMidi->GetNotes().at(1).size()) KillTimer(hWnd, id);
+		start = dwTime;
+		prevTime = gMidi->GetMilliSeconds().at(1).at(index);
+		gKeyboard.ReleaseAllKeys();
+		do
+		{
+			gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
+			++index;
+		} while (index < gMidi->GetNotes().at(1).size() &&
+			gMidi->GetMilliSeconds().at(1).at(index)
+			- gMidi->GetMilliSeconds().at(1).at(index - 1) <= gTimerTick);
+
+		if (index >= gMidi->GetNotes().at(1).size())
+		{
+			start = index = 0;
+			KillTimer(hWnd, id);
+		}
+		InvalidateRect(hWnd, nullptr, false);
 	}
 }
-*/
+
 
 void OnCommand(HWND hWnd, int id, HWND, UINT)
 {
@@ -65,7 +78,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 			try
 			{
 				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
-//				SetTimer(hWnd, 0, 10, OnTimer);
+				SetTimer(hWnd, 0, gTimerTick, OnTimer);
 			}
 			catch (const MidiError& e)
 			{
@@ -88,6 +101,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		break;
 	}
 }
+
 void OnPaint(HWND hWnd)
 {
 	PAINTSTRUCT ps;
@@ -109,25 +123,19 @@ void OnPaint(HWND hWnd)
 	}
 	EndPaint(hWnd, &ps);
 }
-void OnDestroy(HWND)
+
+inline void OnDestroy(HWND)
 {
 	PostQuitMessage(0);
 }
-void OnSize(HWND hWnd, UINT, int cx, int cy)
+
+inline void OnSize(HWND hWnd, UINT, int cx, int cy)
 {
 	gKeyboard.UpdateSize(hWnd, cx, cy);
-}
-void OnLButtonDown(HWND hWnd, BOOL fDoubleClick, int, int, UINT keyFlags)
-{
-	UNREFERENCED_PARAMETER(hWnd);
-	UNREFERENCED_PARAMETER(fDoubleClick);
-	UNREFERENCED_PARAMETER(keyFlags);
-	static size_t index(0);
 	gKeyboard.ReleaseAllKeys();
-	gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
-	++index;
-	InvalidateRect(hWnd, nullptr, false);
 }
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -136,10 +144,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HANDLE_MSG(hWnd, WM_PAINT,		OnPaint);
 		HANDLE_MSG(hWnd, WM_DESTROY,	OnDestroy);
 		HANDLE_MSG(hWnd, WM_SIZE,		OnSize);
-		HANDLE_MSG(hWnd, WM_LBUTTONDOWN, OnLButtonDown);
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)
 {
