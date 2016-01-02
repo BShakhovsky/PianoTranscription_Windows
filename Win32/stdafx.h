@@ -19,5 +19,6 @@
 #	include <boost\lexical_cast.hpp>
 #pragma warning(pop)
 
+#include <cassert>
 #include <memory>
 #include <vector>

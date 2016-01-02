@@ -28,6 +28,24 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 	return FALSE;
 }
 
+/*
+void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD)
+{
+	static auto start(time(nullptr));
+	static auto index(1);
+	const auto wait(start * 1'000 + gMidi->GetMilliSeconds().at(1).at(index)
+		- gMidi->GetMilliSeconds().at(1).at(index - 1) - time(nullptr));
+	if (wait > 0)
+	{
+//		gKeyboard.ReleaseAllKeys(hdc);
+//		gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
+		start = time(nullptr);
+		++index;
+		if (index >= gMidi->GetNotes().at(1).size()) KillTimer(hWnd, id);
+	}
+}
+*/
+
 void OnCommand(HWND hWnd, int id, HWND, UINT)
 {
 	switch (id)
@@ -47,6 +65,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 			try
 			{
 				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
+//				SetTimer(hWnd, 0, 10, OnTimer);
 			}
 			catch (const MidiError& e)
 			{
@@ -73,7 +92,7 @@ void OnPaint(HWND hWnd)
 {
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
-	gKeyboard.ReleaseAllKeys(hdc);
+	gKeyboard.Draw(hdc);
 	RECT rect{ 0 };
 	GetClientRect(hWnd, &rect);
 	if (gMidi)
@@ -90,16 +109,34 @@ void OnPaint(HWND hWnd)
 	}
 	EndPaint(hWnd, &ps);
 }
+void OnDestroy(HWND)
+{
+	PostQuitMessage(0);
+}
+void OnSize(HWND hWnd, UINT, int cx, int cy)
+{
+	gKeyboard.UpdateSize(hWnd, cx, cy);
+}
+void OnLButtonDown(HWND hWnd, BOOL fDoubleClick, int, int, UINT keyFlags)
+{
+	UNREFERENCED_PARAMETER(hWnd);
+	UNREFERENCED_PARAMETER(fDoubleClick);
+	UNREFERENCED_PARAMETER(keyFlags);
+	static size_t index(0);
+	gKeyboard.ReleaseAllKeys();
+	gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
+	++index;
+	InvalidateRect(hWnd, nullptr, false);
+}
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 		HANDLE_MSG(hWnd, WM_COMMAND,	OnCommand);
 		HANDLE_MSG(hWnd, WM_PAINT,		OnPaint);
-		HANDLE_MSG(hWnd, WM_DESTROY,
-			[](HWND) { PostQuitMessage(0); });
-		HANDLE_MSG(hWnd, WM_SIZE,
-			[](HWND, UINT, int cx, int cy) { gKeyboard.SetWidthHeight(cx, cy); });
+		HANDLE_MSG(hWnd, WM_DESTROY,	OnDestroy);
+		HANDLE_MSG(hWnd, WM_SIZE,		OnSize);
+		HANDLE_MSG(hWnd, WM_LBUTTONDOWN, OnLButtonDown);
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
