@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Keyboard.h"
 
-void DrawBlackKey(HDC hdc, RECT* rect, unsigned edge)
+inline void DrawBlackKey(HDC hdc, RECT* rect, unsigned edge)
 {
 	FillRect(hdc, rect, GetStockBrush(BLACK_BRUSH));
 	DrawEdge(hdc, rect, edge, BF_RECT);

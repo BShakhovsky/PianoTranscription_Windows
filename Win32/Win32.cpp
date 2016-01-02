@@ -5,9 +5,11 @@
 #include "Keyboard.h"
 
 using namespace std;
+using boost::lexical_cast;
 
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
 Keyboard gKeyboard;
+wstring gErrBuf;
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 {
@@ -40,18 +42,20 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		fileName.Flags = OFN_FILEMUSTEXIST;
 		if (GetOpenFileName(&fileName))
 		{
+			char errBuf[0xFF] = "";
+			setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
 			try
 			{
 				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
-				MessageBox(hWnd,
-					boost::lexical_cast<std::wstring>(gMidi->GetNotes().at(1).at(1)).c_str(),
-					TEXT("Test"), 0);
 			}
 			catch (const MidiError& e)
 			{
-				MessageBox(hWnd, boost::lexical_cast<std::wstring>(e.what()).c_str(),
+				MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(),
 					TEXT("Error"), MB_ICONHAND);
 			}
+			setvbuf(stderr, nullptr, _IOFBF, 2);
+			gErrBuf = lexical_cast<wstring>(errBuf);
+			InvalidateRect(hWnd, nullptr, true);
 		}
 		else MessageBox(hWnd, fileName.lpstrFile,
 			TEXT("Cannot open the following file:"), MB_ICONEXCLAMATION);
@@ -70,6 +74,20 @@ void OnPaint(HWND hWnd)
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
 	gKeyboard.ReleaseAllKeys(hdc);
+	RECT rect{ 0 };
+	GetClientRect(hWnd, &rect);
+	if (gMidi)
+	{
+		const wstring text(gMidi->GetLog().cbegin(), gMidi->GetLog().cend());
+		DrawText(hdc, text.c_str(), static_cast<int>(text.length()), &rect, DT_EXPANDTABS);
+	}
+	if (!gErrBuf.empty())
+	{
+		rect.left = rect.right / 2;
+		const auto oldColor(SetTextColor(hdc, RGB(0xFF, 0, 0)));
+		DrawText(hdc, gErrBuf.c_str(), static_cast<int>(gErrBuf.length()), &rect, 0);
+		SetTextColor(hdc, oldColor);
+	}
 	EndPaint(hWnd, &ps);
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

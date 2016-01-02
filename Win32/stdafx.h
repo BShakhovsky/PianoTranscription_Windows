@@ -15,6 +15,7 @@
 
 #pragma warning(disable:4710)
 #pragma warning(push, 2)
+#pragma warning(disable:4711)
 #	include <boost\lexical_cast.hpp>
 #pragma warning(pop)
 
