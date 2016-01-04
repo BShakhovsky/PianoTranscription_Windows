@@ -6,6 +6,7 @@
 #pragma warning(push, 3)
 #	include <Windows.h>
 #	include <WindowsX.h>
+#	include <DSound.h>
 #pragma warning(pop)
 
 #pragma warning(disable:4625 4626)

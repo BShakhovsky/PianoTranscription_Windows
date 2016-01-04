@@ -3,6 +3,7 @@
 #include "MidiParser_Facade.h"
 #include "MidiError.h"
 #include "Keyboard.h"
+#include "Sound.h"
 
 using namespace std;
 using boost::lexical_cast;
@@ -32,6 +33,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 
 void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 {
+	static Sound sound(hWnd);
 	static DWORD start(0);
 	static size_t index(0);
 	static auto prevTime(gMidi->GetMilliSeconds().at(1).at(index));
@@ -44,6 +46,7 @@ void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 		do
 		{
 			gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
+			sound.AddNote(gMidi->GetNotes().at(1).at(index));
 			++index;
 		} while (index < gMidi->GetNotes().at(1).size() &&
 			gMidi->GetMilliSeconds().at(1).at(index)
@@ -54,6 +57,7 @@ void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 			start = index = 0;
 			KillTimer(hWnd, id);
 		}
+		sound.Play();
 		InvalidateRect(hWnd, nullptr, false);
 	}
 }
