@@ -8,6 +8,8 @@
 using namespace std;
 using boost::lexical_cast;
 
+const auto ASPECT_RATIO(6);
+
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
 shared_ptr<Sound> gSound(nullptr);
 Keyboard gKeyboard;
@@ -72,6 +74,11 @@ BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 {
 	gSound = make_shared<Sound>(hWnd);
 	return true;
+}
+inline BOOL OnWindowPosChanging(HWND, LPWINDOWPOS pos)
+{
+	pos->cy = pos->cx / ASPECT_RATIO;
+	return false;
 }
 inline void OnSize(HWND hWnd, UINT, int cx, int cy)
 {
@@ -156,11 +163,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-		HANDLE_MSG(hWnd, WM_CREATE,		OnCreate);
-		HANDLE_MSG(hWnd, WM_SIZE,		OnSize);
-		HANDLE_MSG(hWnd, WM_COMMAND,	OnCommand);
-		HANDLE_MSG(hWnd, WM_PAINT,		OnPaint);
-		HANDLE_MSG(hWnd, WM_DESTROY,	OnDestroy);
+		HANDLE_MSG(hWnd, WM_CREATE,				OnCreate);
+		HANDLE_MSG(hWnd, WM_WINDOWPOSCHANGING,	OnWindowPosChanging);
+		HANDLE_MSG(hWnd, WM_SIZE,				OnSize);
+		HANDLE_MSG(hWnd, WM_COMMAND,			OnCommand);
+		HANDLE_MSG(hWnd, WM_PAINT,				OnPaint);
+		HANDLE_MSG(hWnd, WM_DESTROY,			OnDestroy);
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
@@ -183,7 +191,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 	const auto hWnd(CreateWindowW(szWindowClass, TEXT("Piano Fingers"), WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, HWND_DESKTOP, nullptr, hInstance, nullptr));
 	if (!hWnd) return FALSE;
+	ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+#ifdef _DEBUG
+	UNREFERENCED_PARAMETER(nCmdShow);
+#else
 	ShowWindow(hWnd, nCmdShow);
+#endif
 	UpdateWindow(hWnd);
 
     const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32)));
