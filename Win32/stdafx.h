@@ -20,6 +20,7 @@
 #pragma warning(disable:4711)
 #	include <boost\lexical_cast.hpp>
 #	include <boost\format.hpp>
+#	include <boost\regex.hpp>
 #pragma warning(pop)
 
 #include <cassert>

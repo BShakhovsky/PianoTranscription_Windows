@@ -5,15 +5,22 @@
 #include "Keyboard.h"
 #include "Sound.h"
 
-using namespace std;
+using std::vector; 
+using std::string;
+using std::wstring;
+using std::shared_ptr;
+using std::make_shared;
+
 using boost::lexical_cast;
+using boost::format;
+using boost::wformat;
+using boost::regex;
 
 const auto ASPECT_RATIO(6);
 
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
 shared_ptr<Sound> gSound(nullptr);
 Keyboard gKeyboard;
-wstring gErrBuf;
 UINT gTimerTick(USER_TIMER_MINIMUM);
 vector<time_t> gStarts;
 vector<unsigned> gPrevTimes;
@@ -21,21 +28,40 @@ vector<size_t> gIndexes;
 
 vector<size_t> gTracks;
 
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
+HWND gControls(nullptr);
+auto gDlgWidth(0);
+
+BOOL OnInitDialog(HWND hDlg, HWND, LPARAM)
+{
+	Edit_SetText(GetDlgItem(hDlg, IDC_MIDI_LOG), TEXT("MIDI info and errors if any"));
+	ComboBox_AddString(GetDlgItem(hDlg, IDC_LEFT_HAND), TEXT("None"));
+	ComboBox_AddString(GetDlgItem(hDlg, IDC_RIGHT_HAND), TEXT("None")); 
+	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_LEFT_HAND), 0);
+	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_RIGHT_HAND), 0);
+	return true;
+}
+
+inline void About_OnCommand(HWND hDlg, int id, HWND, UINT)
+{
+	if (id == IDOK || id == IDCANCEL) EndDialog(hDlg, id);
+}
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-	case WM_INITDIALOG:
-		return TRUE;
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return TRUE;
-		}
-		break;
+		HANDLE_MSG(hDlg, WM_INITDIALOG,	OnInitDialog);
+		HANDLE_MSG(hDlg, WM_COMMAND, About_OnCommand);
+	default: return false;
 	}
-	return FALSE;
+}
+
+INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+		HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+	default: return false;
+	}
 }
 
 bool PlayTrack(size_t trackNo, DWORD dwTime)
@@ -73,12 +99,25 @@ void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 {
 	gSound = make_shared<Sound>(hWnd);
+	gControls = CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls);
+	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
+	ShowWindow(gControls, SW_SHOWNORMAL);
+	RECT rect{ 0 };
+	GetWindowRect(gControls, &rect);
+	gDlgWidth = rect.right - rect.left;
 	return true;
 }
 inline BOOL OnWindowPosChanging(HWND, LPWINDOWPOS pos)
 {
 	pos->cy = pos->cx / ASPECT_RATIO;
 	return false;
+}
+void OnMove(HWND hWnd, int x, int)
+{
+	RECT rect{ 0 };
+	GetWindowRect(hWnd, &rect);
+	SetWindowPos(gControls, HWND_TOP, (x + rect.right - gDlgWidth) / 2, rect.bottom - 8,
+		0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 inline void OnSize(HWND hWnd, UINT, int cx, int cy)
 {
@@ -101,13 +140,29 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		{
 			char errBuf[0xFF] = "";
 			setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
+			string log;
 			try
 			{
 				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
+				
+				Edit_SetText(GetDlgItem(gControls, IDC_MIDI_LOG),
+					lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
+						+ (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
+				for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
+				{
+					const auto aName(gMidi->GetTrackNames().at(i));
+					wstring wName((wformat{ TEXT("%d ") } % i).str()
+						+ wstring(aName.cbegin(), aName.cend()));
+					ComboBox_AddString(GetDlgItem(gControls, IDC_LEFT_HAND), wName.c_str());
+					ComboBox_AddString(GetDlgItem(gControls, IDC_RIGHT_HAND), wName.c_str());
+					ListBox_AddString(GetDlgItem(gControls, IDC_TRACKS), wName.c_str());
+				}
+
 				gIndexes.assign(gMidi->GetNotes().size(), 0);
 				gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
 				gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
 				gTracks = { 2, 3 };
+				
 				SetTimer(hWnd, 0, gTimerTick, OnTimer);
 			}
 			catch (const MidiError& e)
@@ -116,11 +171,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 					TEXT("Error"), MB_ICONHAND);
 			}
 			setvbuf(stderr, nullptr, _IOFBF, 2);
-			gErrBuf = lexical_cast<wstring>(errBuf);
-			InvalidateRect(hWnd, nullptr, true);
 		}
-		else MessageBox(hWnd, fileName.lpstrFile,
-			TEXT("Cannot open the following file:"), MB_ICONEXCLAMATION);
 	}
 	break;
 	case IDM_ABOUT:
@@ -138,20 +189,6 @@ void OnPaint(HWND hWnd)
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
 	gKeyboard.Draw(hdc);
-	RECT rect{ 0 };
-	GetClientRect(hWnd, &rect);
-	if (gMidi)
-	{
-		const wstring text(gMidi->GetLog().cbegin(), gMidi->GetLog().cend());
-		DrawText(hdc, text.c_str(), static_cast<int>(text.length()), &rect, DT_EXPANDTABS);
-	}
-	if (!gErrBuf.empty())
-	{
-		rect.left = rect.right / 2;
-		const auto oldColor(SetTextColor(hdc, RGB(0xFF, 0, 0)));
-		DrawText(hdc, gErrBuf.c_str(), static_cast<int>(gErrBuf.length()), &rect, 0);
-		SetTextColor(hdc, oldColor);
-	}
 	EndPaint(hWnd, &ps);
 }
 inline void OnDestroy(HWND)
@@ -165,6 +202,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		HANDLE_MSG(hWnd, WM_CREATE,				OnCreate);
 		HANDLE_MSG(hWnd, WM_WINDOWPOSCHANGING,	OnWindowPosChanging);
+		HANDLE_MSG(hWnd, WM_MOVE,				OnMove);
 		HANDLE_MSG(hWnd, WM_SIZE,				OnSize);
 		HANDLE_MSG(hWnd, WM_COMMAND,			OnCommand);
 		HANDLE_MSG(hWnd, WM_PAINT,				OnPaint);
