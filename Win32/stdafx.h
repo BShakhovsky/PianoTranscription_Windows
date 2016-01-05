@@ -24,4 +24,5 @@
 
 #include <cassert>
 #include <memory>
+#include <numeric>
 #include <vector>

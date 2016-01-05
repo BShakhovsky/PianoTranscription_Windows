@@ -9,9 +9,15 @@ using namespace std;
 using boost::lexical_cast;
 
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
+shared_ptr<Sound> gSound(nullptr);
 Keyboard gKeyboard;
 wstring gErrBuf;
-UINT gTimerTick(7);
+UINT gTimerTick(USER_TIMER_MINIMUM);
+vector<time_t> gStarts;
+vector<unsigned> gPrevTimes;
+vector<size_t> gIndexes;
+
+vector<size_t> gTracks;
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 {
@@ -30,39 +36,48 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM)
 	return FALSE;
 }
 
-
-void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
+bool PlayTrack(size_t trackNo, DWORD dwTime)
 {
-	static Sound sound(hWnd);
-	static DWORD start(0);
-	static size_t index(0);
-	static auto prevTime(gMidi->GetMilliSeconds().at(1).at(index));
-	if (static_cast<time_t>(dwTime + prevTime) -
-		static_cast<time_t>(start + gMidi->GetMilliSeconds().at(1).at(index)) > 0)
+	if (static_cast<time_t>(dwTime + gPrevTimes.at(trackNo)) - gStarts.at(trackNo) -
+		static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) > 0)
 	{
-		start = dwTime;
-		prevTime = gMidi->GetMilliSeconds().at(1).at(index);
+		gStarts.at(trackNo) = dwTime;
+		gPrevTimes.at(trackNo) = gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo));
 		gKeyboard.ReleaseAllKeys();
 		do
 		{
-			gKeyboard.PressKey(gMidi->GetNotes().at(1).at(index));
-			sound.AddNote(gMidi->GetNotes().at(1).at(index));
-			++index;
-		} while (index < gMidi->GetNotes().at(1).size() &&
-			gMidi->GetMilliSeconds().at(1).at(index)
-			- gMidi->GetMilliSeconds().at(1).at(index - 1) <= gTimerTick);
+			gKeyboard.PressKey(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
+			gSound->AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
+			++gIndexes.at(trackNo);
+		} while (gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size() &&
+			gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))
+			- gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo) - 1) <= gTimerTick);
 
-		if (index >= gMidi->GetNotes().at(1).size())
-		{
-			start = index = 0;
-			KillTimer(hWnd, id);
-		}
-		sound.Play();
-		InvalidateRect(hWnd, nullptr, false);
+		if (gIndexes.at(trackNo) >= gMidi->GetNotes().at(trackNo).size())
+			gStarts.at(trackNo) = USER_TIMER_MAXIMUM;
+		return true;
 	}
+	return false;
+}
+void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
+{
+	const auto update(accumulate(gTracks.cbegin(), gTracks.cend(), false,
+		[dwTime](bool x, size_t y) { return x || PlayTrack(y, dwTime); }));
+	if (any_of(gStarts.cbegin(), gStarts.cend(),
+		[](time_t val) {return val == USER_TIMER_MAXIMUM; })) KillTimer(hWnd, id);
+	if (update) InvalidateRect(hWnd, nullptr, false);
 }
 
-
+BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
+{
+	gSound = make_shared<Sound>(hWnd);
+	return true;
+}
+inline void OnSize(HWND hWnd, UINT, int cx, int cy)
+{
+	gKeyboard.UpdateSize(hWnd, cx, cy);
+	gKeyboard.ReleaseAllKeys();
+}
 void OnCommand(HWND hWnd, int id, HWND, UINT)
 {
 	switch (id)
@@ -82,6 +97,10 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 			try
 			{
 				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
+				gIndexes.assign(gMidi->GetNotes().size(), 0);
+				gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
+				gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
+				gTracks = { 2, 3 };
 				SetTimer(hWnd, 0, gTimerTick, OnTimer);
 			}
 			catch (const MidiError& e)
@@ -105,9 +124,10 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		break;
 	}
 }
-
 void OnPaint(HWND hWnd)
 {
+	gSound->Play();
+
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
 	gKeyboard.Draw(hdc);
@@ -127,31 +147,23 @@ void OnPaint(HWND hWnd)
 	}
 	EndPaint(hWnd, &ps);
 }
-
 inline void OnDestroy(HWND)
 {
 	PostQuitMessage(0);
 }
 
-inline void OnSize(HWND hWnd, UINT, int cx, int cy)
-{
-	gKeyboard.UpdateSize(hWnd, cx, cy);
-	gKeyboard.ReleaseAllKeys();
-}
-
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+		HANDLE_MSG(hWnd, WM_CREATE,		OnCreate);
+		HANDLE_MSG(hWnd, WM_SIZE,		OnSize);
 		HANDLE_MSG(hWnd, WM_COMMAND,	OnCommand);
 		HANDLE_MSG(hWnd, WM_PAINT,		OnPaint);
 		HANDLE_MSG(hWnd, WM_DESTROY,	OnDestroy);
-		HANDLE_MSG(hWnd, WM_SIZE,		OnSize);
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
-
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)
 {
