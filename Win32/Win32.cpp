@@ -26,21 +26,16 @@ vector<time_t> gStarts;
 vector<unsigned> gPrevTimes;
 vector<size_t> gIndexes;
 
+auto gIsPlaying(false);
 vector<size_t> gTracks;
 
 HWND gControls(nullptr);
 auto gDlgWidth(0);
 
-BOOL OnInitDialog(HWND hDlg, HWND, LPARAM)
+inline BOOL About_OnInitDialog(HWND, HWND, LPARAM)
 {
-	Edit_SetText(GetDlgItem(hDlg, IDC_MIDI_LOG), TEXT("MIDI info and errors if any"));
-	ComboBox_AddString(GetDlgItem(hDlg, IDC_LEFT_HAND), TEXT("None"));
-	ComboBox_AddString(GetDlgItem(hDlg, IDC_RIGHT_HAND), TEXT("None")); 
-	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_LEFT_HAND), 0);
-	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_RIGHT_HAND), 0);
 	return true;
 }
-
 inline void About_OnCommand(HWND hDlg, int id, HWND, UINT)
 {
 	if (id == IDOK || id == IDCANCEL) EndDialog(hDlg, id);
@@ -49,17 +44,8 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-		HANDLE_MSG(hDlg, WM_INITDIALOG,	OnInitDialog);
-		HANDLE_MSG(hDlg, WM_COMMAND, About_OnCommand);
-	default: return false;
-	}
-}
-
-INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-		HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+		HANDLE_MSG(hDlg, WM_INITDIALOG,	About_OnInitDialog);
+		HANDLE_MSG(hDlg, WM_COMMAND,	About_OnCommand);
 	default: return false;
 	}
 }
@@ -96,6 +82,60 @@ void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 	if (update) InvalidateRect(hWnd, nullptr, false);
 }
 
+BOOL Controls_OnInitDialog(HWND hDlg, HWND, LPARAM)
+{
+	Edit_SetText(GetDlgItem(hDlg, IDC_MIDI_LOG), TEXT("MIDI info and errors if any"));
+	ComboBox_AddString(GetDlgItem(hDlg, IDC_LEFT_HAND), TEXT("None"));
+	ComboBox_AddString(GetDlgItem(hDlg, IDC_RIGHT_HAND), TEXT("None"));
+	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_LEFT_HAND), 0);
+	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_RIGHT_HAND), 0);
+	return true;
+}
+void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
+{
+	switch (id)
+	{
+	case IDB_PLAY:
+		if (gIsPlaying)
+		{
+			KillTimer(GetParent(hDlg), 0);
+			Button_SetText(hCtrl, TEXT("Play"));
+			gIsPlaying = false;
+		}
+		else
+		{
+			SetTimer(GetParent(hDlg), 0, gTimerTick, OnTimer);
+			Button_SetText(hCtrl, TEXT("Pause"));
+			gIsPlaying = true;
+		}
+		break;
+	case IDC_TRACKS:
+		if (notifyCode == LBN_SELCHANGE)
+		{
+			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(hCtrl)), 0);
+			ListBox_GetSelItems(hCtrl, items.size(), items.data());
+			gTracks.clear();
+			gTracks.reserve(items.size());
+			for (const auto& item : items)
+				gTracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
+
+			gIndexes.assign(gMidi->GetNotes().size(), 0);
+			gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
+			gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
+		}
+		break;
+	}
+}
+INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+		HANDLE_MSG(hDlg, WM_INITDIALOG,	Controls_OnInitDialog);
+		HANDLE_MSG(hDlg, WM_COMMAND,	Controls_OnCommand);
+	default: return false;
+	}
+}
+
 BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 {
 	gSound = make_shared<Sound>(hWnd);
@@ -130,6 +170,9 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 	{
 	case IDM_OPEN:
 	{
+		if (gIsPlaying)
+			FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
+
 		OPENFILENAME fileName{ sizeof fileName, hWnd };
 		fileName.lpstrFilter = TEXT("MIDI files (*.mid, *.midi)\0*.mid*\0All files\0*.*\0");
 		TCHAR buf[MAX_PATH] = TEXT("");
@@ -138,6 +181,14 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		fileName.Flags = OFN_FILEMUSTEXIST;
 		if (GetOpenFileName(&fileName))
 		{
+			const auto leftHand(GetDlgItem(gControls, IDC_LEFT_HAND)),
+				rightHand(GetDlgItem(gControls, IDC_RIGHT_HAND)),
+				trackList(GetDlgItem(gControls, IDC_TRACKS));
+			ComboBox_ResetContent(leftHand);
+			ComboBox_ResetContent(rightHand);
+			ListBox_ResetContent(trackList);
+			Controls_OnInitDialog(gControls, hWnd, 0);
+
 			char errBuf[0xFF] = "";
 			setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
 			string log;
@@ -148,22 +199,21 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 				Edit_SetText(GetDlgItem(gControls, IDC_MIDI_LOG),
 					lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
 						+ (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
-				for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
-				{
-					const auto aName(gMidi->GetTrackNames().at(i));
-					wstring wName((wformat{ TEXT("%d ") } % i).str()
-						+ wstring(aName.cbegin(), aName.cend()));
-					ComboBox_AddString(GetDlgItem(gControls, IDC_LEFT_HAND), wName.c_str());
-					ComboBox_AddString(GetDlgItem(gControls, IDC_RIGHT_HAND), wName.c_str());
-					ListBox_AddString(GetDlgItem(gControls, IDC_TRACKS), wName.c_str());
-				}
 
-				gIndexes.assign(gMidi->GetNotes().size(), 0);
-				gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
-				gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
-				gTracks = { 2, 3 };
-				
-				SetTimer(hWnd, 0, gTimerTick, OnTimer);
+				for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
+					if (!gMidi->GetNotes().at(i).empty())
+					{
+						const auto aName(gMidi->GetTrackNames().at(i));
+						wstring wName((wformat{ TEXT("%d ") } % i).str()
+							+ wstring(aName.cbegin(), aName.cend()));
+						ComboBox_AddString(leftHand, wName.c_str());
+						ComboBox_AddString(rightHand, wName.c_str());
+						ListBox_AddString(trackList, wName.c_str());
+
+						ComboBox_SetItemData(leftHand, ComboBox_GetCount(leftHand) - 1, i);
+						ComboBox_SetItemData(rightHand, ComboBox_GetCount(rightHand) - 1, i);
+						ListBox_SetItemData(trackList, ListBox_GetCount(trackList) - 1, i);
+					}
 			}
 			catch (const MidiError& e)
 			{
