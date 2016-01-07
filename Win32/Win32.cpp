@@ -29,8 +29,7 @@ Keyboard gKeyboard;
 Sound_Facade gSound;
 
 UINT gTimerTick(USER_TIMER_MINIMUM);
-vector<time_t> gStarts;
-vector<unsigned> gPrevTimes;
+DWORD gStart(0);
 vector<size_t> gIndexes;
 
 auto gIsPlaying(false);
@@ -57,36 +56,37 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-bool PlayTrack(size_t trackNo, DWORD dwTime)
+int PlayTrack(size_t trackNo, DWORD dwTime)
 {
-	if (static_cast<time_t>(dwTime + gPrevTimes.at(trackNo)) - gStarts.at(trackNo) -
-		static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) > 0)
-	{
-		gStarts.at(trackNo) = dwTime;
-		gPrevTimes.at(trackNo) = gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo));
-		gKeyboard.ReleaseAllKeys();
-		do
-		{
-			gKeyboard.PressKey(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
-			gSound.AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
-			++gIndexes.at(trackNo);
-		} while (gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size() &&
-			gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))
-			- gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo) - 1) <= gTimerTick);
+	auto result(0);
 
-		if (gIndexes.at(trackNo) >= gMidi->GetNotes().at(trackNo).size())
-			gStarts.at(trackNo) = USER_TIMER_MAXIMUM;
-		return true;
+	for (; gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size()
+			&& static_cast<time_t>(dwTime) - static_cast<time_t>(gStart
+				+ gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) >= 0;
+		++gIndexes.at(trackNo))
+	{
+		gKeyboard.PressKey(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
+		gSound.AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
+		result = 1;
 	}
-	return false;
+	if (result && gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size()
+			&& static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo)))
+			- static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo) - 1))
+				<= gTimerTick
+			|| static_cast<time_t>(dwTime + gTimerTick) - static_cast<time_t>(gStart
+				+ gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) >= 0)
+		result = INT16_MIN;
+
+	return result;
 }
 void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
 {
-	const auto update(accumulate(gTracks.cbegin(), gTracks.cend(), false,
-		[dwTime](bool x, size_t y) { return x || PlayTrack(y, dwTime); }));
-	if (any_of(gStarts.cbegin(), gStarts.cend(),
-		[](time_t val) {return val == USER_TIMER_MAXIMUM; })) KillTimer(hWnd, id);
-	if (update) InvalidateRect(hWnd, nullptr, false);
+	if (accumulate(gTracks.cbegin(), gTracks.cend(), 0,
+			[dwTime](int val, size_t track) { return val + PlayTrack(track, dwTime); }) > 0)
+		InvalidateRect(hWnd, nullptr, false);
+	if (all_of(gTracks.cbegin(), gTracks.cend(),
+			[](size_t track) { return gIndexes.at(track) >= gMidi->GetNotes().at(track).size(); }))
+		KillTimer(hWnd, id);
 }
 
 BOOL Controls_OnInitDialog(HWND hDlg, HWND, LPARAM)
@@ -111,6 +111,7 @@ void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 		}
 		else
 		{
+			gStart = GetTickCount();
 			SetTimer(GetParent(hDlg), 0, gTimerTick, OnTimer);
 			Button_SetText(hCtrl, TEXT("Pause"));
 			gIsPlaying = true;
@@ -227,8 +228,6 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 					}
 
 				gIndexes.assign(gMidi->GetNotes().size(), 0);
-				gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
-				gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
 			}
 			catch (const MidiError& e)
 			{
@@ -253,7 +252,10 @@ void OnPaint(HWND hWnd)
 
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
-	gKeyboard.Draw(hdc);
+	{
+		gKeyboard.Draw(hdc);
+		gKeyboard.ReleaseAllKeys();
+	}
 	EndPaint(hWnd, &ps);
 }
 inline void OnDestroy(HWND)
