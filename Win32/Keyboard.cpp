@@ -64,9 +64,3 @@ void Keyboard::PressKey(const int16_t note) const
 	if (BlackWhiteKeys::IsWhite(note))	DrawPressedWhiteKey(noteNo);
 	else								DrawPressedBlackKey(noteNo + 1);
 }
-
-
-void Keyboard::Draw(const HDC hdc) const
-{
-	BitBlt(hdc, 0, 0, width_, height_, hdcMem_, 0, 0, SRCCOPY);
-}

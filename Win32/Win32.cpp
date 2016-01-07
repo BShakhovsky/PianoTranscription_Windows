@@ -22,7 +22,11 @@ using boost::format;
 using boost::wformat;
 using boost::regex;
 
+const auto szWindowClass(TEXT("MainWindow")); 
 const auto ASPECT_RATIO(6);
+
+HWND gControls(nullptr);
+auto gDlgWidth(0);
 
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
 Keyboard gKeyboard;
@@ -33,9 +37,6 @@ UINT gTimerTick(USER_TIMER_MINIMUM);
 DWORD gStart(0);
 vector<size_t> gIndexes;
 vector<size_t> gTracks;
-
-HWND gControls(nullptr);
-auto gDlgWidth(0);
 
 inline BOOL About_OnInitDialog(HWND, HWND, LPARAM)
 {
@@ -169,16 +170,21 @@ BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 	gDlgWidth = rect.right - rect.left;
 	return true;
 }
+inline void OnDestroy(HWND)
+{
+	PostQuitMessage(0);
+}
+
 inline BOOL OnWindowPosChanging(HWND, LPWINDOWPOS pos)
 {
 	pos->cy = pos->cx / ASPECT_RATIO;
 	return false;
 }
-void OnMove(HWND hWnd, int x, int)
+void OnMove(HWND hWnd, int, int)
 {
 	RECT rect{ 0 };
 	GetWindowRect(hWnd, &rect);
-	SetWindowPos(gControls, HWND_TOP, (x + rect.right - gDlgWidth) / 2, rect.bottom - 8,
+	SetWindowPos(gControls, HWND_TOP, (rect.left + rect.right - gDlgWidth) / 2, rect.bottom - 8,
 		0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 inline void OnSize(HWND hWnd, UINT, int cx, int cy)
@@ -186,66 +192,78 @@ inline void OnSize(HWND hWnd, UINT, int cx, int cy)
 	gKeyboard.UpdateSize(hWnd, cx, cy);
 	gKeyboard.ReleaseAllKeys();
 }
+
+void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
+{
+	if (gIsPlaying)
+		FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
+
+	const auto leftHand(GetDlgItem(gControls, IDC_LEFT_HAND)),
+		rightHand(GetDlgItem(gControls, IDC_RIGHT_HAND)),
+		trackList(GetDlgItem(gControls, IDC_TRACKS));
+	ComboBox_ResetContent(leftHand);
+	ComboBox_ResetContent(rightHand);
+	ListBox_ResetContent(trackList);
+	Controls_OnInitDialog(gControls, hWnd, 0);
+
+	char errBuf[0xFF] = "";
+	setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
+	string log;
+	try
+	{
+		gMidi = make_shared<MidiParser_Facade>(fileName);
+
+		Edit_SetText(GetDlgItem(gControls, IDC_MIDI_LOG),
+			lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
+				+ (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
+
+		for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
+			if (!gMidi->GetNotes().at(i).empty())
+			{
+				const auto aName(gMidi->GetTrackNames().at(i));
+				wstring wName((wformat{ TEXT("%d ") } % i).str()
+					+ wstring(aName.cbegin(), aName.cend()));
+				ComboBox_AddString(leftHand, wName.c_str());
+				ComboBox_AddString(rightHand, wName.c_str());
+				ListBox_AddString(trackList, wName.c_str());
+
+				ComboBox_SetItemData(leftHand, ComboBox_GetCount(leftHand) - 1, i);
+				ComboBox_SetItemData(rightHand, ComboBox_GetCount(rightHand) - 1, i);
+				ListBox_SetItemData(trackList, ListBox_GetCount(trackList) - 1, i);
+			}
+
+		gIndexes.assign(gMidi->GetNotes().size(), 0);
+
+		Button_Enable(GetDlgItem(gControls, IDB_PLAY), true);
+	}
+	catch (const MidiError& e)
+	{
+		MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(),
+			TEXT("Error"), MB_ICONHAND);
+		Button_Enable(GetDlgItem(gControls, IDB_PLAY), false);
+	}
+	setvbuf(stderr, nullptr, _IOFBF, 2);
+}
+void OnDropFiles(HWND hWnd, HDROP hDrop)
+{
+	TCHAR fileName[MAX_PATH] = TEXT("");
+	DragQueryFile(hDrop, 0, fileName, sizeof fileName / sizeof *fileName);
+	OpenMidiFile(hWnd, fileName);
+	DragFinish(hDrop);
+}
 void OnCommand(HWND hWnd, int id, HWND, UINT)
 {
 	switch (id)
 	{
 	case IDM_OPEN:
 	{
-		if (gIsPlaying)
-			FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
-
 		OPENFILENAME fileName{ sizeof fileName, hWnd };
 		fileName.lpstrFilter = TEXT("MIDI files (*.mid, *.midi)\0*.mid*\0All files\0*.*\0");
 		TCHAR buf[MAX_PATH] = TEXT("");
 		fileName.lpstrFile = buf;
 		fileName.nMaxFile = sizeof buf / sizeof *buf;
 		fileName.Flags = OFN_FILEMUSTEXIST;
-		if (GetOpenFileName(&fileName))
-		{
-			const auto leftHand(GetDlgItem(gControls, IDC_LEFT_HAND)),
-				rightHand(GetDlgItem(gControls, IDC_RIGHT_HAND)),
-				trackList(GetDlgItem(gControls, IDC_TRACKS));
-			ComboBox_ResetContent(leftHand);
-			ComboBox_ResetContent(rightHand);
-			ListBox_ResetContent(trackList);
-			Controls_OnInitDialog(gControls, hWnd, 0);
-
-			char errBuf[0xFF] = "";
-			setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
-			string log;
-			try
-			{
-				gMidi = make_shared<MidiParser_Facade>(fileName.lpstrFile);
-				
-				Edit_SetText(GetDlgItem(gControls, IDC_MIDI_LOG),
-					lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
-						+ (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
-
-				for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
-					if (!gMidi->GetNotes().at(i).empty())
-					{
-						const auto aName(gMidi->GetTrackNames().at(i));
-						wstring wName((wformat{ TEXT("%d ") } % i).str()
-							+ wstring(aName.cbegin(), aName.cend()));
-						ComboBox_AddString(leftHand, wName.c_str());
-						ComboBox_AddString(rightHand, wName.c_str());
-						ListBox_AddString(trackList, wName.c_str());
-
-						ComboBox_SetItemData(leftHand, ComboBox_GetCount(leftHand) - 1, i);
-						ComboBox_SetItemData(rightHand, ComboBox_GetCount(rightHand) - 1, i);
-						ListBox_SetItemData(trackList, ListBox_GetCount(trackList) - 1, i);
-					}
-
-				gIndexes.assign(gMidi->GetNotes().size(), 0);
-			}
-			catch (const MidiError& e)
-			{
-				MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(),
-					TEXT("Error"), MB_ICONHAND);
-			}
-			setvbuf(stderr, nullptr, _IOFBF, 2);
-		}
+		if (GetOpenFileName(&fileName)) OpenMidiFile(hWnd, fileName.lpstrFile);
 	}
 	break;
 	case IDM_ABOUT:
@@ -256,6 +274,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 		break;
 	}
 }
+
 void OnPaint(HWND hWnd)
 {
 	PAINTSTRUCT ps;
@@ -266,29 +285,30 @@ void OnPaint(HWND hWnd)
 	}
 	EndPaint(hWnd, &ps);
 }
-inline void OnDestroy(HWND)
-{
-	PostQuitMessage(0);
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 		HANDLE_MSG(hWnd, WM_CREATE,				OnCreate);
+		HANDLE_MSG(hWnd, WM_DESTROY,			OnDestroy);
+
 		HANDLE_MSG(hWnd, WM_WINDOWPOSCHANGING,	OnWindowPosChanging);
 		HANDLE_MSG(hWnd, WM_MOVE,				OnMove);
+	case WM_SIZING:								OnMove(hWnd, 0, 0); return FALSE; break;
 		HANDLE_MSG(hWnd, WM_SIZE,				OnSize);
+
+		HANDLE_MSG(hWnd, WM_DROPFILES,			OnDropFiles);
 		HANDLE_MSG(hWnd, WM_COMMAND,			OnCommand);
+
 		HANDLE_MSG(hWnd, WM_PAINT,				OnPaint);
-		HANDLE_MSG(hWnd, WM_DESTROY,			OnDestroy);
+
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)
+ATOM RegisterClass(HINSTANCE hInstance)
 {
-	const auto szWindowClass(TEXT("MainWindow"));
 	WNDCLASSEXW wcex{ sizeof wcex };
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
@@ -299,11 +319,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WIN32);
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-	RegisterClassExW(&wcex);
-
-	const auto hWnd(CreateWindowW(szWindowClass, TEXT("Piano Fingers"), WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, HWND_DESKTOP, nullptr, hInstance, nullptr));
+	
+	return RegisterClassEx(&wcex);
+}
+inline BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+	const auto hWnd(CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass, TEXT("Piano Fingers"),
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+		HWND_DESKTOP, nullptr, hInstance, nullptr));
 	if (!hWnd) return FALSE;
+
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED);
 #ifdef _DEBUG
 	UNREFERENCED_PARAMETER(nCmdShow);
@@ -312,10 +337,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 #endif
 	UpdateWindow(hWnd);
 
+	return TRUE;
+}
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)
+{
+	RegisterClass(hInstance);
+	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
+
     const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32)));
 	MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0))
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)
+			&& !IsDialogMessage(gControls, &msg))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);

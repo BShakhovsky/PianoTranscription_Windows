@@ -31,7 +31,10 @@ public:
 
 	void ReleaseAllKeys() const;
 	void PressKey(int16_t note) const;
-	void Draw(HDC) const;
+	void Draw(HDC hdc) const
+	{
+		BitBlt(hdc, 0, 0, width_, height_, hdcMem_, 0, 0, SRCCOPY);
+	}
 private:
 	const int nOctaves_ = 7, nWhiteKeys_ = nOctaves_ * 7 + 2 + 1, gap_ = 0;
 	int width_, height_, keyWidth_, keyHeight_;
