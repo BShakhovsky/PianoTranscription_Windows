@@ -28,11 +28,10 @@ shared_ptr<MidiParser_Facade> gMidi(nullptr);
 Keyboard gKeyboard;
 Sound_Facade gSound;
 
+auto gIsPlaying(false);
 UINT gTimerTick(USER_TIMER_MINIMUM);
 DWORD gStart(0);
 vector<size_t> gIndexes;
-
-auto gIsPlaying(false);
 vector<size_t> gTracks;
 
 HWND gControls(nullptr);
@@ -69,29 +68,40 @@ int PlayTrack(size_t trackNo, DWORD dwTime)
 		gSound.AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
 		result = 1;
 	}
-	if (result && gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size()
+	if (gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size() && (result
 			&& static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo)))
 			- static_cast<time_t>(gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo) - 1))
 				<= gTimerTick
 			|| static_cast<time_t>(dwTime + gTimerTick) - static_cast<time_t>(gStart
-				+ gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) >= 0)
+			+ gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))) >= 0))
 		result = INT16_MIN;
 
 	return result;
 }
-void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR id, DWORD dwTime)
+void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR, DWORD dwTime)
 {
+	const auto seconds((dwTime - gStart) / 1'000), milliSec((dwTime - gStart) % 1'000);
+	Edit_SetText(GetDlgItem(gControls, IDC_TIME), (wformat{ TEXT("Time %u:%02u:%02u") } %
+		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
+
 	if (accumulate(gTracks.cbegin(), gTracks.cend(), 0,
-			[dwTime](int val, size_t track) { return val + PlayTrack(track, dwTime); }) > 0)
+		[dwTime](int val, size_t track) { return val + PlayTrack(track, dwTime); }) > 0)
+	{
 		InvalidateRect(hWnd, nullptr, false);
+		gSound.Play();
+	}
 	if (all_of(gTracks.cbegin(), gTracks.cend(),
-			[](size_t track) { return gIndexes.at(track) >= gMidi->GetNotes().at(track).size(); }))
-		KillTimer(hWnd, id);
+		[](size_t track) { return gIndexes.at(track) >= gMidi->GetNotes().at(track).size(); }))
+	{
+		FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
+		fill(gIndexes.begin(), gIndexes.end(), 0);
+	}
 }
 
 BOOL Controls_OnInitDialog(HWND hDlg, HWND, LPARAM)
 {
 	Edit_SetText(GetDlgItem(hDlg, IDC_MIDI_LOG), TEXT("MIDI info and errors if any"));
+	Edit_SetText(GetDlgItem(hDlg, IDC_TIME), TEXT("Time 0:00:00"));
 	ComboBox_AddString(GetDlgItem(hDlg, IDC_LEFT_HAND), TEXT("None"));
 	ComboBox_AddString(GetDlgItem(hDlg, IDC_RIGHT_HAND), TEXT("None"));
 	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_LEFT_HAND), 0);
@@ -248,8 +258,6 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 }
 void OnPaint(HWND hWnd)
 {
-	gSound.Play();
-
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));
 	{
