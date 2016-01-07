@@ -1,9 +1,15 @@
 #include "stdafx.h"
 #include "Win32.h"
+
 #include "MidiParser_Facade.h"
 #include "MidiError.h"
+
+#include "TrellisGraph_Facade.h"
+
 #include "Keyboard.h"
-#include "Sound.h"
+
+#include "Sound_Facade.h"
+#include "SoundError.h"
 
 using std::vector; 
 using std::string;
@@ -19,8 +25,9 @@ using boost::regex;
 const auto ASPECT_RATIO(6);
 
 shared_ptr<MidiParser_Facade> gMidi(nullptr);
-shared_ptr<Sound> gSound(nullptr);
 Keyboard gKeyboard;
+Sound_Facade gSound;
+
 UINT gTimerTick(USER_TIMER_MINIMUM);
 vector<time_t> gStarts;
 vector<unsigned> gPrevTimes;
@@ -61,7 +68,7 @@ bool PlayTrack(size_t trackNo, DWORD dwTime)
 		do
 		{
 			gKeyboard.PressKey(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
-			gSound->AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
+			gSound.AddNote(gMidi->GetNotes().at(trackNo).at(gIndexes.at(trackNo)));
 			++gIndexes.at(trackNo);
 		} while (gIndexes.at(trackNo) < gMidi->GetNotes().at(trackNo).size() &&
 			gMidi->GetMilliSeconds().at(trackNo).at(gIndexes.at(trackNo))
@@ -118,10 +125,6 @@ void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 			gTracks.reserve(items.size());
 			for (const auto& item : items)
 				gTracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
-
-			gIndexes.assign(gMidi->GetNotes().size(), 0);
-			gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
-			gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
 		}
 		break;
 	}
@@ -138,7 +141,15 @@ INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 {
-	gSound = make_shared<Sound>(hWnd);
+	try
+	{
+		gSound.Init(hWnd);
+	}
+	catch (const SoundError& e)
+	{
+		MessageBox(hWnd, (lexical_cast<std::wstring>(e.what())
+			+ wstring(TEXT("\nThere will be no sound"))).c_str(), TEXT("Error"), MB_ICONHAND);
+	}
 	gControls = CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls);
 	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
 	ShowWindow(gControls, SW_SHOWNORMAL);
@@ -214,6 +225,10 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 						ComboBox_SetItemData(rightHand, ComboBox_GetCount(rightHand) - 1, i);
 						ListBox_SetItemData(trackList, ListBox_GetCount(trackList) - 1, i);
 					}
+
+				gIndexes.assign(gMidi->GetNotes().size(), 0);
+				gStarts.assign(gMidi->GetMilliSeconds().size(), -USER_TIMER_MAXIMUM / 2);
+				gPrevTimes.assign(gMidi->GetMilliSeconds().size(), 0);
 			}
 			catch (const MidiError& e)
 			{
@@ -234,7 +249,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT)
 }
 void OnPaint(HWND hWnd)
 {
-	gSound->Play();
+	gSound.Play();
 
 	PAINTSTRUCT ps;
 	const auto hdc(BeginPaint(hWnd, &ps));

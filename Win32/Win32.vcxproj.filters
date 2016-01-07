@@ -52,7 +52,7 @@
     <ResourceCompile Include="Win32.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="..\..\PianoInterface\PianoSound\Sound\Sound.rc">
+    <ResourceCompile Include="..\..\PianoInterface\PianoSound\Sound.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
