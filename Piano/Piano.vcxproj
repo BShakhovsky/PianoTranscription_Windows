@@ -173,7 +173,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="About.h" />
+    <ClInclude Include="Canvas.h" />
+    <ClInclude Include="Controls.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NoteNames.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -181,7 +185,10 @@
     <ClInclude Include="Piano.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="About.cpp" />
+    <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
