@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Win32.h"
+#include "Piano.h"
 
 #include "MidiParser_Facade.h"
 #include "MidiError.h"
@@ -81,6 +81,7 @@ int PlayTrack(size_t trackNo, DWORD dwTime)
 }
 void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR, DWORD dwTime)
 {
+	ScrollBar_SetPos(GetDlgItem(gControls, IDC_SCROLLBAR), static_cast<int>(dwTime - gStart), true);
 	const auto seconds((dwTime - gStart) / 1'000), milliSec((dwTime - gStart) % 1'000);
 	Edit_SetText(GetDlgItem(gControls, IDC_TIME), (wformat{ TEXT("Time %u:%02u:%02u") } %
 		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
@@ -102,32 +103,84 @@ void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR, DWORD dwTime)
 BOOL Controls_OnInitDialog(HWND hDlg, HWND, LPARAM)
 {
 	Edit_SetText(GetDlgItem(hDlg, IDC_MIDI_LOG), TEXT("MIDI info and errors if any"));
+	
 	Edit_SetText(GetDlgItem(hDlg, IDC_TIME), TEXT("Time 0:00:00"));
+	
 	ComboBox_AddString(GetDlgItem(hDlg, IDC_LEFT_HAND), TEXT("None"));
 	ComboBox_AddString(GetDlgItem(hDlg, IDC_RIGHT_HAND), TEXT("None"));
 	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_LEFT_HAND), 0);
 	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_RIGHT_HAND), 0);
+
 	return true;
+}
+
+void RewindTracks()
+{
+	for (const auto& track : gTracks) gIndexes.at(track) = static_cast<size_t>(
+		lower_bound(gMidi->GetMilliSeconds().at(track).cbegin(),
+			gMidi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(
+				ScrollBar_GetPos(GetDlgItem(gControls, IDC_SCROLLBAR))))
+		- gMidi->GetMilliSeconds().at(track).cbegin());
+}
+void StretchScrollBar()
+{
+	ScrollBar_SetRange(GetDlgItem(gControls, IDC_SCROLLBAR), 0, static_cast<int>(gTracks.empty()
+		? 0 : gMidi->GetMilliSeconds().at(*max_element(gTracks.cbegin(), gTracks.cend(),
+			[](size_t left, size_t right) { return gMidi->GetMilliSeconds().at(left).back()
+				< gMidi->GetMilliSeconds().at(right).back(); })).back()), false);
+}
+void Controls_OnHScroll(HWND, HWND hCtl, UINT code, int pos)
+{
+	const auto oldPos(ScrollBar_GetPos(hCtl));
+	switch (code)
+	{
+	case SB_LEFT:			pos = 0;						break;
+	case SB_RIGHT: ScrollBar_GetRange(hCtl, nullptr, &pos);	break;
+	case SB_LINELEFT:		pos = oldPos - 1'000;			break;
+	case SB_LINERIGHT:		pos = oldPos + 1'000;			break;
+	case SB_PAGELEFT:		pos = oldPos - 10'000;			break;
+	case SB_PAGERIGHT:		pos = oldPos + 10'000;			break;
+	case SB_THUMBTRACK: case SB_THUMBPOSITION:
+	{
+		SCROLLINFO scrollInfo{ sizeof scrollInfo, SIF_TRACKPOS };
+		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
+		pos = scrollInfo.nTrackPos;
+	}														break;
+	case SB_ENDSCROLL:		pos = oldPos;					break;
+	default: assert(!"Unhandled scroll bar message");
+	}
+	ScrollBar_SetPos(hCtl, pos, true);
+
+	gStart += oldPos - pos;
+	RewindTracks();
 }
 void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 {
 	switch (id)
 	{
 	case IDB_PLAY:
+	{
+		const auto leftHand(GetDlgItem(hDlg, IDC_LEFT_HAND)),
+			rightHand(GetDlgItem(hDlg, IDC_RIGHT_HAND));
 		if (gIsPlaying)
 		{
 			KillTimer(GetParent(hDlg), 0);
 			Button_SetText(hCtrl, TEXT("Play"));
+			ComboBox_Enable(leftHand, true);
+			ComboBox_Enable(rightHand, true);
 			gIsPlaying = false;
 		}
 		else
 		{
-			gStart = GetTickCount();
+			gStart = GetTickCount() - ScrollBar_GetPos(GetDlgItem(hDlg, IDC_SCROLLBAR));
 			SetTimer(GetParent(hDlg), 0, gTimerTick, OnTimer);
 			Button_SetText(hCtrl, TEXT("Pause"));
+			ComboBox_Enable(leftHand, false);
+			ComboBox_Enable(rightHand, false);
 			gIsPlaying = true;
 		}
-		break;
+	}
+	break;
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
@@ -137,15 +190,20 @@ void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 			gTracks.reserve(items.size());
 			for (const auto& item : items)
 				gTracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
+
+			StretchScrollBar();
+			RewindTracks();
 		}
 		break;
 	}
 }
+
 INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 		HANDLE_MSG(hDlg, WM_INITDIALOG,	Controls_OnInitDialog);
+		HANDLE_MSG(hDlg, WM_HSCROLL,	Controls_OnHScroll);
 		HANDLE_MSG(hDlg, WM_COMMAND,	Controls_OnCommand);
 	default: return false;
 	}
@@ -198,13 +256,17 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 	if (gIsPlaying)
 		FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
 
-	const auto leftHand(GetDlgItem(gControls, IDC_LEFT_HAND)),
+	const auto midiLog(GetDlgItem(gControls, IDC_MIDI_LOG)),
+		leftHand(GetDlgItem(gControls, IDC_LEFT_HAND)),
 		rightHand(GetDlgItem(gControls, IDC_RIGHT_HAND)),
 		trackList(GetDlgItem(gControls, IDC_TRACKS));
 	ComboBox_ResetContent(leftHand);
 	ComboBox_ResetContent(rightHand);
 	ListBox_ResetContent(trackList);
 	Controls_OnInitDialog(gControls, hWnd, 0);
+
+	const auto scrollBar(GetDlgItem(gControls, IDC_SCROLLBAR)),
+		playButton(GetDlgItem(gControls, IDB_PLAY));
 
 	char errBuf[0xFF] = "";
 	setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
@@ -213,8 +275,7 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 	{
 		gMidi = make_shared<MidiParser_Facade>(fileName);
 
-		Edit_SetText(GetDlgItem(gControls, IDC_MIDI_LOG),
-			lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
+		Edit_SetText(midiLog, lexical_cast<wstring>(regex_replace(gMidi->GetLog() + "\nERRORS:\n"
 				+ (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
 
 		for (size_t i(0); i < gMidi->GetTrackNames().size(); ++i)
@@ -231,16 +292,20 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 				ComboBox_SetItemData(rightHand, ComboBox_GetCount(rightHand) - 1, i);
 				ListBox_SetItemData(trackList, ListBox_GetCount(trackList) - 1, i);
 			}
-
+		gTracks.clear();
 		gIndexes.assign(gMidi->GetNotes().size(), 0);
-
-		Button_Enable(GetDlgItem(gControls, IDB_PLAY), true);
+		StretchScrollBar();
+		ScrollBar_SetPos(scrollBar, 0, true);
+		ScrollBar_Enable(scrollBar, true);
+		Button_Enable(playButton, true);
 	}
 	catch (const MidiError& e)
 	{
-		MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(),
-			TEXT("Error"), MB_ICONHAND);
-		Button_Enable(GetDlgItem(gControls, IDB_PLAY), false);
+		MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(), TEXT("Error"), MB_ICONHAND);
+		Edit_SetText(midiLog, lexical_cast<wstring>(regex_replace("Error opening MIDI file:\n"
+			+ string(e.what()) + '\n' + errBuf, regex{ "\n" }, "\r\n").c_str()).c_str());
+		ScrollBar_Enable(scrollBar, false);
+		Button_Enable(playButton, false);
 	}
 	setvbuf(stderr, nullptr, _IOFBF, 2);
 }
@@ -313,10 +378,10 @@ ATOM RegisterClass(HINSTANCE hInstance)
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32));
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LARGE));
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WIN32);
+	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MENU);
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	
@@ -344,7 +409,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 	RegisterClass(hInstance);
 	if (!InitInstance(hInstance, nCmdShow)) return FALSE;
 
-    const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32)));
+    const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MENU)));
 	MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0))
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)
