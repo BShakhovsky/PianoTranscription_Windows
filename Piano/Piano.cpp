@@ -91,14 +91,20 @@ int PlayTrack(size_t trackNo, DWORD dwTime)
 void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR, DWORD dwTime)
 {
 	UpdateTime(dwTime);
-	if (accumulate(gTracks.cbegin(), gTracks.cend(), 0,
-		[dwTime](int val, size_t track) { return val + PlayTrack(track, dwTime); }) > 0)
+	if (accumulate(gTracks.cbegin(), gTracks.cend(), 0, [dwTime](int val, size_t track)
+														{
+															return val + PlayTrack(track, dwTime);
+														}
+		) > 0)
 	{
 		InvalidateRect(hWnd, nullptr, false);
 		gSound.Play();
 	}
 	if (gIsPlaying && all_of(gTracks.cbegin(), gTracks.cend(),
-		[](size_t track) { return gIndexes.at(track) >= gMidi->GetNotes().at(track).size(); }))
+		[](size_t track)
+		{
+			return gIndexes.at(track) >= gMidi->GetNotes().at(track).size();
+		}))
 	{
 		FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
 		fill(gIndexes.begin(), gIndexes.end(), 0);
@@ -134,17 +140,54 @@ void UpdateScrollBar(int pos)
 }
 void NextChord()
 {
-	if (!gIsPlaying)
+	if (!gIsPlaying && !gTracks.empty())
 	{
 		const auto track(*min_element(gTracks.cbegin(), gTracks.cend(),
 			[](size_t left, size_t right)
-			{ return gIndexes.at(left) >= gMidi->GetMilliSeconds().at(left).size() ? false
-				: gIndexes.at(right) >= gMidi->GetMilliSeconds().at(right).size() ? true
-				: gMidi->GetMilliSeconds().at(left).at(gIndexes.at(left))
-					< gMidi->GetMilliSeconds().at(right).at(gIndexes.at(right)); }));
+			{
+				return gIndexes.at(left) >= gMidi->GetMilliSeconds().at(left).size() ? false
+					: gIndexes.at(right) >= gMidi->GetMilliSeconds().at(right).size() ? true
+					: gMidi->GetMilliSeconds().at(left).at(gIndexes.at(left))
+						< gMidi->GetMilliSeconds().at(right).at(gIndexes.at(right));
+			}));
 		if (gIndexes.at(track) < gMidi->GetMilliSeconds().at(track).size())
 			OnTimer(GetParent(gControls), 0, 0,
 				gMidi->GetMilliSeconds().at(track).at(gIndexes.at(track)) + gTimerTick);
+	}
+}
+void PrevChord()
+{
+	if (!gIsPlaying && !gTracks.empty())
+	{
+		auto track(*max_element(gTracks.cbegin(), gTracks.cend(),
+			[](size_t left, size_t right)
+			{
+				return !gIndexes.at(right) ? false : !gIndexes.at(left) ? true
+					: gMidi->GetMilliSeconds().at(left).at(gIndexes.at(left) - 1)
+						< gMidi->GetMilliSeconds().at(right).at(gIndexes.at(right) - 1);
+			}));
+		for (auto finish(false); !finish;)
+		{
+			if (gIndexes.at(track)) --gIndexes.at(track);
+			auto prevTime(gMidi->GetMilliSeconds().at(track).at(gIndexes.at(track)));
+			for (; gIndexes.at(track) && prevTime
+					- gMidi->GetMilliSeconds().at(track).at(gIndexes.at(track) - 1) < gTimerTick;
+				prevTime = gMidi->GetMilliSeconds().at(track).at(--gIndexes.at(track)))
+				;
+			finish = true;
+			for (const auto& anotherTrack : gTracks)
+				if (gIndexes.at(anotherTrack)
+					&& gMidi->GetMilliSeconds().at(anotherTrack).at(gIndexes.at(anotherTrack) - 1)
+						+ gTimerTick > prevTime)
+				{
+					track = anotherTrack;
+					finish = false;
+					break;
+				}
+		}
+		auto prevIndexes(gIndexes);
+		NextChord();
+		gIndexes.swap(prevIndexes);
 	}
 }
 void Controls_OnHScroll(HWND, HWND hCtl, UINT code, int pos)
@@ -155,7 +198,7 @@ void Controls_OnHScroll(HWND, HWND hCtl, UINT code, int pos)
 	case SB_RIGHT:		ScrollBar_GetRange(hCtl, nullptr, &pos);
 						UpdateScrollBar(pos);						break;
 
-	case SB_LINELEFT:	UpdateScrollBar(-1'000);					break;
+	case SB_LINELEFT:	PrevChord();								break;
 	case SB_LINERIGHT:	NextChord();								break;
 
 	case SB_PAGELEFT:	UpdateScrollBar(-10'000);					break;
@@ -316,7 +359,9 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 		ScrollBar_SetRange(scrollBar, 0, static_cast<int>(max_element(
 			gMidi->GetMilliSeconds().cbegin(), gMidi->GetMilliSeconds().cend(),
 				[](const vector<unsigned>& left, const vector<unsigned>& right)
-				{ return right.empty() ? false : left.empty() ? true : left.back() < right.back(); }
+				{
+					return right.empty() ? false : left.empty() ? true : left.back() < right.back();
+				}
 			)->back()), false);
 		ScrollBar_SetPos(scrollBar, 0, true);
 		Button_Enable(playButton, true);
