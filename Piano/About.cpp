@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "About.h"
 
-BOOL OnInitDialog(HWND, HWND, LPARAM)
+inline BOOL OnInitDialog(HWND, HWND, LPARAM)
 {
 	return true;
 }
 
-void OnCommand(HWND hDlg, int id, HWND, UINT)
+inline void OnCommand(HWND hDlg, int id, HWND, UINT)
 {
 	if (id == IDOK || id == IDCANCEL) EndDialog(hDlg, id);
 }

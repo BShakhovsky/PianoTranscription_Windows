@@ -15,5 +15,21 @@ public:
 private:
 	static constexpr LPCTSTR szWindowClass_ = TEXT("MainWindow");
 	static ATOM MyRegisterClass(HINSTANCE);
-	static BOOL InitInstance(HINSTANCE, int);
+	static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+	{
+		const auto hWnd(CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass_, TEXT("Piano Fingers"),
+			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+			HWND_DESKTOP, nullptr, hInstance, nullptr));
+		if (!hWnd) return FALSE;
+
+		ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+#ifdef _DEBUG
+		UNREFERENCED_PARAMETER(nCmdShow);
+#else
+		ShowWindow(hWnd, nCmdShow);
+#endif
+		UpdateWindow(hWnd);
+
+		return TRUE;
+	}
 };

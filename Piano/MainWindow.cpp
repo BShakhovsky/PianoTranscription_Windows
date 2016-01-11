@@ -5,6 +5,7 @@
 
 #include "Piano.h"
 #include "Canvas.h"
+#include "StdErrBuffer.h"
 
 #include "MidiParser_Facade.h"
 #include "MidiError.h"
@@ -55,16 +56,14 @@ void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
 void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 {
 	Controls::Reset();
-
-	char errBuf[0xFF] = "";
-	setvbuf(stderr, errBuf, _IOFBF, sizeof errBuf / sizeof *errBuf);
-	string log;
+	StdErrBuffer errBuf;
 	try
 	{
 		Piano::midi = make_unique<MidiParser_Facade>(fileName);
 
-		Edit_SetText(Controls::midiLog, lexical_cast<wstring>(regex_replace(Piano::midi->GetLog()
-			+ "\nERRORS:\n" + (*errBuf ? errBuf : "None"), regex{ "\n" }, "\r\n").c_str()).c_str());
+		Edit_SetText(Controls::midiLog, lexical_cast<wstring>(regex_replace(
+			Piano::midi->GetLog() + "\nERRORS:\n" + (*errBuf.Get() ? errBuf.Get() : "None"),
+				regex{ "\n" }, "\r\n").c_str()).c_str());
 
 		for (size_t i(0); i < Piano::midi->GetTrackNames().size(); ++i)
 			if (!Piano::midi->GetNotes().at(i).empty())
@@ -97,10 +96,9 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 		MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(), TEXT("Error"), MB_ICONHAND);
 		Edit_SetText(Controls::midiLog,
 			lexical_cast<wstring>(regex_replace("Error opening MIDI file:\n"
-				+ string(e.what()) + '\n' + errBuf, regex{ "\n" }, "\r\n").c_str()).c_str());
+				+ string(e.what()) + '\n' + errBuf.Get(), regex{ "\n" }, "\r\n").c_str()).c_str());
 		Button_Enable(Controls::playButton, false);
 	}
-	setvbuf(stderr, nullptr, _IOFBF, 2);
 }
 void MainWindow::OnDropFiles(HWND hWnd, HDROP hDrop)
 {

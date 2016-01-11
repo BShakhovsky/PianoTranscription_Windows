@@ -13,6 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Keyboard">
+      <UniqueIdentifier>{0f848f74-40f1-418c-a9bd-fa0979abe628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Keyboard">
+      <UniqueIdentifier>{d87b9442-698c-47fa-8578-95fa8ab56c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Main">
+      <UniqueIdentifier>{10925cce-da7f-438b-afb9-81f4d8fe9b25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main">
+      <UniqueIdentifier>{ab249b68-e433-40c6-b4ff-e2b41f0886cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Main\MainWindow">
+      <UniqueIdentifier>{02a8ec5d-8092-4563-a0db-7f5125c6f081}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Main\Dialogs">
+      <UniqueIdentifier>{c57d63b7-75ed-4f04-af41-919e1d9137a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\MainWindow">
+      <UniqueIdentifier>{2626a11f-3bb5-4cb0-b1a4-126e23de225d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Main\Dialogs">
+      <UniqueIdentifier>{bcd888af-f833-4479-a4c3-62da58173514}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -21,52 +45,55 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NoteNames.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Piano.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="About.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Canvas.h">
+      <Filter>Header Files\Main\MainWindow</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Main\MainWindow</Filter>
     </ClInclude>
-    <ClInclude Include="Canvas.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="StdErrBuffer.h">
+      <Filter>Header Files\Main\MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="About.h">
+      <Filter>Header Files\Main\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="Controls.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Main\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Header Files\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteNames.h">
+      <Filter>Header Files\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Piano.h">
+      <Filter>Header Files\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files\Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_View_NoteNames.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Piano.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files\Main\MainWindow</Filter>
     </ClCompile>
     <ClCompile Include="About.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Main\Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="Controls.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Main\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Source Files\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_View_NoteNames.cpp">
+      <Filter>Source Files\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Piano.cpp">
+      <Filter>Source Files\Main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
