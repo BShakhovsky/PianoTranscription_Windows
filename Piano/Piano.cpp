@@ -56,6 +56,15 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 }
 
+void UpdateTime(DWORD dwTime)
+{
+	const auto currTime(dwTime - gStart);
+	ScrollBar_SetPos(GetDlgItem(gControls, IDC_SCROLLBAR), static_cast<int>(currTime), true);
+
+	const auto seconds(currTime / 1'000), milliSec(currTime % 1'000);
+	Edit_SetText(GetDlgItem(gControls, IDC_TIME), (wformat{ TEXT("Time %u:%02u:%02u") } %
+		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
+}
 int PlayTrack(size_t trackNo, DWORD dwTime)
 {
 	auto result(0);
@@ -81,18 +90,14 @@ int PlayTrack(size_t trackNo, DWORD dwTime)
 }
 void CALLBACK OnTimer(HWND hWnd, UINT, UINT_PTR, DWORD dwTime)
 {
-	ScrollBar_SetPos(GetDlgItem(gControls, IDC_SCROLLBAR), static_cast<int>(dwTime - gStart), true);
-	const auto seconds((dwTime - gStart) / 1'000), milliSec((dwTime - gStart) % 1'000);
-	Edit_SetText(GetDlgItem(gControls, IDC_TIME), (wformat{ TEXT("Time %u:%02u:%02u") } %
-		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
-
+	UpdateTime(dwTime);
 	if (accumulate(gTracks.cbegin(), gTracks.cend(), 0,
 		[dwTime](int val, size_t track) { return val + PlayTrack(track, dwTime); }) > 0)
 	{
 		InvalidateRect(hWnd, nullptr, false);
 		gSound.Play();
 	}
-	if (all_of(gTracks.cbegin(), gTracks.cend(),
+	if (gIsPlaying && all_of(gTracks.cbegin(), gTracks.cend(),
 		[](size_t track) { return gIndexes.at(track) >= gMidi->GetNotes().at(track).size(); }))
 	{
 		FORWARD_WM_COMMAND(gControls, IDB_PLAY, GetDlgItem(gControls, IDB_PLAY), 0, SendMessage);
@@ -114,45 +119,59 @@ BOOL Controls_OnInitDialog(HWND hDlg, HWND, LPARAM)
 	return true;
 }
 
-void RewindTracks()
+void RewindTracks(int pos)
 {
 	for (const auto& track : gTracks) gIndexes.at(track) = static_cast<size_t>(
 		lower_bound(gMidi->GetMilliSeconds().at(track).cbegin(),
-			gMidi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(
-				ScrollBar_GetPos(GetDlgItem(gControls, IDC_SCROLLBAR))))
+			gMidi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(pos))
 		- gMidi->GetMilliSeconds().at(track).cbegin());
 }
-void StretchScrollBar()
+void UpdateScrollBar(int pos)
 {
-	ScrollBar_SetRange(GetDlgItem(gControls, IDC_SCROLLBAR), 0, static_cast<int>(gTracks.empty()
-		? 0 : gMidi->GetMilliSeconds().at(*max_element(gTracks.cbegin(), gTracks.cend(),
-			[](size_t left, size_t right) { return gMidi->GetMilliSeconds().at(left).back()
-				< gMidi->GetMilliSeconds().at(right).back(); })).back()), false);
+	RewindTracks(ScrollBar_GetPos(GetDlgItem(gControls, IDC_SCROLLBAR)) + pos);
+	if (gIsPlaying)	gStart -= pos;
+	else UpdateTime(static_cast<DWORD>(ScrollBar_GetPos(GetDlgItem(gControls, IDC_SCROLLBAR)) + pos));
+}
+void NextChord()
+{
+	if (!gIsPlaying)
+	{
+		const auto track(*min_element(gTracks.cbegin(), gTracks.cend(),
+			[](size_t left, size_t right)
+			{ return gIndexes.at(left) >= gMidi->GetMilliSeconds().at(left).size() ? false
+				: gIndexes.at(right) >= gMidi->GetMilliSeconds().at(right).size() ? true
+				: gMidi->GetMilliSeconds().at(left).at(gIndexes.at(left))
+					< gMidi->GetMilliSeconds().at(right).at(gIndexes.at(right)); }));
+		if (gIndexes.at(track) < gMidi->GetMilliSeconds().at(track).size())
+			OnTimer(GetParent(gControls), 0, 0,
+				gMidi->GetMilliSeconds().at(track).at(gIndexes.at(track)) + gTimerTick);
+	}
 }
 void Controls_OnHScroll(HWND, HWND hCtl, UINT code, int pos)
 {
-	const auto oldPos(ScrollBar_GetPos(hCtl));
 	switch (code)
 	{
-	case SB_LEFT:			pos = 0;						break;
-	case SB_RIGHT: ScrollBar_GetRange(hCtl, nullptr, &pos);	break;
-	case SB_LINELEFT:		pos = oldPos - 1'000;			break;
-	case SB_LINERIGHT:		pos = oldPos + 1'000;			break;
-	case SB_PAGELEFT:		pos = oldPos - 10'000;			break;
-	case SB_PAGERIGHT:		pos = oldPos + 10'000;			break;
+	case SB_LEFT:		UpdateScrollBar(-ScrollBar_GetPos(hCtl));	break;
+	case SB_RIGHT:		ScrollBar_GetRange(hCtl, nullptr, &pos);
+						UpdateScrollBar(pos);						break;
+
+	case SB_LINELEFT:	UpdateScrollBar(-1'000);					break;
+	case SB_LINERIGHT:	NextChord();								break;
+
+	case SB_PAGELEFT:	UpdateScrollBar(-10'000);					break;
+	case SB_PAGERIGHT:	UpdateScrollBar(10'000);					break;
+
 	case SB_THUMBTRACK: case SB_THUMBPOSITION:
 	{
-		SCROLLINFO scrollInfo{ sizeof scrollInfo, SIF_TRACKPOS };
+		SCROLLINFO scrollInfo{ sizeof scrollInfo, SIF_POS | SIF_TRACKPOS };
 		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
-		pos = scrollInfo.nTrackPos;
-	}														break;
-	case SB_ENDSCROLL:		pos = oldPos;					break;
+		UpdateScrollBar(scrollInfo.nTrackPos - scrollInfo.nPos);
+		if (!gIsPlaying && scrollInfo.nTrackPos) NextChord();
+	}																break;
+	case SB_ENDSCROLL:												break;
+
 	default: assert(!"Unhandled scroll bar message");
 	}
-	ScrollBar_SetPos(hCtl, pos, true);
-
-	gStart += oldPos - pos;
-	RewindTracks();
 }
 void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 {
@@ -165,6 +184,7 @@ void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 		if (gIsPlaying)
 		{
 			KillTimer(GetParent(hDlg), 0);
+			gStart = 0;
 			Button_SetText(hCtrl, TEXT("Play"));
 			ComboBox_Enable(leftHand, true);
 			ComboBox_Enable(rightHand, true);
@@ -190,9 +210,7 @@ void Controls_OnCommand(HWND hDlg, int id, HWND hCtrl, UINT notifyCode)
 			gTracks.reserve(items.size());
 			for (const auto& item : items)
 				gTracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
-
-			StretchScrollBar();
-			RewindTracks();
+			RewindTracks(ScrollBar_GetPos(GetDlgItem(gControls, IDC_SCROLLBAR)));
 		}
 		break;
 	}
@@ -208,6 +226,7 @@ INT_PTR CALLBACK Controls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	default: return false;
 	}
 }
+
 
 BOOL OnCreate(HWND hWnd, LPCREATESTRUCT)
 {
@@ -294,9 +313,12 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 			}
 		gTracks.clear();
 		gIndexes.assign(gMidi->GetNotes().size(), 0);
-		StretchScrollBar();
+		ScrollBar_SetRange(scrollBar, 0, static_cast<int>(max_element(
+			gMidi->GetMilliSeconds().cbegin(), gMidi->GetMilliSeconds().cend(),
+				[](const vector<unsigned>& left, const vector<unsigned>& right)
+				{ return right.empty() ? false : left.empty() ? true : left.back() < right.back(); }
+			)->back()), false);
 		ScrollBar_SetPos(scrollBar, 0, true);
-		ScrollBar_Enable(scrollBar, true);
 		Button_Enable(playButton, true);
 	}
 	catch (const MidiError& e)
@@ -304,7 +326,6 @@ void OpenMidiFile(HWND hWnd, LPCTSTR fileName)
 		MessageBox(hWnd, lexical_cast<std::wstring>(e.what()).c_str(), TEXT("Error"), MB_ICONHAND);
 		Edit_SetText(midiLog, lexical_cast<wstring>(regex_replace("Error opening MIDI file:\n"
 			+ string(e.what()) + '\n' + errBuf, regex{ "\n" }, "\r\n").c_str()).c_str());
-		ScrollBar_Enable(scrollBar, false);
 		Button_Enable(playButton, false);
 	}
 	setvbuf(stderr, nullptr, _IOFBF, 2);
