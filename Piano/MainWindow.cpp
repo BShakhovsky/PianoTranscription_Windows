@@ -60,9 +60,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	try
 	{
 		Piano::midi = make_unique<MidiParser_Facade>(fileName);
-
 		Edit_SetText(Controls::midiLog, lexical_cast<wstring>(regex_replace(
-			Piano::midi->GetLog() + "\nERRORS:\n" + (*errBuf.Get() ? errBuf.Get() : "None"),
+			Piano::midi->GetLog() + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get()),
 				regex{ "\n" }, "\r\n").c_str()).c_str());
 
 		for (size_t i(0); i < Piano::midi->GetTrackNames().size(); ++i)

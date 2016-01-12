@@ -24,6 +24,7 @@
 #pragma warning(pop)
 
 #include <cassert>
+#include <iostream>
 #include <memory>
 #include <numeric>
 #include <vector>

@@ -4,19 +4,20 @@ class StdErrBuffer : private boost::noncopyable
 {
 public:
 	StdErrBuffer()
-		: errBuf_("")
-	{
-		setvbuf(stderr, errBuf_, _IOFBF, sizeof errBuf_ / sizeof *errBuf_);
-	}
+		: errStream_(),
+		oldBuf_(std::cerr.rdbuf(errStream_.rdbuf()))
+	{}
 	~StdErrBuffer()
 	{
-		setvbuf(stderr, nullptr, _IOFBF, 2);
+		std::cerr.rdbuf(oldBuf_);
 	}
 
-	const char* Get() const
+	std::string Get() const
 	{
-		return errBuf_;
+		return std::move(errStream_.str());
 	}
 private:
-	char errBuf_[0xFF];
+	std::stringstream errStream_;
+	std::streambuf* oldBuf_;
+	const BYTE unused_[4] = { 0 };	// padding bytes
 };
