@@ -3,6 +3,8 @@
 class MainWindow abstract
 {
 public:
+	static HWND hWndMain;
+
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 private:
 	static BOOL OnCreate(HWND, LPCREATESTRUCT);
@@ -25,6 +27,5 @@ private:
 
 	static void OnPaint(HWND);
 private:
-	static HWND controls_;
 	static int dlgWidth_;
 };

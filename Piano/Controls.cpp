@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "Controls.h"
+#include "MainWindow.h"
 #include "Piano.h"
 
 #include "MidiParser_Facade.h"
 #include "Keyboard.h"
 #include "Sound_Facade.h"
+#include "SoundError.h"
 
-using namespace std;
+using boost::lexical_cast;
 
 HWND Controls::hDlgControls	= nullptr;
 
@@ -35,8 +37,6 @@ void Controls::Reset()
 }
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
-	hDlgControls = hDlg;
-
 	scrollBar	= GetDlgItem(hDlg, IDC_SCROLLBAR);
 	playButton	= GetDlgItem(hDlg, IDB_PLAY);
 
@@ -62,13 +62,11 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 
 void Controls::UpdateTime(const DWORD dwTime)
 {
-	using boost::wformat;
-
 	const auto currTime(dwTime - start_);
 	ScrollBar_SetPos(scrollBar, static_cast<int>(currTime), true);
 
 	const auto seconds(currTime / 1'000), milliSec(currTime % 1'000);
-	Edit_SetText(time_, (wformat{ TEXT("Time %u:%02u:%02u") } %
+	Edit_SetText(time_, (Format{ TEXT("Time %u:%02u:%02u") } %
 		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
 }
 int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
@@ -81,7 +79,15 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 	++Piano::indexes.at(trackNo))
 	{
 		Piano::keyboard->PressKey(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
-		Piano::sound->AddNote(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
+		try
+		{
+			Piano::sound->AddNote(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
+		}
+		catch (const SoundError& e)
+		{
+			MessageBox(MainWindow::hWndMain, lexical_cast<String>(e.what()).c_str(),
+				TEXT("Error"), MB_ICONERROR | MB_OK);
+		}
 		result = 1;
 	}
 	if (Piano::indexes.at(trackNo) < Piano::midi->GetNotes().at(trackNo).size() && (result &&
@@ -105,7 +111,15 @@ void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwT
 			) > 0)
 	{
 		InvalidateRect(hWnd, nullptr, false);
-		Piano::sound->Play();
+		try
+		{
+			Piano::sound->Play();
+		}
+		catch (const SoundError& e)
+		{
+			MessageBox(MainWindow::hWndMain, lexical_cast<String>(e.what()).c_str(),
+				TEXT("Error"), MB_ICONERROR | MB_OK);
+		}
 	}
 	if (isPlaying_ && all_of(Piano::tracks.cbegin(), Piano::tracks.cend(),
 		[](size_t track)
@@ -128,11 +142,18 @@ void RewindTracks(int pos)
 				Piano::midi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(pos))
 			- Piano::midi->GetMilliSeconds().at(track).cbegin());
 }
-void Controls::UpdateScrollBar(const int pos)
+void Controls::UpdateScrollBar(int pos)
 {
-	RewindTracks(ScrollBar_GetPos(scrollBar) + pos);
-	if (isPlaying_) start_ -= pos;
-	else UpdateTime(static_cast<DWORD>(ScrollBar_GetPos(scrollBar) + pos));
+	pos += ScrollBar_GetPos(scrollBar);
+
+	if (pos < 0) pos = 0;
+	auto maxPos(0);
+	ScrollBar_GetRange(scrollBar, nullptr, &maxPos);
+	if (pos > maxPos) pos = maxPos;
+
+	RewindTracks(pos);
+	if (isPlaying_) start_ += ScrollBar_GetPos(scrollBar) - pos;
+	else UpdateTime(static_cast<DWORD>(pos));
 }
 void Controls::NextChord()
 {
@@ -189,19 +210,18 @@ void Controls::PrevChord()
 		Piano::indexes.swap(prevIndexes);
 	}
 }
-void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int pos)
+void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int)
 {
 	switch (code)
 	{
-	case SB_LEFT:		UpdateScrollBar(-ScrollBar_GetPos(hCtl));	break;
-	case SB_RIGHT:		ScrollBar_GetRange(hCtl, nullptr, &pos);
-						UpdateScrollBar(pos);						break;
+	case SB_LEFT:		UpdateScrollBar(INT_MIN);	break;
+	case SB_RIGHT:		UpdateScrollBar(INT_MAX);	break;
 
-	case SB_LINELEFT:	PrevChord();								break;
-	case SB_LINERIGHT:	NextChord();								break;
+	case SB_LINELEFT:	PrevChord();				break;
+	case SB_LINERIGHT:	NextChord();				break;
 
-	case SB_PAGELEFT:	UpdateScrollBar(-10'000);					break;
-	case SB_PAGERIGHT:	UpdateScrollBar(10'000);					break;
+	case SB_PAGELEFT:	UpdateScrollBar(-10'000);	break;
+	case SB_PAGERIGHT:	UpdateScrollBar(10'000);	break;
 
 	case SB_THUMBTRACK: case SB_THUMBPOSITION:
 	{
@@ -209,14 +229,16 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int pos)
 		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
 		UpdateScrollBar(scrollInfo.nTrackPos - scrollInfo.nPos);
 		if (!isPlaying_ && scrollInfo.nTrackPos) NextChord();
-	}																break;
-	case SB_ENDSCROLL:												break;
+	}												break;
+	case SB_ENDSCROLL:								break;
 
 	default: assert(!"Unhandled scroll bar message");
 	}
 }
 void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const UINT notifyCode)
 {
+	using std::vector;
+
 	switch (id)
 	{
 	case IDB_PLAY:
@@ -252,6 +274,9 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
+		break;
+	case IDC_PEDAL:
+		Piano::sound->PressSustain(IsDlgButtonChecked(hDlg, IDC_PEDAL) == BST_CHECKED);
 		break;
 	}
 }

@@ -36,6 +36,24 @@ ATOM Piano::MyRegisterClass(const HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
+inline BOOL Piano::InitInstance(const HINSTANCE hInstance, const int nCmdShow)
+{
+	MainWindow::hWndMain = CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass_, TEXT("Piano Fingers"),
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+		HWND_DESKTOP, nullptr, hInstance, nullptr);
+		if (!MainWindow::hWndMain) return FALSE;
+
+		ShowWindow(MainWindow::hWndMain, SW_SHOWMAXIMIZED);
+#ifdef _DEBUG
+		UNREFERENCED_PARAMETER(nCmdShow);
+#else
+		ShowWindow(MainWindow::hWndMain, nCmdShow);
+#endif
+		UpdateWindow(MainWindow::hWndMain);
+
+		return TRUE;
+}
+
 int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
 {
 	Piano::MyRegisterClass(hInstance);
