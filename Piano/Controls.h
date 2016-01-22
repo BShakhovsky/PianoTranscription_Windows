@@ -18,6 +18,8 @@ private:
 	
 	static void OnCommand(HWND, int, HWND, UINT);
 private:
+	static void ChooseHand(UINT, bool leftHand = false);
+
 	static void UpdateTime(DWORD);
 	static int PlayTrack(size_t, DWORD);
 	static void CALLBACK OnTimer(HWND, UINT, UINT_PTR, DWORD);

@@ -8,8 +8,6 @@
 #include "Keyboard.h"
 #include "PianoSound\Sound_Facade.h"
 
-#include "PianoFingering\TrellisGraph_Facade.h"
-
 using namespace std;
 
 unique_ptr<MidiParser_Facade> Piano::midi = nullptr;

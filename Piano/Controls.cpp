@@ -8,6 +8,9 @@
 #include "PianoSound\Sound_Facade.h"
 #include "PianoSound\SoundError.h"
 
+#include "PianoFingering\TrellisGraph_Facade.h"
+
+using std::vector;
 using boost::lexical_cast;
 
 HWND Controls::hDlgControls	= nullptr;
@@ -22,9 +25,8 @@ HWND Controls::playButton	= nullptr;
 
 HWND Controls::time_		= nullptr;
 
-
-bool Controls::isPlaying_ = false;
-DWORD Controls::start_ = 0;
+bool Controls::isPlaying_	= false;
+DWORD Controls::start_		= 0;
 
 
 void Controls::Reset()
@@ -55,6 +57,8 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 
 	ComboBox_AddString(leftHand, TEXT("None"));
 	ComboBox_AddString(rightHand, TEXT("None"));
+	ComboBox_SetItemData(leftHand, 0, -1);
+	ComboBox_SetItemData(rightHand, 0, -1);
 	ComboBox_SetCurSel(leftHand, 0);
 	ComboBox_SetCurSel(rightHand, 0);
 
@@ -236,10 +240,43 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int)
 	default: assert(!"Unhandled scroll bar message");
 	}
 }
+
+void Controls::ChooseHand(const UINT notifyCode, const bool left)
+{
+	if (notifyCode == CBN_SELCHANGE)
+	{
+		const auto hCtrl(left ? leftHand : rightHand),
+			progressBar(left ? GetDlgItem(hDlgControls, IDC_PROGRESS_LEFT)
+				: GetDlgItem(hDlgControls, IDC_PROGRESS_RIGHT));
+
+		if (ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl)) > -1)
+		{
+			const auto track(static_cast<size_t>(
+				ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl))));
+			vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(track).front() } });
+			auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).front()));
+			for (auto note(Piano::midi->GetNotes().at(track).cbegin() + 1);
+			note != Piano::midi->GetNotes().at(track).cend(); ++note)
+			{
+				const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).at(
+					static_cast<size_t>(note - Piano::midi->GetNotes().at(track).cbegin()))));
+				if (newTime - lastTime < timerTick_)
+					chords.back().push_back(*note);
+				else
+					chords.push_back({ *note });
+				lastTime = newTime;
+			}
+			TrellisGraph graph(chords, left);
+			const auto hCursorOld(SetCursor(LoadCursor(nullptr, IDC_WAIT)));
+			for (size_t i(1); i; i = graph.NextStep())
+				SendMessage(progressBar, PBM_SETPOS, i * 100 / chords.size(), 0);
+			SetCursor(hCursorOld);
+			graph.Finish();
+		}
+	}
+}
 void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const UINT notifyCode)
 {
-	using std::vector;
-
 	switch (id)
 	{
 	case IDB_PLAY:
@@ -264,6 +301,7 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 		}
 	}
 	break;
+
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
@@ -276,6 +314,10 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
 		break;
+
+	case IDC_LEFT_HAND:		ChooseHand(notifyCode, true);	break;
+	case IDC_RIGHT_HAND:	ChooseHand(notifyCode);			break;
+
 	case IDC_PEDAL:
 		Piano::sound->PressSustain(IsDlgButtonChecked(hDlg, IDC_PEDAL) == BST_CHECKED);
 		break;
