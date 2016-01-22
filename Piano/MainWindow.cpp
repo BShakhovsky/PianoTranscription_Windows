@@ -7,11 +7,11 @@
 #include "Canvas.h"
 #include "StdErrBuffer.h"
 
-#include "MidiParser_Facade.h"
-#include "MidiError.h"
+#include "MidiParser\MidiParser_Facade.h"
+#include "MidiParser\MidiError.h"
 #include "Keyboard.h"
-#include "Sound_Facade.h"
-#include "SoundError.h"
+#include "PianoSound\Sound_Facade.h"
+#include "PianoSound\SoundError.h"
 
 using namespace boost;
 
@@ -50,6 +50,11 @@ void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
 {
 	Piano::keyboard->UpdateSize(hWnd, cx, cy);
 	Piano::keyboard->ReleaseAllKeys();
+}
+
+void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
+{
+	if (vk == VK_TAB) SetFocus(Controls::hDlgControls);
 }
 
 void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
@@ -114,7 +119,9 @@ void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
 	case IDM_OPEN:
 	{
 		OPENFILENAME fileName{ sizeof fileName, hWnd };
-		fileName.lpstrFilter = TEXT("MIDI files (*.mid, *.midi)\0*.mid*\0All files\0*.*\0");
+		fileName.lpstrFilter = TEXT("MIDI files (*.mid)\0")	TEXT("*.mid*\0")
+							TEXT("Karaoke files (*.kar)\0")	TEXT("*.kar*\0")
+								TEXT("All files\0")			TEXT("*.*\0");
 		TCHAR buf[MAX_PATH] = TEXT("");
 		fileName.lpstrFile = buf;
 		fileName.nMaxFile = sizeof buf / sizeof *buf;
@@ -127,7 +134,6 @@ void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
 		break;
 	case IDM_EXIT:
 		DestroyWindow(hWnd);
-		break;
 	}
 }
 
@@ -150,6 +156,8 @@ LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,
 		HANDLE_MSG(hWnd, WM_MOVE,				OnMove);
 	case WM_SIZING:								OnMove(hWnd, 0, 0); return FALSE; break;
 		HANDLE_MSG(hWnd, WM_SIZE,				OnSize);
+
+		HANDLE_MSG(hWnd, WM_KEYDOWN,			MainWindow_OnKey);
 
 		HANDLE_MSG(hWnd, WM_DROPFILES,			OnDropFiles);
 		HANDLE_MSG(hWnd, WM_COMMAND,			OnCommand);

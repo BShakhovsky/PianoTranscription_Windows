@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Keyboard.h"
 #include "NoteNames.h"
-#include "BlackWhiteKeys.h"
+#include "PianoFingering\BlackWhiteKeys.h"
 
 void Keyboard::UpdateSize(const HWND hWnd, const int width, const int height)
 {

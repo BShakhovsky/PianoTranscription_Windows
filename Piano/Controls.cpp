@@ -3,10 +3,10 @@
 #include "MainWindow.h"
 #include "Piano.h"
 
-#include "MidiParser_Facade.h"
+#include "MidiParser\MidiParser_Facade.h"
 #include "Keyboard.h"
-#include "Sound_Facade.h"
-#include "SoundError.h"
+#include "PianoSound\Sound_Facade.h"
+#include "PianoSound\SoundError.h"
 
 using boost::lexical_cast;
 

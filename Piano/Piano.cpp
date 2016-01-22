@@ -4,11 +4,11 @@
 #include "MainWindow.h"
 #include "Controls.h"
 
-#include "MidiParser_Facade.h"
+#include "MidiParser\MidiParser_Facade.h"
 #include "Keyboard.h"
-#include "Sound_Facade.h"
+#include "PianoSound\Sound_Facade.h"
 
-#include "TrellisGraph_Facade.h"
+#include "PianoFingering\TrellisGraph_Facade.h"
 
 using namespace std;
 
@@ -61,13 +61,15 @@ int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
 
     const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MENU)));
 	MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)
-			&& !IsDialogMessage(Controls::hDlgControls, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+	while (GetMessage(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAccelerator(MainWindow::hWndMain, hAccelTable, &msg) &&
+			!IsDialogMessage(Controls::hDlgControls, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
     return static_cast<int>(msg.wParam);
 }
 
