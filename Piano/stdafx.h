@@ -9,6 +9,11 @@
 #	include <DSound.h>
 #pragma warning(pop)
 
+#pragma warning(push)
+#pragma warning(disable:4820)
+#	include <CommCtrl.h>
+#pragma warning(pop)
+
 #pragma warning(disable:4625 4626)
 #pragma warning(push, 3)
 #pragma warning(disable:5026 5027)

@@ -38,11 +38,12 @@ void Controls::Reset()
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
 	scrollBar	= GetDlgItem(hDlg, IDC_SCROLLBAR);
+
 	playButton	= GetDlgItem(hDlg, IDB_PLAY);
 
 	midiLog		= GetDlgItem(hDlg, IDC_MIDI_LOG);
 	time_		= GetDlgItem(hDlg, IDC_TIME);
-	
+
 	leftHand	= GetDlgItem(hDlg, IDC_LEFT_HAND);
 	rightHand	= GetDlgItem(hDlg, IDC_RIGHT_HAND);
 
