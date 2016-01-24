@@ -16,6 +16,9 @@ unique_ptr<Sound_Facade> Piano::sound = make_unique<Sound_Facade>();
 
 vector<size_t> Piano::indexes = vector<size_t>();
 vector<size_t> Piano::tracks = vector<size_t>();
+unique_ptr<size_t> Piano::leftTrack = nullptr;
+unique_ptr<size_t> Piano::rightTrack = nullptr;
+Piano::Hands Piano::hands = { 0 };
 
 
 ATOM Piano::MyRegisterClass(const HINSTANCE hInstance)

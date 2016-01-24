@@ -18,6 +18,10 @@ public:
 	static std::unique_ptr<class Sound_Facade> sound;
 
 	static std::vector<size_t> indexes, tracks;
+	static std::unique_ptr<size_t> leftTrack, rightTrack;
+	static struct Hands {
+		size_t leftIndex, rightIndex, leftIndexTotal, rightIndexTotal;
+	} hands;
 
 	static int Main(HINSTANCE, int);
 private:

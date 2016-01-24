@@ -180,6 +180,7 @@
     <ClInclude Include="About.h" />
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="Controls.h" />
+    <ClInclude Include="Cursor.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NoteNames.h" />

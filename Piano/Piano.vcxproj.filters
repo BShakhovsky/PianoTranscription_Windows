@@ -72,6 +72,9 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files\Main</Filter>
     </ClInclude>
+    <ClInclude Include="Cursor.h">
+      <Filter>Header Files\Main\Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

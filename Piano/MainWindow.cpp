@@ -84,8 +84,15 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 				ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
 				ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
 			}
+		SendMessage(Controls::progressLeft, PBM_SETPOS, 0, 0);
+		SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
+
 		Piano::tracks.clear();
 		Piano::indexes.assign(Piano::midi->GetNotes().size(), 0);
+		Piano::leftTrack.release();
+		Piano::rightTrack.release();
+		ZeroMemory(&Piano::hands, sizeof Piano::hands);
+
 		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(max_element(
 			Piano::midi->GetMilliSeconds().cbegin(), Piano::midi->GetMilliSeconds().cend(),
 			[](const vector<unsigned>& left, const vector<unsigned>& right)

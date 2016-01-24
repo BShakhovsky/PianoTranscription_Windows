@@ -2,31 +2,33 @@
 #include "Controls.h"
 #include "MainWindow.h"
 #include "Piano.h"
+#include "Cursor.h"
 
 #include "MidiParser\MidiParser_Facade.h"
+#include "PianoFingering\TrellisGraph_Facade.h"
 #include "Keyboard.h"
 #include "PianoSound\Sound_Facade.h"
 #include "PianoSound\SoundError.h"
 
-#include "PianoFingering\TrellisGraph_Facade.h"
-
-using std::vector;
+using namespace std;
 using boost::lexical_cast;
 
-HWND Controls::hDlgControls	= nullptr;
 
-HWND Controls::midiLog		= nullptr;
-HWND Controls::leftHand		= nullptr;
-HWND Controls::rightHand	= nullptr;
-HWND Controls::trackList	= nullptr;
+HWND Controls::hDlgControls		= nullptr;
 
-HWND Controls::scrollBar	= nullptr;
-HWND Controls::playButton	= nullptr;
+HWND Controls::midiLog			= nullptr;
+HWND Controls::leftHand			= nullptr;
+HWND Controls::rightHand		= nullptr;
+HWND Controls::progressLeft		= nullptr;
+HWND Controls::progressRight	= nullptr;
+HWND Controls::trackList		= nullptr;
 
-HWND Controls::time_		= nullptr;
+HWND Controls::scrollBar		= nullptr;
+HWND Controls::playButton		= nullptr;
 
-bool Controls::isPlaying_	= false;
-DWORD Controls::start_		= 0;
+HWND Controls::time_			= nullptr;
+bool Controls::isPlaying_		= false;
+DWORD Controls::start_			= 0;
 
 
 void Controls::Reset()
@@ -39,17 +41,19 @@ void Controls::Reset()
 }
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
-	scrollBar	= GetDlgItem(hDlg, IDC_SCROLLBAR);
+	scrollBar		= GetDlgItem(hDlg, IDC_SCROLLBAR);
 
-	playButton	= GetDlgItem(hDlg, IDB_PLAY);
+	playButton		= GetDlgItem(hDlg, IDB_PLAY);
 
-	midiLog		= GetDlgItem(hDlg, IDC_MIDI_LOG);
-	time_		= GetDlgItem(hDlg, IDC_TIME);
+	midiLog			= GetDlgItem(hDlg, IDC_MIDI_LOG);
+	time_			= GetDlgItem(hDlg, IDC_TIME);
 
-	leftHand	= GetDlgItem(hDlg, IDC_LEFT_HAND);
-	rightHand	= GetDlgItem(hDlg, IDC_RIGHT_HAND);
-
-	trackList	= GetDlgItem(hDlg, IDC_TRACKS);
+	leftHand		= GetDlgItem(hDlg, IDC_LEFT_HAND);
+	rightHand		= GetDlgItem(hDlg, IDC_RIGHT_HAND);
+	progressLeft	= GetDlgItem(hDlg, IDC_PROGRESS_LEFT);
+	progressRight	= GetDlgItem(hDlg, IDC_PROGRESS_RIGHT);
+	
+	trackList		= GetDlgItem(hDlg, IDC_TRACKS);
 
 	Edit_SetText(midiLog, TEXT("MIDI info and errors if any"));
 
@@ -65,6 +69,12 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 	return true;
 }
 
+void Controls::OnSoundError(const SoundError& e)
+{
+	if (isPlaying_) FORWARD_WM_COMMAND(hDlgControls, IDB_PLAY, playButton, 0, SendMessage);
+	MessageBox(hDlgControls, lexical_cast<String>(e.what()).c_str(),
+		TEXT("Error"), MB_ICONERROR | MB_OK);
+}
 void Controls::UpdateTime(const DWORD dwTime)
 {
 	const auto currTime(dwTime - start_);
@@ -90,8 +100,7 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 		}
 		catch (const SoundError& e)
 		{
-			MessageBox(MainWindow::hWndMain, lexical_cast<String>(e.what()).c_str(),
-				TEXT("Error"), MB_ICONERROR | MB_OK);
+			OnSoundError(e);
 		}
 		result = 1;
 	}
@@ -122,8 +131,7 @@ void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwT
 		}
 		catch (const SoundError& e)
 		{
-			MessageBox(MainWindow::hWndMain, lexical_cast<String>(e.what()).c_str(),
-				TEXT("Error"), MB_ICONERROR | MB_OK);
+			OnSoundError(e);
 		}
 	}
 	if (isPlaying_ && all_of(Piano::tracks.cbegin(), Piano::tracks.cend(),
@@ -241,40 +249,6 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int)
 	}
 }
 
-void Controls::ChooseHand(const UINT notifyCode, const bool left)
-{
-	if (notifyCode == CBN_SELCHANGE)
-	{
-		const auto hCtrl(left ? leftHand : rightHand),
-			progressBar(left ? GetDlgItem(hDlgControls, IDC_PROGRESS_LEFT)
-				: GetDlgItem(hDlgControls, IDC_PROGRESS_RIGHT));
-
-		if (ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl)) > -1)
-		{
-			const auto track(static_cast<size_t>(
-				ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl))));
-			vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(track).front() } });
-			auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).front()));
-			for (auto note(Piano::midi->GetNotes().at(track).cbegin() + 1);
-			note != Piano::midi->GetNotes().at(track).cend(); ++note)
-			{
-				const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).at(
-					static_cast<size_t>(note - Piano::midi->GetNotes().at(track).cbegin()))));
-				if (newTime - lastTime < timerTick_)
-					chords.back().push_back(*note);
-				else
-					chords.push_back({ *note });
-				lastTime = newTime;
-			}
-			TrellisGraph graph(chords, left);
-			const auto hCursorOld(SetCursor(LoadCursor(nullptr, IDC_WAIT)));
-			for (size_t i(1); i; i = graph.NextStep())
-				SendMessage(progressBar, PBM_SETPOS, i * 100 / chords.size(), 0);
-			SetCursor(hCursorOld);
-			graph.Finish();
-		}
-	}
-}
 void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const UINT notifyCode)
 {
 	switch (id)
@@ -292,6 +266,9 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 		}
 		else
 		{
+			if (Piano::tracks.empty())
+				MessageBox(hDlg, TEXT("No tracks are chosen, nothing to play yet"),
+					TEXT("Choose tracks"), MB_ICONASTERISK);
 			start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
 			SetTimer(GetParent(hDlg), 0, timerTick_, OnTimer);
 			Button_SetText(hCtrl, TEXT("Pause"));
@@ -302,21 +279,59 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 	}
 	break;
 
+	case IDC_LEFT_HAND: case IDC_RIGHT_HAND:
+		if (notifyCode == CBN_SELCHANGE)
+		{
+			const auto trackNo(ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl)));
+			if (hCtrl == leftHand)	Piano::leftTrack = trackNo > -1
+				? make_unique<size_t>(static_cast<size_t>(trackNo)) : nullptr;
+			else					Piano::rightTrack = trackNo > -1
+				? make_unique<size_t>(static_cast<size_t>(trackNo)) : nullptr;
+
+			if (hCtrl == leftHand ? Piano::leftTrack : Piano::rightTrack)
+			{
+				const auto track(hCtrl == leftHand ? *Piano::leftTrack : *Piano::rightTrack);
+				vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(track).front() } });
+				auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).front()));
+				for (auto note(Piano::midi->GetNotes().at(track).cbegin() + 1);
+				note != Piano::midi->GetNotes().at(track).cend(); ++note)
+				{
+					const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).at(
+						static_cast<size_t>(note - Piano::midi->GetNotes().at(track).cbegin()))));
+					if (newTime - lastTime < timerTick_)
+						chords.back().push_back(*note);
+					else
+						chords.push_back({ *note });
+					lastTime = newTime;
+				}
+				TrellisGraph graph(chords, hCtrl == leftHand);
+				Cursor cursorWait;
+				for (size_t i(1); i; i = graph.NextStep())
+					SendMessage(hCtrl == leftHand ? progressLeft : progressRight,
+						PBM_SETPOS, i * 100 / chords.size(), 0);
+				graph.Finish();
+			}
+			else SendMessage(hCtrl == leftHand ? progressLeft : progressRight, PBM_SETPOS, 0, 0);
+		}
+//		break;
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
-			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(hCtrl)), 0);
-			ListBox_GetSelItems(hCtrl, items.size(), items.data());
+			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(trackList)), 0);
+			ListBox_GetSelItems(trackList, items.size(), items.data());
 			Piano::tracks.clear();
 			Piano::tracks.reserve(items.size());
 			for (const auto& item : items)
-				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
+				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(trackList, item)));
+
+			if (Piano::leftTrack && find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
+				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
+			if (Piano::rightTrack && find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
+				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
+
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
 		break;
-
-	case IDC_LEFT_HAND:		ChooseHand(notifyCode, true);	break;
-	case IDC_RIGHT_HAND:	ChooseHand(notifyCode);			break;
 
 	case IDC_PEDAL:
 		Piano::sound->PressSustain(IsDlgButtonChecked(hDlg, IDC_PEDAL) == BST_CHECKED);
