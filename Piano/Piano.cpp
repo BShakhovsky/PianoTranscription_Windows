@@ -12,7 +12,10 @@
 
 using namespace std;
 
-unique_ptr<MidiParser_Facade> Piano::midi = nullptr;
+vector<vector<vector<int16_t>>> Piano::notes = vector<vector<vector<int16_t>>>();
+vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
+	= vector<vector<pair<unsigned, unsigned>>>();
+
 unique_ptr<Keyboard> Piano::keyboard = make_unique<Keyboard>();
 unique_ptr<Sound_Facade> Piano::sound = make_unique<Sound_Facade>();
 
@@ -20,7 +23,6 @@ vector<size_t> Piano::indexes = vector<size_t>();
 vector<size_t> Piano::tracks = vector<size_t>();
 unique_ptr<size_t> Piano::leftTrack = nullptr;
 unique_ptr<size_t> Piano::rightTrack = nullptr;
-Piano::Hands Piano::hands = { 0 };
 
 
 ATOM Piano::MyRegisterClass(const HINSTANCE hInstance)
@@ -73,21 +75,6 @@ int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
 			DispatchMessage(&msg);
 		}
 	}
-#ifdef _DEBUG
-	Piano::midi.reset();
-	Piano::keyboard.reset();
-	Piano::sound.reset();
-	Piano::indexes.clear();
-	Piano::tracks.clear();
-	Piano::leftTrack.reset();
-	Piano::rightTrack.reset();
-	switch (VLDGetLeaksCount())
-	{
-	case 2: case 19: case 20: case 22: case 23: case 24: break;
-	default: MessageBox(nullptr, (Format{ TEXT("%1% memory blocks leaking") } %
-		VLDGetLeaksCount()).str().c_str(), TEXT("Memory leaks"), MB_ICONHAND);
-	}
-#endif
 	return static_cast<int>(msg.wParam);
 }
 

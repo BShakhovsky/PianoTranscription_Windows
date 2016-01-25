@@ -3,7 +3,7 @@
 #include "NoteNames.h"
 #include "PianoFingering\BlackWhiteKeys.h"
 
-using std::string;
+using namespace std;
 
 void Keyboard::UpdateSize(const HWND hWnd, const int width, const int height)
 {
@@ -23,56 +23,58 @@ void Keyboard::UpdateSize(const HWND hWnd, const int width, const int height)
 	RECT rect{ 0 };
 	GetClientRect(hWnd, &rect);
 	FillRect(hdcMem_, &rect, GetStockBrush(WHITE_BRUSH));
+
+	SetBkMode(hdcMem_, TRANSPARENT);
 }
 
-
-void Keyboard::DrawPressedWhiteKey(const int noteIndex) const
+int16_t CalcWhiteKeyIndex(int16_t note)
 {
-	RECT rect{ gap_ + noteIndex * keyWidth_, height_ - gap_ - keyHeight_,
-		gap_ + (noteIndex + 1) * keyWidth_, height_ - gap_ };
-	SetBkColor(hdcMem_, RGB(0xFF, 0xFF, 0xFF));
-	FillRect(hdcMem_, &rect, hBrushPressed_);
-	DrawEdge(hdcMem_, &rect, EDGE_SUNKEN, BF_RECT);
+	auto noteIndex(NoteNames::GetNoteNumber(note));
+	return static_cast<int16_t>((noteIndex < 5 ? noteIndex / 2 : (noteIndex + 1) / 2)
+		+ (NoteNames::GetOctaveNumber(note) - 2) * 7 + 2);
+}
+int16_t CalcBlackKeyIndex(int16_t note)
+{
+	return static_cast<int16_t>(NoteNames::GetNoteNumber(note) / 2
+		+ (NoteNames::GetOctaveNumber(note) - 2) * 7 + 3);
 }
 
-void Keyboard::DrawPressedBlackKey(const int noteIndex) const
+void Keyboard::GetKeyPosition(const int16_t note)
 {
-	RECT rect{ gap_ + noteIndex * keyWidth_ - keyWidth_ / 3 + 1,
-		height_ - gap_ - keyHeight_ - keyHeight_ / 3 + 1,
-		gap_ + noteIndex * keyWidth_ + keyWidth_ / 3 - 1,
-		height_ - gap_ - keyHeight_ + keyHeight_ / 2 - 1};
-	SetBkColor(hdcMem_, 0);
-	FillRect(hdcMem_, &rect, hBrushPressed_);
-	DrawEdge(hdcMem_, &rect, EDGE_SUNKEN, BF_RECT);
+	if (BlackWhiteKeys::IsWhite(note))
+		GetWhiteKeyPosition(CalcWhiteKeyIndex(note));
+	else
+		GetBlackKeyPosition(CalcBlackKeyIndex(note));
 }
 
-
-void Keyboard::ReleaseAllKeys() const
+void Keyboard::ReleaseAllKeys()
 {
-	for (auto i(0); i < nWhiteKeys_; ++i) DrawReleasedWhiteKey(i);
+	RECT rect{ 0 };
+	for (int16_t i(0); i < nWhiteKeys_; ++i) DrawReleasedWhiteKey(i);
 	DrawReleasedBlackKey(1);
-	for (auto i(0); i < nOctaves_; ++i)
+	for (int16_t i(0); i < nOctaves_; ++i)
 	{
-		for (auto j(0); j < 2; ++j)	DrawReleasedBlackKey(3 + i * 7 + j);
-		for (auto j(0); j < 3; ++j)	DrawReleasedBlackKey(6 + i * 7 + j);
+		for (int16_t j(0); j < 2; ++j)	DrawReleasedBlackKey(3 + i * 7 + j);
+		for (int16_t j(0); j < 3; ++j)	DrawReleasedBlackKey(6 + i * 7 + j);
 	}
 }
 
-void Keyboard::PressKey(const int16_t note) const
+void Keyboard::PressKey(const int16_t note)
 {
-	auto noteNo(NoteNames::GetNoteNumber(note));
-	noteNo = BlackWhiteKeys::IsWhite(note) ? noteNo < 5 ? noteNo / 2 : (noteNo + 1) / 2 : noteNo / 2;
-	noteNo += (NoteNames::GetOctaveNumber(note) - 2) * 7 + 2;
-	if (BlackWhiteKeys::IsWhite(note))	DrawPressedWhiteKey(noteNo);
-	else								DrawPressedBlackKey(noteNo + 1);
+	GetKeyPosition(note);
+	SetBkColor(hdcMem_, BlackWhiteKeys::IsWhite(note) ? RGB(0xFF, 0xFF, 0xFF) : 0);
+	FillRect(hdcMem_, &rect_, hBrushPressed_);
+	DrawEdge(hdcMem_, &rect_, EDGE_SUNKEN, BF_RECT);
 }
 
-
-void Keyboard::AssignFinger(const int16_t note, const string& fingers) const
+void Keyboard::AssignFinger(const int16_t note, const string& fingers, const bool leftHand)
 {
-	UNREFERENCED_PARAMETER(note);
-	UNREFERENCED_PARAMETER(fingers);
-#ifdef _DEBUG
-	TextOut(hdcMem_, 100, 50, TEXT("Finger number must be drawn now"), 32);
-#endif
+	SetTextColor(hdcMem_, leftHand ? RGB(0, 0xB0, 0xFF) : RGB(0xFF, 0, 0));
+	GetKeyPosition(note);
+	rect_.top = (rect_.top + rect_.bottom) / 2;
+
+	wstring text(fingers.cbegin(), fingers.cend());
+	const auto len(text.length());
+	for (size_t i(0); i < len - 1; ++i) text.insert(i * 2 + 1, TEXT("\n"), 1);
+	DrawText(hdcMem_, text.c_str(), static_cast<int>(text.length()), &rect_, DT_CENTER);
 }

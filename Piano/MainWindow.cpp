@@ -38,6 +38,22 @@ BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
 	dlgWidth_ = rect.right - rect.left;
 	return true;
 }
+void MainWindow::OnDestroy(const HWND)
+{
+	Piano::notes.clear();
+	Piano::milliSeconds.clear();
+	
+	Piano::keyboard.reset();
+	Piano::sound.reset();
+	
+	Piano::indexes.clear();
+	Piano::tracks.clear();
+
+	Piano::leftTrack.reset();
+	Piano::rightTrack.reset();
+
+	PostQuitMessage(0);
+}
 
 void MainWindow::OnMove(const HWND hWnd, int, int)
 {
@@ -65,15 +81,52 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	StdErrBuffer errBuf;
 	try
 	{
-		Piano::midi = make_unique<MidiParser_Facade>(fileName);
+		const MidiParser_Facade midi(fileName);
+		const auto numTracks(midi.GetNotes().size());
+		Piano::notes.assign(numTracks, vector<vector<int16_t>>());
+		Piano::milliSeconds.assign(numTracks, vector<pair<unsigned, unsigned>>());
+		for (size_t i(0); i < numTracks; ++i)
+		{
+			const auto numNotes(midi.GetNotes().at(i).size());
+			Piano::notes.at(i).reserve(numNotes);
+			Piano::milliSeconds.at(i).reserve(numNotes);
+			if (!midi.GetNotes().at(i).empty())
+			{
+				vector<vector<int16_t>> chords({ { midi.GetNotes().at(i).front() } });
+				vector<pair<unsigned, unsigned>> timeIntervals({ make_pair(
+					midi.GetMilliSeconds().at(i).front(), midi.GetMilliSeconds().at(i).front()) });
+				auto lastTime(midi.GetMilliSeconds().at(i).front());
+				for (auto note(midi.GetNotes().at(i).cbegin() + 1); note != midi.GetNotes().at(i).cend(); ++note)
+				{
+					const auto newTime(midi.GetMilliSeconds().at(i).at(
+						static_cast<size_t>(note - midi.GetNotes().at(i).cbegin())));
+					if (newTime - lastTime < Piano::timerTick)
+					{
+						chords.back().push_back(*note);
+						timeIntervals.back().second = newTime;
+					}
+					else
+					{
+						chords.push_back({ *note });
+						timeIntervals.emplace_back(make_pair(newTime, newTime));
+					}
+					lastTime = newTime;
+				}
+				Piano::notes.at(i) = chords;
+				Piano::milliSeconds.at(i) = timeIntervals;
+			}
+			Piano::notes.at(i).shrink_to_fit();
+			Piano::milliSeconds.at(i).shrink_to_fit();
+		}
+
 		Edit_SetText(Controls::midiLog, lexical_cast<String>(regex_replace(
-			Piano::midi->GetLog() + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get()),
+			midi.GetLog() + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get()),
 				regex{ "\n" }, "\r\n").c_str()).c_str());
 
-		for (size_t i(0); i < Piano::midi->GetTrackNames().size(); ++i)
-			if (!Piano::midi->GetNotes().at(i).empty())
+		for (size_t i(0); i < midi.GetTrackNames().size(); ++i)
+			if (!Piano::notes.at(i).empty())
 			{
-				const auto aName(Piano::midi->GetTrackNames().at(i));
+				const auto aName(midi.GetTrackNames().at(i));
 				String wName((Format{ TEXT("%d ") } % i).str()
 					+ String(aName.cbegin(), aName.cend()));
 				ComboBox_AddString(Controls::leftHand, wName.c_str());
@@ -88,18 +141,18 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 		SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
 
 		Piano::tracks.clear();
-		Piano::indexes.assign(Piano::midi->GetNotes().size(), 0);
+		Piano::indexes.assign(Piano::notes.size(), 0);
 		Piano::leftTrack.reset();
 		Piano::rightTrack.reset();
-		ZeroMemory(&Piano::hands, sizeof Piano::hands);
-
-		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(max_element(
-			Piano::midi->GetMilliSeconds().cbegin(), Piano::midi->GetMilliSeconds().cend(),
-			[](const vector<unsigned>& left, const vector<unsigned>& right)
+		const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
+			[](const vector<pair<unsigned, unsigned>>& left,
+				const vector<pair<unsigned, unsigned>>& right)
 			{
-				return right.empty() ? false : left.empty() ? true : left.back() < right.back();
-			}
-		)->back()), false);
+				return right.empty() ? false : left.empty() ? true
+					: left.back().second < right.back().second;
+			}));
+		if (maxElement->empty()) throw MidiError("Midi file does not contain any time data");
+		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
 		ScrollBar_SetPos(Controls::scrollBar, 0, true);
 		Button_Enable(Controls::playButton, true);
 	}

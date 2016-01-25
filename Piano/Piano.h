@@ -13,15 +13,16 @@
 class Piano abstract
 {
 public:
-	static std::unique_ptr<class MidiParser_Facade> midi;
+	static std::vector<std::vector<std::vector<int16_t>>> notes;
+	static std::vector<std::vector<std::pair<unsigned, unsigned>>> milliSeconds;
+
 	static std::unique_ptr<class Keyboard> keyboard;
 	static std::unique_ptr<class Sound_Facade> sound;
 
 	static std::vector<size_t> indexes, tracks;
 	static std::unique_ptr<size_t> leftTrack, rightTrack;
-	static struct Hands {
-		size_t leftIndex, rightIndex, leftIndexTotal, rightIndexTotal;
-	} hands;
+
+	static constexpr UINT timerTick = USER_TIMER_MINIMUM;
 
 	static int Main(HINSTANCE, int);
 private:

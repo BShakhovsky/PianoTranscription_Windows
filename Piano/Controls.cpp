@@ -13,7 +13,6 @@
 using namespace std;
 using boost::lexical_cast;
 
-
 HWND Controls::hDlgControls		= nullptr;
 
 HWND Controls::midiLog			= nullptr;
@@ -95,41 +94,34 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 {
 	auto result(0);
 
-	for (; Piano::indexes.at(trackNo) < Piano::midi->GetNotes().at(trackNo).size()
+	for (; Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size()
 		&& static_cast<time_t>(dwTime) - static_cast<time_t>(start_
-			+ Piano::midi->GetMilliSeconds().at(trackNo).at(Piano::indexes.at(trackNo))) >= 0;
+			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0;
 		++Piano::indexes.at(trackNo))
 	{
-		Piano::keyboard->PressKey(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
-		try
+		for (const auto& note : Piano::notes.at(trackNo).at(Piano::indexes.at(trackNo)))
 		{
-			Piano::sound->AddNote(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
-		}
-		catch (const SoundError& e)
-		{
-			OnSoundError(e);
+			Piano::keyboard->PressKey(note);
+			try
+			{
+				Piano::sound->AddNote(note);
+			}
+			catch (const SoundError& e)
+			{
+				OnSoundError(e);
+			}
 		}
 		result = 1;
 	}
-	if (Piano::indexes.at(trackNo) < Piano::midi->GetNotes().at(trackNo).size() && (result &&
-		static_cast<time_t>(Piano::midi->GetMilliSeconds().at(trackNo).at(Piano::indexes.at(trackNo)))
-		- static_cast<time_t>(Piano::midi->GetMilliSeconds().at(trackNo).at(Piano::indexes.at(trackNo)
-			- 1)) <= timerTick_
-		|| static_cast<time_t>(dwTime + timerTick_) - static_cast<time_t>(start_
-			+ Piano::midi->GetMilliSeconds().at(trackNo).at(Piano::indexes.at(trackNo))) >= 0))
+	if (Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size() && (result &&
+		static_cast<time_t>(Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first)
+		- static_cast<time_t>(Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)
+			- 1).second) <= Piano::timerTick
+		|| static_cast<time_t>(dwTime + Piano::timerTick) - static_cast<time_t>(start_
+			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0))
 		result = INT16_MIN;
 
 	return result;
-}
-void AssignFingers(const vector<vector<pair<int16_t, string>>>& fingers,
-	const size_t trackNo, size_t* index, size_t* indexTotal)
-{
-	for (; *indexTotal < Piano::indexes.at(trackNo);
-			*indexTotal += fingers.at((*index)++).size())
-		for (const auto& note : fingers.at(*index))
-			Piano::keyboard->AssignFinger(note.first, note.second);
-	assert("Chord played is inconsistant with chord in fingering analysis"
-		&& *indexTotal == Piano::indexes.at(trackNo));
 }
 bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 {
@@ -143,10 +135,19 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		}
 		) > 0)
 	{
-		if (Piano::leftTrack) AssignFingers(fingersLeft_,
-			*Piano::leftTrack, &Piano::hands.leftIndex, &Piano::hands.leftIndexTotal);
-		if (Piano::rightTrack) AssignFingers(fingersRight_,
-			*Piano::rightTrack, &Piano::hands.rightIndex, &Piano::hands.rightIndexTotal);
+		if (Piano::leftTrack)
+		{
+			const auto leftIndex(Piano::indexes.at(*Piano::leftTrack));
+			if (leftIndex) for (const auto& note : fingersLeft_.at(leftIndex - 1))
+				Piano::keyboard->AssignFinger(note.first, note.second, true);
+		}
+		if (Piano::rightTrack)
+		{
+			const auto rightIndex(Piano::indexes.at(*Piano::rightTrack));
+			if (rightIndex) for (const auto& note : fingersRight_.at(rightIndex - 1))
+				Piano::keyboard->AssignFinger(note.first, note.second);
+		}
+
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
@@ -161,7 +162,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 
 	if (isPlaying_ && all_of(Piano::tracks.cbegin(), Piano::tracks.cend(), [](size_t track)
 		{
-			return Piano::indexes.at(track) >= Piano::midi->GetNotes().at(track).size();
+			return Piano::indexes.at(track) >= Piano::notes.at(track).size();
 		}))
 	{
 		FORWARD_WM_COMMAND(hDlgControls, IDB_PLAY, playButton, 0, SendMessage);
@@ -181,28 +182,14 @@ void Controls::RewindTracks(const int pos)
 {
 	for (const auto& track : Piano::tracks)
 	{
-		Piano::indexes.at(track) = static_cast<size_t>(
-			lower_bound(Piano::midi->GetMilliSeconds().at(track).cbegin(),
-				Piano::midi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(pos))
-			- Piano::midi->GetMilliSeconds().at(track).cbegin());
-		if (Piano::leftTrack && *Piano::leftTrack == track)
-		{
-			for (; Piano::hands.leftIndexTotal < Piano::indexes.at(track);
-				Piano::hands.leftIndexTotal += fingersLeft_.at(Piano::hands.leftIndex++).size());
-			for (; Piano::hands.leftIndexTotal > Piano::indexes.at(track);
-				Piano::hands.leftIndexTotal -= fingersLeft_.at(--Piano::hands.leftIndex).size());
-			assert("Chord played is inconsistant with chord in fingering analysis"
-				&& Piano::hands.leftIndexTotal == Piano::indexes.at(track));
-		}
-		if (Piano::rightTrack && *Piano::rightTrack == track)
-		{
-			for (; Piano::hands.rightIndexTotal < Piano::indexes.at(track);
-			Piano::hands.rightIndexTotal += fingersRight_.at(Piano::hands.rightIndex++).size());
-				for (; Piano::hands.rightIndexTotal > Piano::indexes.at(track);
-			Piano::hands.rightIndexTotal -= fingersRight_.at(--Piano::hands.rightIndex).size());
-				assert("Chord played is inconsistant with chord in fingering analysis"
-					&& Piano::hands.rightIndexTotal == Piano::indexes.at(track));
-		}
+		Piano::indexes.at(track) = static_cast<size_t>(lower_bound(
+				Piano::milliSeconds.at(track).cbegin(), Piano::milliSeconds.at(track).cend(),
+				make_pair(static_cast<unsigned>(pos), static_cast<unsigned>(pos)),
+				[](const pair<unsigned, unsigned>& lhs, const pair<unsigned, unsigned>& rhs)
+				{
+					return lhs.first < rhs.first;
+				})
+			- Piano::milliSeconds.at(track).cbegin());
 	}
 }
 void Controls::UpdateScrollBar(int pos)
@@ -225,16 +212,16 @@ void Controls::NextChord()
 		const auto track(*min_element(Piano::tracks.cbegin(), Piano::tracks.cend(),
 			[](size_t left, size_t right)
 			{
-				return Piano::indexes.at(left) >= Piano::midi->GetMilliSeconds().at(left).size()
+				return Piano::indexes.at(left) >= Piano::milliSeconds.at(left).size()
 					? false
-					: Piano::indexes.at(right) >= Piano::midi->GetMilliSeconds().at(right).size()
+					: Piano::indexes.at(right) >= Piano::milliSeconds.at(right).size()
 					? true
-					: Piano::midi->GetMilliSeconds().at(left).at(Piano::indexes.at(left))
-						< Piano::midi->GetMilliSeconds().at(right).at(Piano::indexes.at(right));
+					: Piano::milliSeconds.at(left).at(Piano::indexes.at(left)).first
+						< Piano::milliSeconds.at(right).at(Piano::indexes.at(right)).first;
 			}));
-		if (Piano::indexes.at(track) < Piano::midi->GetMilliSeconds().at(track).size()
-				&& OnTimer(GetParent(hDlgControls), Piano::midi->GetMilliSeconds()
-					.at(track).at(Piano::indexes.at(track)) + timerTick_))
+		if (Piano::indexes.at(track) >= Piano::milliSeconds.at(track).size()
+				|| OnTimer(GetParent(hDlgControls), Piano::milliSeconds
+					.at(track).at(Piano::indexes.at(track)).second + Piano::timerTick))
 			break;
 	}
 }
@@ -246,23 +233,23 @@ void Controls::PrevChord()
 			[](size_t left, size_t right)
 			{
 				return !Piano::indexes.at(right) ? false : !Piano::indexes.at(left) ? true
-					: Piano::midi->GetMilliSeconds().at(left).at(Piano::indexes.at(left) - 1)
-						< Piano::midi->GetMilliSeconds().at(right).at(Piano::indexes.at(right) - 1);
+					: Piano::milliSeconds.at(left).at(Piano::indexes.at(left) - 1).second
+						< Piano::milliSeconds.at(right).at(Piano::indexes.at(right) - 1).second;
 			}));
 		for (auto finish(false); !finish;)
 		{
 			if (Piano::indexes.at(track)) --Piano::indexes.at(track);
-			auto prevTime(Piano::midi->GetMilliSeconds().at(track).at(Piano::indexes.at(track)));
+			auto prevTime(Piano::milliSeconds.at(track).at(Piano::indexes.at(track)).first);
 			for (; Piano::indexes.at(track) && prevTime
-					- Piano::midi->GetMilliSeconds().at(track).at(Piano::indexes.at(track) - 1)
-					< timerTick_;
-				prevTime = Piano::midi->GetMilliSeconds().at(track).at(--Piano::indexes.at(track)))
+						- Piano::milliSeconds.at(track).at(Piano::indexes.at(track) - 1).second
+					< Piano::timerTick;
+				prevTime = Piano::milliSeconds.at(track).at(--Piano::indexes.at(track)).second)
 				;
 			finish = true;
 			for (const auto& anotherTrack : Piano::tracks)
 				if (Piano::indexes.at(anotherTrack) &&
-					Piano::midi->GetMilliSeconds().at(anotherTrack).at(Piano::indexes.at(anotherTrack) - 1)
-						+ timerTick_ > prevTime)
+					Piano::milliSeconds.at(anotherTrack).at(Piano::indexes.at(anotherTrack) - 1).second
+						+ Piano::timerTick > prevTime)
 				{
 					track = anotherTrack;
 					finish = false;
@@ -271,7 +258,7 @@ void Controls::PrevChord()
 		}
 		auto prevIndexes(Piano::indexes);
 		NextChord();
-		Piano::indexes.swap(prevIndexes);
+		Piano::indexes = prevIndexes;
 	}
 }
 void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int)
@@ -321,7 +308,7 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				MessageBox(hDlg, TEXT("No tracks are chosen, nothing to play yet"),
 					TEXT("Choose tracks"), MB_ICONASTERISK);
 			start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
-			SetTimer(GetParent(hDlg), 0, timerTick_, OnTimer);
+			SetTimer(GetParent(hDlg), 0, Piano::timerTick, OnTimer);
 			Button_SetText(hCtrl, TEXT("Pause"));
 			ComboBox_Enable(leftHand, false);
 			ComboBox_Enable(rightHand, false);
@@ -343,23 +330,10 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			const auto track(hCtrl == leftHand ? Piano::leftTrack.get() : Piano::rightTrack.get());
 			if (track)
 			{
-				vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(*track).front() } });
-				auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(*track).front()));
-				for (auto note(Piano::midi->GetNotes().at(*track).cbegin() + 1);
-				note != Piano::midi->GetNotes().at(*track).cend(); ++note)
-				{
-					const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(*track).at(
-						static_cast<size_t>(note - Piano::midi->GetNotes().at(*track).cbegin()))));
-					if (newTime - lastTime < timerTick_)
-						chords.back().push_back(*note);
-					else
-						chords.push_back({ *note });
-					lastTime = newTime;
-				}
-				TrellisGraph graph(chords, hCtrl == leftHand);
+				TrellisGraph graph(Piano::notes.at(*track), hCtrl == leftHand);
 				Cursor cursorWait;
 				for (size_t i(1); i; i = graph.NextStep())
-					SendMessage(progressBar, PBM_SETPOS, i * 95 / chords.size(), 0);
+					SendMessage(progressBar, PBM_SETPOS, i * 95 / Piano::notes.at(*track).size(), 0);
 				graph.Finish();
 				if (hCtrl == leftHand) fingersLeft_ = graph.GetResult();
 				else fingersRight_ = graph.GetResult();
@@ -378,10 +352,12 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			for (const auto& item : items)
 				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(trackList, item)));
 
-			if (Piano::leftTrack && find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
-				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
-			if (Piano::rightTrack && find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
-				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
+			if (Piano::leftTrack.get()
+				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
+					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
+			if (Piano::rightTrack.get()
+				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
+					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
 
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}

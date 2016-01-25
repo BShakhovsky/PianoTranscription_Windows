@@ -8,10 +8,7 @@ public:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 private:
 	static BOOL OnCreate(HWND, LPCREATESTRUCT);
-	static void OnDestroy(HWND)
-	{
-		PostQuitMessage(0);
-	}
+	static void OnDestroy(HWND);
 
 	static BOOL OnWindowPosChanging(HWND, LPWINDOWPOS pos)
 	{
