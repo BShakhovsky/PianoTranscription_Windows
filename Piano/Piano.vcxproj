@@ -89,13 +89,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -113,12 +113,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -131,7 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers\Piano Fingers.exe"</Command>
@@ -158,7 +158,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Libs\Boost;$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -166,7 +166,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

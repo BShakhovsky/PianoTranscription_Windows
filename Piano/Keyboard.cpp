@@ -3,6 +3,8 @@
 #include "NoteNames.h"
 #include "PianoFingering\BlackWhiteKeys.h"
 
+using std::string;
+
 void Keyboard::UpdateSize(const HWND hWnd, const int width, const int height)
 {
 	const auto hdc(GetDC(hWnd));
@@ -63,4 +65,14 @@ void Keyboard::PressKey(const int16_t note) const
 	noteNo += (NoteNames::GetOctaveNumber(note) - 2) * 7 + 2;
 	if (BlackWhiteKeys::IsWhite(note))	DrawPressedWhiteKey(noteNo);
 	else								DrawPressedBlackKey(noteNo + 1);
+}
+
+
+void Keyboard::AssignFinger(const int16_t note, const string& fingers) const
+{
+	UNREFERENCED_PARAMETER(note);
+	UNREFERENCED_PARAMETER(fingers);
+#ifdef _DEBUG
+	TextOut(hdcMem_, 100, 50, TEXT("Finger number must be drawn now"), 32);
+#endif
 }

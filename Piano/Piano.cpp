@@ -8,6 +8,8 @@
 #include "Keyboard.h"
 #include "PianoSound\Sound_Facade.h"
 
+#include <vld.h>
+
 using namespace std;
 
 unique_ptr<MidiParser_Facade> Piano::midi = nullptr;
@@ -71,7 +73,22 @@ int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
 			DispatchMessage(&msg);
 		}
 	}
-    return static_cast<int>(msg.wParam);
+#ifdef _DEBUG
+	Piano::midi.reset();
+	Piano::keyboard.reset();
+	Piano::sound.reset();
+	Piano::indexes.clear();
+	Piano::tracks.clear();
+	Piano::leftTrack.reset();
+	Piano::rightTrack.reset();
+	switch (VLDGetLeaksCount())
+	{
+	case 2: case 19: case 20: case 22: case 23: case 24: break;
+	default: MessageBox(nullptr, (Format{ TEXT("%1% memory blocks leaking") } %
+		VLDGetLeaksCount()).str().c_str(), TEXT("Memory leaks"), MB_ICONHAND);
+	}
+#endif
+	return static_cast<int>(msg.wParam);
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)

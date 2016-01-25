@@ -31,6 +31,7 @@ public:
 
 	void ReleaseAllKeys() const;
 	void PressKey(int16_t note) const;
+	void AssignFinger(int16_t note, const std::string& fingers) const;
 	void Draw(HDC hdc) const
 	{
 		BitBlt(hdc, 0, 0, width_, height_, hdcMem_, 0, 0, SRCCOPY);

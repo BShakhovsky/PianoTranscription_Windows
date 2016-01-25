@@ -89,8 +89,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 
 		Piano::tracks.clear();
 		Piano::indexes.assign(Piano::midi->GetNotes().size(), 0);
-		Piano::leftTrack.release();
-		Piano::rightTrack.release();
+		Piano::leftTrack.reset();
+		Piano::rightTrack.reset();
 		ZeroMemory(&Piano::hands, sizeof Piano::hands);
 
 		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(max_element(

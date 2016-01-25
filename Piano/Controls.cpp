@@ -30,6 +30,8 @@ HWND Controls::time_			= nullptr;
 bool Controls::isPlaying_		= false;
 DWORD Controls::start_			= 0;
 
+vector<vector<pair<int16_t, string>>> Controls::fingersLeft_ = vector<vector<pair<int16_t, string>>>();
+vector<vector<pair<int16_t, string>>> Controls::fingersRight_ = vector<vector<pair<int16_t, string>>>();
 
 void Controls::Reset()
 {
@@ -68,6 +70,11 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 
 	return true;
 }
+void Controls::OnDestroy(const HWND)
+{
+	fingersLeft_.clear();
+	fingersRight_.clear();
+}
 
 void Controls::OnSoundError(const SoundError& e)
 {
@@ -91,7 +98,7 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 	for (; Piano::indexes.at(trackNo) < Piano::midi->GetNotes().at(trackNo).size()
 		&& static_cast<time_t>(dwTime) - static_cast<time_t>(start_
 			+ Piano::midi->GetMilliSeconds().at(trackNo).at(Piano::indexes.at(trackNo))) >= 0;
-	++Piano::indexes.at(trackNo))
+		++Piano::indexes.at(trackNo))
 	{
 		Piano::keyboard->PressKey(Piano::midi->GetNotes().at(trackNo).at(Piano::indexes.at(trackNo)));
 		try
@@ -114,16 +121,32 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 
 	return result;
 }
-void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwTime)
+void AssignFingers(const vector<vector<pair<int16_t, string>>>& fingers,
+	const size_t trackNo, size_t* index, size_t* indexTotal)
 {
+	for (; *indexTotal < Piano::indexes.at(trackNo);
+			*indexTotal += fingers.at((*index)++).size())
+		for (const auto& note : fingers.at(*index))
+			Piano::keyboard->AssignFinger(note.first, note.second);
+	assert("Chord played is inconsistant with chord in fingering analysis"
+		&& *indexTotal == Piano::indexes.at(trackNo));
+}
+bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
+{
+	auto result(false);
+
 	UpdateTime(dwTime);
 	if (accumulate(Piano::tracks.cbegin(), Piano::tracks.cend(), 0,
 		[dwTime](int val, size_t track)
 		{
 			return val + PlayTrack(track, dwTime);
 		}
-			) > 0)
+		) > 0)
 	{
+		if (Piano::leftTrack) AssignFingers(fingersLeft_,
+			*Piano::leftTrack, &Piano::hands.leftIndex, &Piano::hands.leftIndexTotal);
+		if (Piano::rightTrack) AssignFingers(fingersRight_,
+			*Piano::rightTrack, &Piano::hands.rightIndex, &Piano::hands.rightIndexTotal);
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
@@ -133,9 +156,10 @@ void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwT
 		{
 			OnSoundError(e);
 		}
+		result = true;
 	}
-	if (isPlaying_ && all_of(Piano::tracks.cbegin(), Piano::tracks.cend(),
-		[](size_t track)
+
+	if (isPlaying_ && all_of(Piano::tracks.cbegin(), Piano::tracks.cend(), [](size_t track)
 		{
 			return Piano::indexes.at(track) >= Piano::midi->GetNotes().at(track).size();
 		}))
@@ -144,16 +168,42 @@ void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwT
 		ScrollBar_SetPos(scrollBar, 0, true);
 		fill(Piano::indexes.begin(), Piano::indexes.end(), 0);
 	}
+
+	return result;
+}
+void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwTime)
+{
+	OnTimer(hWnd, dwTime);
 }
 
 
-void RewindTracks(int pos)
+void Controls::RewindTracks(const int pos)
 {
 	for (const auto& track : Piano::tracks)
+	{
 		Piano::indexes.at(track) = static_cast<size_t>(
 			lower_bound(Piano::midi->GetMilliSeconds().at(track).cbegin(),
 				Piano::midi->GetMilliSeconds().at(track).cend(), static_cast<unsigned>(pos))
 			- Piano::midi->GetMilliSeconds().at(track).cbegin());
+		if (Piano::leftTrack && *Piano::leftTrack == track)
+		{
+			for (; Piano::hands.leftIndexTotal < Piano::indexes.at(track);
+				Piano::hands.leftIndexTotal += fingersLeft_.at(Piano::hands.leftIndex++).size());
+			for (; Piano::hands.leftIndexTotal > Piano::indexes.at(track);
+				Piano::hands.leftIndexTotal -= fingersLeft_.at(--Piano::hands.leftIndex).size());
+			assert("Chord played is inconsistant with chord in fingering analysis"
+				&& Piano::hands.leftIndexTotal == Piano::indexes.at(track));
+		}
+		if (Piano::rightTrack && *Piano::rightTrack == track)
+		{
+			for (; Piano::hands.rightIndexTotal < Piano::indexes.at(track);
+			Piano::hands.rightIndexTotal += fingersRight_.at(Piano::hands.rightIndex++).size());
+				for (; Piano::hands.rightIndexTotal > Piano::indexes.at(track);
+			Piano::hands.rightIndexTotal -= fingersRight_.at(--Piano::hands.rightIndex).size());
+				assert("Chord played is inconsistant with chord in fingering analysis"
+					&& Piano::hands.rightIndexTotal == Piano::indexes.at(track));
+		}
+	}
 }
 void Controls::UpdateScrollBar(int pos)
 {
@@ -170,7 +220,7 @@ void Controls::UpdateScrollBar(int pos)
 }
 void Controls::NextChord()
 {
-	if (!isPlaying_ && !Piano::tracks.empty())
+	while (!isPlaying_ && !Piano::tracks.empty())
 	{
 		const auto track(*min_element(Piano::tracks.cbegin(), Piano::tracks.cend(),
 			[](size_t left, size_t right)
@@ -182,9 +232,10 @@ void Controls::NextChord()
 					: Piano::midi->GetMilliSeconds().at(left).at(Piano::indexes.at(left))
 						< Piano::midi->GetMilliSeconds().at(right).at(Piano::indexes.at(right));
 			}));
-		if (Piano::indexes.at(track) < Piano::midi->GetMilliSeconds().at(track).size())
-			OnTimer(GetParent(hDlgControls), 0, 0,
-				Piano::midi->GetMilliSeconds().at(track).at(Piano::indexes.at(track)) + timerTick_);
+		if (Piano::indexes.at(track) < Piano::midi->GetMilliSeconds().at(track).size()
+				&& OnTimer(GetParent(hDlgControls), Piano::midi->GetMilliSeconds()
+					.at(track).at(Piano::indexes.at(track)) + timerTick_))
+			break;
 	}
 }
 void Controls::PrevChord()
@@ -288,16 +339,17 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			else					Piano::rightTrack = trackNo > -1
 				? make_unique<size_t>(static_cast<size_t>(trackNo)) : nullptr;
 
-			if (hCtrl == leftHand ? Piano::leftTrack : Piano::rightTrack)
+			const auto progressBar(hCtrl == leftHand ? progressLeft : progressRight);
+			const auto track(hCtrl == leftHand ? Piano::leftTrack.get() : Piano::rightTrack.get());
+			if (track)
 			{
-				const auto track(hCtrl == leftHand ? *Piano::leftTrack : *Piano::rightTrack);
-				vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(track).front() } });
-				auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).front()));
-				for (auto note(Piano::midi->GetNotes().at(track).cbegin() + 1);
-				note != Piano::midi->GetNotes().at(track).cend(); ++note)
+				vector<vector<int16_t>> chords({ { Piano::midi->GetNotes().at(*track).front() } });
+				auto lastTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(*track).front()));
+				for (auto note(Piano::midi->GetNotes().at(*track).cbegin() + 1);
+				note != Piano::midi->GetNotes().at(*track).cend(); ++note)
 				{
-					const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(track).at(
-						static_cast<size_t>(note - Piano::midi->GetNotes().at(track).cbegin()))));
+					const auto newTime(static_cast<int>(Piano::midi->GetMilliSeconds().at(*track).at(
+						static_cast<size_t>(note - Piano::midi->GetNotes().at(*track).cbegin()))));
 					if (newTime - lastTime < timerTick_)
 						chords.back().push_back(*note);
 					else
@@ -307,11 +359,13 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				TrellisGraph graph(chords, hCtrl == leftHand);
 				Cursor cursorWait;
 				for (size_t i(1); i; i = graph.NextStep())
-					SendMessage(hCtrl == leftHand ? progressLeft : progressRight,
-						PBM_SETPOS, i * 100 / chords.size(), 0);
+					SendMessage(progressBar, PBM_SETPOS, i * 95 / chords.size(), 0);
 				graph.Finish();
+				if (hCtrl == leftHand) fingersLeft_ = graph.GetResult();
+				else fingersRight_ = graph.GetResult();
+				SendMessage(progressBar, PBM_SETPOS, 100, 0);
 			}
-			else SendMessage(hCtrl == leftHand ? progressLeft : progressRight, PBM_SETPOS, 0, 0);
+			else SendMessage(progressBar, PBM_SETPOS, 0, 0);
 		}
 //		break;
 	case IDC_TRACKS:
@@ -345,6 +399,8 @@ INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
 	switch (message)
 	{
 		HANDLE_MSG(hDlg, WM_INITDIALOG,	OnInitDialog);
+		HANDLE_MSG(hDlg, WM_DESTROY,	OnDestroy);
+
 		HANDLE_MSG(hDlg, WM_HSCROLL,	OnHScroll);
 		HANDLE_MSG(hDlg, WM_COMMAND,	OnCommand);
 	default: return false;
