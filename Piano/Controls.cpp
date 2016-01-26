@@ -75,14 +75,21 @@ void Controls::OnDestroy(const HWND)
 	fingersRight_.clear();
 }
 
-void Controls::OnSoundError(const SoundError& e)
+void Controls::OnSoundError(const string& err)
+{
+	Piano::sound->Mute();
+	StopPlaying();
+	MessageBox(hDlgControls, (lexical_cast<String>(err.c_str())
+			+ TEXT("\nSound will be mute until you restart the program")).c_str(),
+		TEXT("Error"), MB_ICONERROR | MB_OK);
+}
+void Controls::StopPlaying()
 {
 	if (isPlaying_) FORWARD_WM_COMMAND(hDlgControls, IDB_PLAY, playButton, 0, SendMessage);
-	MessageBox(hDlgControls, lexical_cast<String>(e.what()).c_str(),
-		TEXT("Error"), MB_ICONERROR | MB_OK);
 }
 void Controls::UpdateTime(const DWORD dwTime)
 {
+	if (dwTime < start_) start_ = dwTime;
 	const auto currTime(dwTime - start_);
 	ScrollBar_SetPos(scrollBar, static_cast<int>(currTime), true);
 
@@ -108,7 +115,7 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 			}
 			catch (const SoundError& e)
 			{
-				OnSoundError(e);
+				OnSoundError(string(e.what()) + "\nFailed to add note");
 			}
 		}
 		result = 1;
@@ -155,7 +162,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		}
 		catch (const SoundError& e)
 		{
-			OnSoundError(e);
+			OnSoundError(string(e.what()) + "\nFailed to play chords");
 		}
 		result = true;
 	}
@@ -165,7 +172,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 			return Piano::indexes.at(track) >= Piano::notes.at(track).size();
 		}))
 	{
-		FORWARD_WM_COMMAND(hDlgControls, IDB_PLAY, playButton, 0, SendMessage);
+		StopPlaying();
 		ScrollBar_SetPos(scrollBar, 0, true);
 		fill(Piano::indexes.begin(), Piano::indexes.end(), 0);
 	}
@@ -180,17 +187,14 @@ void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwT
 
 void Controls::RewindTracks(const int pos)
 {
-	for (const auto& track : Piano::tracks)
-	{
-		Piano::indexes.at(track) = static_cast<size_t>(lower_bound(
-				Piano::milliSeconds.at(track).cbegin(), Piano::milliSeconds.at(track).cend(),
-				make_pair(static_cast<unsigned>(pos), static_cast<unsigned>(pos)),
-				[](const pair<unsigned, unsigned>& lhs, const pair<unsigned, unsigned>& rhs)
-				{
-					return lhs.first < rhs.first;
-				})
-			- Piano::milliSeconds.at(track).cbegin());
-	}
+	for (const auto& track : Piano::tracks) Piano::indexes.at(track) = static_cast<size_t>(
+		lower_bound(Piano::milliSeconds.at(track).cbegin(), Piano::milliSeconds.at(track).cend(),
+			make_pair(static_cast<unsigned>(pos), static_cast<unsigned>(pos)),
+			[](const pair<unsigned, unsigned>& lhs, const pair<unsigned, unsigned>& rhs)
+			{
+				return lhs.first < rhs.first;
+			})
+		- Piano::milliSeconds.at(track).cbegin());
 }
 void Controls::UpdateScrollBar(int pos)
 {
@@ -203,11 +207,10 @@ void Controls::UpdateScrollBar(int pos)
 
 	RewindTracks(pos);
 	if (isPlaying_) start_ += ScrollBar_GetPos(scrollBar) - pos;
-	else UpdateTime(static_cast<DWORD>(pos));
 }
 void Controls::NextChord()
 {
-	while (!isPlaying_ && !Piano::tracks.empty())
+	while (!Piano::tracks.empty())
 	{
 		const auto track(*min_element(Piano::tracks.cbegin(), Piano::tracks.cend(),
 			[](size_t left, size_t right)
@@ -220,14 +223,14 @@ void Controls::NextChord()
 						< Piano::milliSeconds.at(right).at(Piano::indexes.at(right)).first;
 			}));
 		if (Piano::indexes.at(track) >= Piano::milliSeconds.at(track).size()
-				|| OnTimer(GetParent(hDlgControls), Piano::milliSeconds
+				|| OnTimer(GetParent(hDlgControls), start_ + Piano::milliSeconds
 					.at(track).at(Piano::indexes.at(track)).second + Piano::timerTick))
 			break;
 	}
 }
 void Controls::PrevChord()
 {
-	if (!isPlaying_ && !Piano::tracks.empty())
+	if (!Piano::tracks.empty())
 	{
 		auto track(*max_element(Piano::tracks.cbegin(), Piano::tracks.cend(),
 			[](size_t left, size_t right)
@@ -261,27 +264,31 @@ void Controls::PrevChord()
 		Piano::indexes = prevIndexes;
 	}
 }
-void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, int)
+void Controls::OnHScroll(const HWND hDlg, const HWND hCtl, const UINT code, const int)
+	// "int pos" parameter is 16 bit, therefore, 32 bit GetScrollInfo() is used instead
 {
 	switch (code)
 	{
-	case SB_LEFT:		UpdateScrollBar(INT_MIN);	break;
-	case SB_RIGHT:		UpdateScrollBar(INT_MAX);	break;
+	case SB_LEFT:		UpdateScrollBar(INT_MIN);		break;
+	case SB_RIGHT:		UpdateScrollBar(INT_MAX);		break;
 
-	case SB_LINELEFT:	PrevChord();				break;
-	case SB_LINERIGHT:	NextChord();				break;
+	case SB_LINELEFT:	if (!isPlaying_) PrevChord();	break;
+	case SB_LINERIGHT:	if (!isPlaying_) NextChord();	break;
 
-	case SB_PAGELEFT:	UpdateScrollBar(-10'000);	break;
-	case SB_PAGERIGHT:	UpdateScrollBar(10'000);	break;
+	case SB_PAGELEFT:	UpdateScrollBar(-10'000);		break;
+	case SB_PAGERIGHT:	UpdateScrollBar(10'000);		break;
 
 	case SB_THUMBTRACK: case SB_THUMBPOSITION:
 	{
+		Piano::sound->PressSustain(false);
 		SCROLLINFO scrollInfo{ sizeof scrollInfo, SIF_POS | SIF_TRACKPOS };
 		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
 		UpdateScrollBar(scrollInfo.nTrackPos - scrollInfo.nPos);
-		if (!isPlaying_ && scrollInfo.nTrackPos) NextChord();
-	}												break;
-	case SB_ENDSCROLL:								break;
+		if (scrollInfo.nTrackPos) NextChord();
+		else UpdateTime(start_);
+	}													break;
+	case SB_ENDSCROLL: Piano::sound->PressSustain(IsDlgButtonChecked(
+		hDlg, IDC_PEDAL) == BST_CHECKED);				break;
 
 	default: assert(!"Unhandled scroll bar message");
 	}

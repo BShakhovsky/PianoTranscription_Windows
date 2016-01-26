@@ -5,6 +5,11 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Piano", "Piano\Piano.vcxproj", "{44BEE791-5D97-4AA4-B0FE-DEA29C8413C4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1D860EF7-902D-42CA-9C88-EDCE9C4DB397}"
+	ProjectSection(SolutionItems) = preProject
+		ToFinish.txt = ToFinish.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -13,7 +13,8 @@ private:
 	static BOOL OnInitDialog(HWND, HWND, LPARAM);
 	static void OnDestroy(HWND);
 
-	static void OnSoundError(const class SoundError&);
+	static void OnSoundError(const std::string&);
+	static void StopPlaying();
 	static void UpdateTime(DWORD);
 	static int PlayTrack(size_t, DWORD);
 	static bool OnTimer(HWND, DWORD);
