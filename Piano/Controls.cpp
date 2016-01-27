@@ -42,6 +42,9 @@ void Controls::Reset()
 }
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
+	hDlgControls	= hDlg;
+	InitSound();
+
 	scrollBar		= GetDlgItem(hDlg, IDC_SCROLLBAR);
 
 	playButton		= GetDlgItem(hDlg, IDB_PLAY);
@@ -69,21 +72,32 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 
 	return true;
 }
-void Controls::OnDestroy(const HWND)
-{
-	fingersLeft_.clear();
-	fingersRight_.clear();
-}
 
+void Controls::InitSound()
+{
+	try
+	{
+		Piano::sound->Init(hDlgControls);
+		PressSustain();
+	}
+	catch (const SoundError& e)
+	{
+		OnSoundError(string(e.what()) + "\nFailed to initialize DirectSound class");
+	}
+}
+void Controls::PressSustain()
+{
+	Piano::sound->PressSustain(IsDlgButtonChecked(hDlgControls, IDC_PEDAL) == BST_CHECKED);
+}
 void Controls::OnSoundError(const string& err)
 {
 	Piano::sound->Mute();
-	StopPlaying();
 	MessageBox(hDlgControls, (lexical_cast<String>(err.c_str())
-			+ TEXT("\nSound will be mute until you restart the program")).c_str(),
-		TEXT("Error"), MB_ICONERROR | MB_OK);
+		+ TEXT("\nSound will be mute until you click \"Play\" button again")).c_str(),
+		TEXT("DirectSound error"), MB_ICONHAND | MB_OK);
 }
-void Controls::StopPlaying()
+
+inline void Controls::StopPlaying()
 {
 	if (isPlaying_) FORWARD_WM_COMMAND(hDlgControls, IDB_PLAY, playButton, 0, SendMessage);
 }
@@ -115,6 +129,7 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 			}
 			catch (const SoundError& e)
 			{
+				StopPlaying();
 				OnSoundError(string(e.what()) + "\nFailed to add note");
 			}
 		}
@@ -162,6 +177,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		}
 		catch (const SoundError& e)
 		{
+			StopPlaying();
 			OnSoundError(string(e.what()) + "\nFailed to play chords");
 		}
 		result = true;
@@ -207,6 +223,7 @@ void Controls::UpdateScrollBar(int pos)
 
 	RewindTracks(pos);
 	if (isPlaying_) start_ += ScrollBar_GetPos(scrollBar) - pos;
+	else UpdateTime(static_cast<DWORD>(pos));
 }
 void Controls::NextChord()
 {
@@ -264,7 +281,7 @@ void Controls::PrevChord()
 		Piano::indexes = prevIndexes;
 	}
 }
-void Controls::OnHScroll(const HWND hDlg, const HWND hCtl, const UINT code, const int)
+void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int)
 	// "int pos" parameter is 16 bit, therefore, 32 bit GetScrollInfo() is used instead
 {
 	switch (code)
@@ -285,10 +302,8 @@ void Controls::OnHScroll(const HWND hDlg, const HWND hCtl, const UINT code, cons
 		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
 		UpdateScrollBar(scrollInfo.nTrackPos - scrollInfo.nPos);
 		if (scrollInfo.nTrackPos) NextChord();
-		else UpdateTime(start_);
 	}													break;
-	case SB_ENDSCROLL: Piano::sound->PressSustain(IsDlgButtonChecked(
-		hDlg, IDC_PEDAL) == BST_CHECKED);				break;
+	case SB_ENDSCROLL: PressSustain();					break;
 
 	default: assert(!"Unhandled scroll bar message");
 	}
@@ -302,7 +317,7 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 	{
 		if (isPlaying_)
 		{
-			KillTimer(GetParent(hDlg), 0);
+			KillTimer(MainWindow::hWndMain, 0);
 			start_ = 0;
 			Button_SetText(hCtrl, TEXT("Play"));
 			ComboBox_Enable(leftHand, true);
@@ -314,12 +329,16 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			if (Piano::tracks.empty())
 				MessageBox(hDlg, TEXT("No tracks are chosen, nothing to play yet"),
 					TEXT("Choose tracks"), MB_ICONASTERISK);
-			start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
-			SetTimer(GetParent(hDlg), 0, Piano::timerTick, OnTimer);
-			Button_SetText(hCtrl, TEXT("Pause"));
-			ComboBox_Enable(leftHand, false);
-			ComboBox_Enable(rightHand, false);
-			isPlaying_ = true;
+			else
+			{
+				InitSound();
+				start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
+				SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
+				Button_SetText(hCtrl, TEXT("Pause"));
+				ComboBox_Enable(leftHand, false);
+				ComboBox_Enable(rightHand, false);
+				isPlaying_ = true;
+			}
 		}
 	}
 	break;
@@ -327,24 +346,45 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 	case IDC_LEFT_HAND: case IDC_RIGHT_HAND:
 		if (notifyCode == CBN_SELCHANGE)
 		{
-			const auto trackNo(ComboBox_GetItemData(hCtrl, ComboBox_GetCurSel(hCtrl)));
-			if (hCtrl == leftHand)	Piano::leftTrack = trackNo > -1
-				? make_unique<size_t>(static_cast<size_t>(trackNo)) : nullptr;
-			else					Piano::rightTrack = trackNo > -1
-				? make_unique<size_t>(static_cast<size_t>(trackNo)) : nullptr;
-
+			if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
+			else					Piano::rightTrack = nullptr;
 			const auto progressBar(hCtrl == leftHand ? progressLeft : progressRight);
-			const auto track(hCtrl == leftHand ? Piano::leftTrack.get() : Piano::rightTrack.get());
-			if (track)
+			const auto listIndex(ComboBox_GetCurSel(hCtrl));
+			const auto trackNo(ComboBox_GetItemData(hCtrl, listIndex));
+			if (trackNo > -1)
 			{
-				TrellisGraph graph(Piano::notes.at(*track), hCtrl == leftHand);
-				Cursor cursorWait;
-				for (size_t i(1); i; i = graph.NextStep())
-					SendMessage(progressBar, PBM_SETPOS, i * 95 / Piano::notes.at(*track).size(), 0);
-				graph.Finish();
-				if (hCtrl == leftHand) fingersLeft_ = graph.GetResult();
-				else fingersRight_ = graph.GetResult();
-				SendMessage(progressBar, PBM_SETPOS, 100, 0);
+				const auto track(static_cast<size_t>(trackNo));
+				try
+				{
+					TrellisGraph graph(Piano::notes.at(track), hCtrl == leftHand);
+					Cursor cursorWait;
+					for (size_t i(1); i; i = graph.NextStep()) SendMessage(progressBar,
+						PBM_SETPOS, i * 95 / Piano::notes.at(track).size(), 0);
+					graph.Finish();
+					
+					if (hCtrl == leftHand) fingersLeft_ = graph.GetResult();
+					else fingersRight_ = graph.GetResult();
+
+					if (hCtrl == leftHand)	Piano::leftTrack = make_unique<size_t>(track);
+					else					Piano::rightTrack = make_unique<size_t>(track);
+					
+					SendMessage(progressBar, PBM_SETPOS, 100, 0);
+				}
+				catch (const bad_alloc& e)
+				{
+					const String trackName(static_cast<size_t>(
+						ComboBox_GetLBTextLen(hCtrl, listIndex)), '\0');
+					ComboBox_GetLBText(hCtrl, listIndex, trackName.data());
+					MessageBox(hCtrl, (String(
+							TEXT("Cannot finish fingering calculation: insufficient memory.\n"))
+							+ TEXT("Probably, track \"") + trackName
+							+ TEXT("\" is too long and mainly consists of single notes")
+							+ TEXT(", and results in too many possible fingering combinations.")
+						).c_str(), lexical_cast<String>(e.what()).c_str(), MB_ICONHAND);
+
+					ComboBox_SetCurSel(hCtrl, 0);
+					SendMessage(progressBar, PBM_SETPOS, 0, 0);
+				}
 			}
 			else SendMessage(progressBar, PBM_SETPOS, 0, 0);
 		}
@@ -370,9 +410,7 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 		}
 		break;
 
-	case IDC_PEDAL:
-		Piano::sound->PressSustain(IsDlgButtonChecked(hDlg, IDC_PEDAL) == BST_CHECKED);
-		break;
+	case IDC_PEDAL: PressSustain(); break;
 	}
 }
 
@@ -382,8 +420,6 @@ INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
 	switch (message)
 	{
 		HANDLE_MSG(hDlg, WM_INITDIALOG,	OnInitDialog);
-		HANDLE_MSG(hDlg, WM_DESTROY,	OnDestroy);
-
 		HANDLE_MSG(hDlg, WM_HSCROLL,	OnHScroll);
 		HANDLE_MSG(hDlg, WM_COMMAND,	OnCommand);
 	default: return false;

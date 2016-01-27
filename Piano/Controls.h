@@ -11,9 +11,11 @@ public:
 	static INT_PTR CALLBACK Main(HWND, UINT, WPARAM, LPARAM);
 private:
 	static BOOL OnInitDialog(HWND, HWND, LPARAM);
-	static void OnDestroy(HWND);
-
+	
+	static void InitSound();
+	static void PressSustain();
 	static void OnSoundError(const std::string&);
+
 	static void StopPlaying();
 	static void UpdateTime(DWORD);
 	static int PlayTrack(size_t, DWORD);

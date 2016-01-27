@@ -13,6 +13,7 @@
 #include "PianoSound\Sound_Facade.h"
 #include "PianoSound\SoundError.h"
 
+using namespace std;
 using namespace boost;
 
 HWND MainWindow::hWndMain = nullptr;
@@ -20,39 +21,13 @@ int MainWindow::dlgWidth_ = 0;
 
 BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
 {
-	try
-	{
-		Piano::sound->Init(hWnd);
-	}
-	catch (const SoundError& e)
-	{
-		MessageBox(hWnd, (lexical_cast<String>(e.what())
-			+ String(TEXT("\nThere will be no sound"))).c_str(), TEXT("Error"), MB_ICONHAND);
-	}
-	Controls::hDlgControls = CreateDialog(GetWindowInstance(hWnd),
-		MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
+	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
 	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
 	ShowWindow(Controls::hDlgControls, SW_SHOWNORMAL);
 	RECT rect{ 0 };
 	GetWindowRect(Controls::hDlgControls, &rect);
 	dlgWidth_ = rect.right - rect.left;
 	return true;
-}
-void MainWindow::OnDestroy(const HWND)
-{
-	Piano::notes.clear();
-	Piano::milliSeconds.clear();
-	
-	Piano::keyboard.reset();
-	Piano::sound.reset();
-	
-	Piano::indexes.clear();
-	Piano::tracks.clear();
-
-	Piano::leftTrack.reset();
-	Piano::rightTrack.reset();
-
-	PostQuitMessage(0);
 }
 
 void MainWindow::OnMove(const HWND hWnd, int, int)
@@ -75,8 +50,6 @@ void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
 
 void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 {
-	using namespace std;
-
 	Controls::Reset();
 	StdErrBuffer errBuf;
 	try
@@ -158,7 +131,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	}
 	catch (const MidiError& e)
 	{
-		MessageBox(hWnd, lexical_cast<String>(e.what()).c_str(), TEXT("Error"), MB_ICONHAND);
+		MessageBox(hWnd, lexical_cast<String>(e.what()).c_str(),
+			TEXT("Midi file error"), MB_ICONHAND | MB_OK);
 		Edit_SetText(Controls::midiLog,
 			lexical_cast<String>(regex_replace("Error opening MIDI file:\n"
 				+ string(e.what()) + '\n' + errBuf.Get(), regex{ "\n" }, "\r\n").c_str()).c_str());

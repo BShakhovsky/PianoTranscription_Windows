@@ -7,11 +7,16 @@ Keyboard:	Draw black keys after white
 				(temporarily store data with pressed indexes, then refresh all black keys before BitBlt).
 
 MainModule:	1. Correct aspect ratio more precisely.
-			2. Money for Nothing, right hand, Vocals 2 - exits with error, so debug it.
+			2. Dire Straits, Money for Nothing, when left or right track was chosen,
+					couple of times it resulted in constant mistakes during playing
+					(some bulshit was being played with SoundError, and nothing helped to stop it).
+				However, cannot represent this error anymore, and do not know what was the reason.
 =========================================================================================================
 Improvements:
 
-Fingering:	Return just vector<string> without duplicating int16_t notes.
+Fingering:	1. Dire Straits, Money for Nothing, right hand -> track 7 "Vocals 2"
+				NodesLinker::LinkNewNodes() is taking too much memory
+			2. Return just vector<string> without duplicating int16_t notes.
 
 Keyboard:	Move to a separate static lib.
 
