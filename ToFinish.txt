@@ -27,5 +27,6 @@ MidiParser:	1. Midi format 2 ==> each track has its own tempo map.
 
 MainModule:	1. Store all calculated fingers (vector<string>) in vector of fingerTracks.
 				If (!fingerTracks.at(trackNo).empty()) do not calculate again, just SetScrollBarPos(100);
-			2. Add possibility to stop fingering calculation somehow
-				(either MessageBox() or separate thread) if taking too much time.
+			2. Add possibility to stop fingering calculation if taking too much time
+				e.g. with "X" button to the right of the corresponding progress bar
+				(move calculation to a separate thread).

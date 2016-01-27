@@ -346,8 +346,6 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 	case IDC_LEFT_HAND: case IDC_RIGHT_HAND:
 		if (notifyCode == CBN_SELCHANGE)
 		{
-			if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
-			else					Piano::rightTrack = nullptr;
 			const auto progressBar(hCtrl == leftHand ? progressLeft : progressRight);
 			const auto listIndex(ComboBox_GetCurSel(hCtrl));
 			const auto trackNo(ComboBox_GetItemData(hCtrl, listIndex));
@@ -358,17 +356,41 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				{
 					TrellisGraph graph(Piano::notes.at(track), hCtrl == leftHand);
 					Cursor cursorWait;
-					for (size_t i(1); i; i = graph.NextStep()) SendMessage(progressBar,
-						PBM_SETPOS, i * 95 / Piano::notes.at(track).size(), 0);
-					graph.Finish();
-					
-					if (hCtrl == leftHand) fingersLeft_ = graph.GetResult();
-					else fingersRight_ = graph.GetResult();
-
-					if (hCtrl == leftHand)	Piano::leftTrack = make_unique<size_t>(track);
-					else					Piano::rightTrack = make_unique<size_t>(track);
-					
-					SendMessage(progressBar, PBM_SETPOS, 100, 0);
+					auto toFinish(true);
+					auto timeStart(GetTickCount());
+					for (size_t i(1); i; i = graph.NextStep())
+					{
+						SendMessage(progressBar, PBM_SETPOS,
+							i * 95 / Piano::notes.at(track).size(), 0);
+						if (static_cast<int>(GetTickCount()) - static_cast<int>(timeStart) > 10'000)
+							if (MessageBox(hDlg,
+									TEXT("It seems that fingering calculation might take a while.\n")
+									TEXT("Press OK if you want to continue waiting."),
+									TEXT("Lots of fingering combinations"),
+								MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
+							{
+								ComboBox_SetCurSel(hCtrl, 0);
+								SendMessage(progressBar, PBM_SETPOS, 0, 0);
+								toFinish = false;
+								break;
+							}
+							else timeStart = USER_TIMER_MAXIMUM;
+					}
+					if (toFinish)
+					{
+						graph.Finish();
+						if (hCtrl == leftHand)
+						{
+							fingersLeft_ = graph.GetResult();
+							Piano::leftTrack = make_unique<size_t>(track);
+						}
+						else
+						{
+							fingersRight_ = graph.GetResult();
+							Piano::rightTrack = make_unique<size_t>(track);
+						}
+						SendMessage(progressBar, PBM_SETPOS, 100, 0);
+					}
 				}
 				catch (const bad_alloc& e)
 				{
@@ -386,7 +408,8 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					SendMessage(progressBar, PBM_SETPOS, 0, 0);
 				}
 			}
-			else SendMessage(progressBar, PBM_SETPOS, 0, 0);
+			else if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
+			else						Piano::rightTrack = nullptr;
 		}
 //		break;
 	case IDC_TRACKS:
