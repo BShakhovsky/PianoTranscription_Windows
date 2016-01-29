@@ -13,11 +13,7 @@ private:
 		PostQuitMessage(0);
 	}
 
-	static BOOL OnWindowPosChanging(HWND, LPWINDOWPOS pos)
-	{
-		pos->cy = pos->cx / 6;
-		return false;
-	}
+	static BOOL OnWindowPosChanging(HWND, LPWINDOWPOS);
 	static void OnMove(HWND, int, int);
 	static void OnSize(HWND, UINT, int, int);
 

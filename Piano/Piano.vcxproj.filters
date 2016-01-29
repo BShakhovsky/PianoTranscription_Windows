@@ -75,6 +75,9 @@
     <ClInclude Include="Cursor.h">
       <Filter>Header Files\Main\Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="Keyboard_pimpl.h">
+      <Filter>Header Files\Keyboard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -97,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="Piano.cpp">
       <Filter>Source Files\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard_pimpl.cpp">
+      <Filter>Source Files\Keyboard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

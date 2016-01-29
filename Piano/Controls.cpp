@@ -161,15 +161,14 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		{
 			const auto leftIndex(Piano::indexes.at(*Piano::leftTrack));
 			if (leftIndex) for (const auto& note : fingersLeft_.at(leftIndex - 1))
-				Piano::keyboard->AssignFinger(note.first, note.second, true);
+				Piano::keyboard->AssignFinger(note.first, note.second.c_str(), true);
 		}
 		if (Piano::rightTrack)
 		{
 			const auto rightIndex(Piano::indexes.at(*Piano::rightTrack));
 			if (rightIndex) for (const auto& note : fingersRight_.at(rightIndex - 1))
-				Piano::keyboard->AssignFinger(note.first, note.second);
+				Piano::keyboard->AssignFinger(note.first, note.second.c_str());
 		}
-
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
@@ -397,21 +396,28 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					const String trackName(static_cast<size_t>(
 						ComboBox_GetLBTextLen(hCtrl, listIndex)), '\0');
 					ComboBox_GetLBText(hCtrl, listIndex, trackName.data());
-					MessageBox(hCtrl, (String(
-							TEXT("Cannot finish fingering calculation: insufficient memory.\n"))
-							+ TEXT("Probably, track \"") + trackName
-							+ TEXT("\" is too long and mainly consists of single notes")
-							+ TEXT(", and results in too many possible fingering combinations.")
-						).c_str(), lexical_cast<String>(e.what()).c_str(), MB_ICONHAND);
+					if (MessageBox(hCtrl, (String(
+						TEXT("Cannot finish fingering calculation: insufficient memory.\n"))
+								+ TEXT("Probably, track \"") + trackName
+								+ TEXT("\" consists of too many notes.\n")
+								+ TEXT("The program may behave inadequately")
+								+ TEXT(" and bullshit may be played until you restart it.")
+								+ TEXT(" Do you want to close the program now?")
+							).c_str(), lexical_cast<String>(e.what()).c_str(), MB_ICONHAND | MB_YESNO
+						) == IDYES) FORWARD_WM_DESTROY(MainWindow::hWndMain, SendMessage);
 
 					ComboBox_SetCurSel(hCtrl, 0);
 					SendMessage(progressBar, PBM_SETPOS, 0, 0);
 				}
 			}
-			else if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
-			else						Piano::rightTrack = nullptr;
+			else
+			{
+				if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
+				else					Piano::rightTrack = nullptr;
+				SendMessage(progressBar, PBM_SETPOS, 0, 0);
+			}
 		}
-//		break;
+//		no break;
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
@@ -422,10 +428,10 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			for (const auto& item : items)
 				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(trackList, item)));
 
-			if (Piano::leftTrack.get()
+			if (Piano::leftTrack
 				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
 					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
-			if (Piano::rightTrack.get()
+			if (Piano::rightTrack
 				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
 					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
 

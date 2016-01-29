@@ -9,9 +9,8 @@
 #pragma warning(pop)
 #include <CommCtrl.h>
 
-#pragma warning(disable:4625 4626)
+#pragma warning(disable:4625 4626 5026 5027)
 #pragma warning(push, 3)
-#pragma warning(disable:5026 5027)
 #	include <boost\noncopyable.hpp>
 #pragma warning(pop)
 

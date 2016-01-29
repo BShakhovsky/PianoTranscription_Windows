@@ -30,17 +30,36 @@ BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
 	return true;
 }
 
-void MainWindow::OnMove(const HWND hWnd, int, int)
+BOOL MainWindow::OnWindowPosChanging(HWND hWnd, LPWINDOWPOS pos)
 {
 	RECT rect{ 0 };
 	GetWindowRect(hWnd, &rect);
-	SetWindowPos(Controls::hDlgControls, HWND_TOP, (rect.left + rect.right - dlgWidth_) / 2,
-		rect.bottom - 8, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	const auto height(rect.bottom - rect.top);
+
+	GetClientRect(hWnd, &rect);
+	pos->cy = pos->cx / 8 + height + rect.top - rect.bottom;
+
+	return false;
+}
+void MainWindow::OnMove(const HWND hWnd, int, int)
+{
+	RECT rect{ 0 };
+
+	GetWindowRect(hWnd, &rect);
+	const auto left((rect.left + rect.right - dlgWidth_) / 2), bottom(rect.bottom);
+	
+	GetWindowRect(Controls::hDlgControls, &rect);
+	static const auto height(rect.bottom - rect.top);
+	
+	GetClientRect(Controls::hDlgControls, &rect);
+	
+	SetWindowPos(Controls::hDlgControls, HWND_TOP, left, bottom
+		+ rect.bottom - rect.top - height - 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
 {
 	Piano::keyboard->UpdateSize(hWnd, cx, cy);
-	Piano::keyboard->ReleaseAllKeys();
+	Piano::keyboard->ReleaseWhiteKeys();
 }
 
 void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
@@ -175,7 +194,7 @@ void MainWindow::OnPaint(const HWND hWnd)
 {
 	Canvas canvas(hWnd);
 	Piano::keyboard->Draw(canvas);
-	Piano::keyboard->ReleaseAllKeys();
+	Piano::keyboard->ReleaseWhiteKeys();
 }
 
 LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,

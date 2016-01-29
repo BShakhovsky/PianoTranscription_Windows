@@ -182,6 +182,7 @@
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Keyboard_pimpl.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NoteNames.h" />
     <ClInclude Include="Resource.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="About.cpp" />
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Keyboard_pimpl.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
