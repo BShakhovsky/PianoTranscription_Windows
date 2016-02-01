@@ -5,14 +5,17 @@
 #include "Controls.h"
 
 #include "MidiParser\MidiParser_Facade.h"
-#include "Keyboard.h"
+#pragma warning(push)
+#pragma warning(disable:4711)
+#	include "PianoKeyboard\Keyboard.h"
+#pragma warning(pop)
 #include "PianoSound\Sound_Facade.h"
 
 #include <vld.h>
 
 using namespace std;
 
-vector<vector<vector<int16_t>>> Piano::notes = vector<vector<vector<int16_t>>>();
+vector<vector<set<int16_t>>> Piano::notes = vector<vector<set<int16_t>>>();
 vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
 	= vector<vector<pair<unsigned, unsigned>>>();
 
@@ -23,6 +26,9 @@ vector<size_t> Piano::indexes = vector<size_t>();
 vector<size_t> Piano::tracks = vector<size_t>();
 unique_ptr<size_t> Piano::leftTrack = nullptr;
 unique_ptr<size_t> Piano::rightTrack = nullptr;
+
+vector<vector<vector<string>>> Piano::fingersLeft = vector<vector<vector<string>>>();
+vector<vector<vector<string>>> Piano::fingersRight = vector<vector<vector<string>>>();
 
 
 ATOM Piano::MyRegisterClass(const HINSTANCE hInstance)

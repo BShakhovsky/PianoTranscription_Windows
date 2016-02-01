@@ -33,6 +33,4 @@ private:
 	static HWND time_;
 	static bool isPlaying_;
 	static DWORD start_;
-
-	static std::vector<std::vector<std::pair<int16_t, std::string>>> fingersLeft_, fingersRight_;
 };

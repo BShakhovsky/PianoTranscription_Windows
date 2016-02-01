@@ -9,7 +9,10 @@
 
 #include "MidiParser\MidiParser_Facade.h"
 #include "MidiParser\MidiError.h"
-#include "Keyboard.h"
+#pragma warning(push)
+#pragma warning(disable:4711)
+#	include "PianoKeyboard\Keyboard.h"
+#pragma warning(pop)
 #include "PianoSound\Sound_Facade.h"
 #include "PianoSound\SoundError.h"
 
@@ -56,13 +59,13 @@ void MainWindow::OnMove(const HWND hWnd, int, int)
 	SetWindowPos(Controls::hDlgControls, HWND_TOP, left, bottom
 		+ rect.bottom - rect.top - height - 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
-void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
+inline void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
 {
 	Piano::keyboard->UpdateSize(hWnd, cx, cy);
 	Piano::keyboard->ReleaseWhiteKeys();
 }
 
-void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
+inline void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
 {
 	if (vk == VK_TAB) SetFocus(Controls::hDlgControls);
 }
@@ -75,7 +78,7 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	{
 		const MidiParser_Facade midi(fileName);
 		const auto numTracks(midi.GetNotes().size());
-		Piano::notes.assign(numTracks, vector<vector<int16_t>>());
+		Piano::notes.assign(numTracks, vector<set<int16_t>>());
 		Piano::milliSeconds.assign(numTracks, vector<pair<unsigned, unsigned>>());
 		for (size_t i(0); i < numTracks; ++i)
 		{
@@ -84,7 +87,7 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 			Piano::milliSeconds.at(i).reserve(numNotes);
 			if (!midi.GetNotes().at(i).empty())
 			{
-				vector<vector<int16_t>> chords({ { midi.GetNotes().at(i).front() } });
+				vector<set<int16_t>> chords({ { midi.GetNotes().at(i).front() } });
 				vector<pair<unsigned, unsigned>> timeIntervals({ make_pair(
 					midi.GetMilliSeconds().at(i).front(), midi.GetMilliSeconds().at(i).front()) });
 				auto lastTime(midi.GetMilliSeconds().at(i).front());
@@ -94,7 +97,7 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 						static_cast<size_t>(note - midi.GetNotes().at(i).cbegin())));
 					if (newTime - lastTime < Piano::timerTick)
 					{
-						chords.back().push_back(*note);
+						chords.back().insert(*note);
 						timeIntervals.back().second = newTime;
 					}
 					else
@@ -136,6 +139,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 		Piano::indexes.assign(Piano::notes.size(), 0);
 		Piano::leftTrack.reset();
 		Piano::rightTrack.reset();
+		Piano::fingersLeft.assign(Piano::notes.size(), vector<vector<string>>());
+		Piano::fingersRight.assign(Piano::notes.size(), vector<vector<string>>());
 		const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
 			[](const vector<pair<unsigned, unsigned>>& left,
 				const vector<pair<unsigned, unsigned>>& right)

@@ -95,7 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -118,7 +118,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -140,7 +140,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers\Piano Fingers.exe"</Command>
@@ -166,7 +166,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoInterface\PianoSound\$(Configuration);$(SolutionDir)..\Libs\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -181,10 +181,7 @@
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Cursor.h" />
-    <ClInclude Include="Keyboard.h" />
-    <ClInclude Include="Keyboard_pimpl.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="NoteNames.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StdErrBuffer.h" />
@@ -194,8 +191,6 @@
   <ItemGroup>
     <ClCompile Include="About.cpp" />
     <ClCompile Include="Controls.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
-    <ClCompile Include="Keyboard_pimpl.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -203,7 +198,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Test_View_NoteNames.cpp" />
     <ClCompile Include="Piano.cpp" />
   </ItemGroup>
   <ItemGroup>

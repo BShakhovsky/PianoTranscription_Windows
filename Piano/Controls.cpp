@@ -6,7 +6,10 @@
 
 #include "MidiParser\MidiParser_Facade.h"
 #include "PianoFingering\TrellisGraph_Facade.h"
-#include "Keyboard.h"
+#pragma warning(push)
+#pragma warning(disable:4711)
+#	include "PianoKeyboard\Keyboard.h"
+#pragma warning(pop)
 #include "PianoSound\Sound_Facade.h"
 #include "PianoSound\SoundError.h"
 
@@ -28,9 +31,6 @@ HWND Controls::playButton		= nullptr;
 HWND Controls::time_			= nullptr;
 bool Controls::isPlaying_		= false;
 DWORD Controls::start_			= 0;
-
-vector<vector<pair<int16_t, string>>> Controls::fingersLeft_ = vector<vector<pair<int16_t, string>>>();
-vector<vector<pair<int16_t, string>>> Controls::fingersRight_ = vector<vector<pair<int16_t, string>>>();
 
 void Controls::Reset()
 {
@@ -145,6 +145,16 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 
 	return result;
 }
+void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo, bool leftHand = false)
+{
+	const auto ind(Piano::indexes.at(trackNo));
+	if (ind) for (size_t i(0); i < fingers.at(trackNo).at(ind - 1).size(); ++i)
+	{
+		auto note(Piano::notes.at(trackNo).at(ind - 1).cbegin());
+		advance(note, i);
+		Piano::keyboard->AssignFinger(*note, fingers.at(trackNo).at(ind - 1).at(i).c_str(), leftHand);
+	}
+}
 bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 {
 	auto result(false);
@@ -157,18 +167,8 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		}
 		) > 0)
 	{
-		if (Piano::leftTrack)
-		{
-			const auto leftIndex(Piano::indexes.at(*Piano::leftTrack));
-			if (leftIndex) for (const auto& note : fingersLeft_.at(leftIndex - 1))
-				Piano::keyboard->AssignFinger(note.first, note.second.c_str(), true);
-		}
-		if (Piano::rightTrack)
-		{
-			const auto rightIndex(Piano::indexes.at(*Piano::rightTrack));
-			if (rightIndex) for (const auto& note : fingersRight_.at(rightIndex - 1))
-				Piano::keyboard->AssignFinger(note.first, note.second.c_str());
-		}
+		if (Piano::leftTrack)	AssignFinger(Piano::fingersLeft, *Piano::leftTrack, true);
+		if (Piano::rightTrack)	AssignFinger(Piano::fingersRight, *Piano::rightTrack);
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
@@ -351,6 +351,8 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 			if (trackNo > -1)
 			{
 				const auto track(static_cast<size_t>(trackNo));
+				if (hCtrl == leftHand ? Piano::fingersLeft.at(track).empty()
+					: Piano::fingersRight.at(track).empty())
 				try
 				{
 					TrellisGraph graph(Piano::notes.at(track), hCtrl == leftHand);
@@ -380,12 +382,12 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 						graph.Finish();
 						if (hCtrl == leftHand)
 						{
-							fingersLeft_ = graph.GetResult();
+							Piano::fingersLeft.at(track) = graph.GetResult();
 							Piano::leftTrack = make_unique<size_t>(track);
 						}
 						else
 						{
-							fingersRight_ = graph.GetResult();
+							Piano::fingersRight.at(track) = graph.GetResult();
 							Piano::rightTrack = make_unique<size_t>(track);
 						}
 						SendMessage(progressBar, PBM_SETPOS, 100, 0);
@@ -408,6 +410,12 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 
 					ComboBox_SetCurSel(hCtrl, 0);
 					SendMessage(progressBar, PBM_SETPOS, 0, 0);
+				}
+				else
+				{
+					if (hCtrl == leftHand)	Piano::leftTrack = make_unique<size_t>(track);
+					else					Piano::rightTrack = make_unique<size_t>(track);
+					SendMessage(progressBar, PBM_SETPOS, 100, 0);
 				}
 			}
 			else

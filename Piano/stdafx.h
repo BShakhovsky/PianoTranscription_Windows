@@ -9,7 +9,7 @@
 #pragma warning(pop)
 #include <CommCtrl.h>
 
-#pragma warning(disable:4625 4626 5026 5027)
+#pragma warning(disable:4625 4626)
 #pragma warning(push, 3)
 #	include <boost\noncopyable.hpp>
 #pragma warning(pop)
@@ -22,8 +22,6 @@
 #	include <boost\regex.hpp>
 #pragma warning(pop)
 
-#include <cassert>
 #include <iostream>
-#include <memory>
 #include <numeric>
-#include <vector>
+#include <set>
