@@ -168,8 +168,6 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		) > 0)	// std::any_of() and std::all_of() return as soon as result is found,
 				// but we need to play all tracks anyway
 	{
-//		if (Piano::leftTrack)	AssignFinger(Piano::fingersLeft, *Piano::leftTrack, true);
-//		if (Piano::rightTrack)	AssignFinger(Piano::fingersRight, *Piano::rightTrack);
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
