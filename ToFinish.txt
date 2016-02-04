@@ -1,7 +1,3 @@
-Bugs:	1. Ticking track "Piano RH": fingering for 1st chord
-			shows just thumb (or pinky for left hand) for the lowest of 4 notes.
-		2. Midnight Oil, Beds are Burning, fingering is strange.
-
 Add possibility to stop fingering calculation if taking too much time
 e.g. with "X" button to the right of the corresponding progress bar:
 	1) Move calculation to a separate thread.

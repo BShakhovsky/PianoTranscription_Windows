@@ -111,6 +111,16 @@ void Controls::UpdateTime(const DWORD dwTime)
 	Edit_SetText(time_, (Format{ TEXT("Time %u:%02u:%02u") } %
 		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
 }
+void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo, bool leftHand = false)
+{
+	for (size_t i(0); i < fingers.at(trackNo).at(Piano::indexes.at(trackNo)).size(); ++i)
+	{
+		auto note(Piano::notes.at(trackNo).at(Piano::indexes.at(trackNo)).cbegin());
+		advance(note, i);
+		Piano::keyboard->AssignFinger(*note, fingers.at(trackNo)
+			.at(Piano::indexes.at(trackNo)).at(i).c_str(), leftHand);
+	}
+}
 int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 {
 	auto result(0);
@@ -123,6 +133,10 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 		for (const auto& note : Piano::notes.at(trackNo).at(Piano::indexes.at(trackNo)))
 		{
 			Piano::keyboard->PressKey(note);
+			if (Piano::leftTrack && *Piano::leftTrack == trackNo)
+				AssignFinger(Piano::fingersLeft, trackNo, true);
+			if (Piano::rightTrack && *Piano::rightTrack == trackNo)
+				AssignFinger(Piano::fingersRight, trackNo);
 			try
 			{
 				Piano::sound->AddNote(note);
@@ -136,39 +150,26 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 		result = 1;
 	}
 	if (Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size() && (result &&
-		static_cast<time_t>(Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first)
-		- static_cast<time_t>(Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)
-			- 1).second) <= Piano::timerTick
-		|| static_cast<time_t>(dwTime + Piano::timerTick) - static_cast<time_t>(start_
+		static_cast<time_t>(dwTime) - static_cast<time_t>(start_
 			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0))
 		result = INT16_MIN;
 
 	return result;
-}
-void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo, bool leftHand = false)
-{
-	const auto ind(Piano::indexes.at(trackNo));
-	if (ind) for (size_t i(0); i < fingers.at(trackNo).at(ind - 1).size(); ++i)
-	{
-		auto note(Piano::notes.at(trackNo).at(ind - 1).cbegin());
-		advance(note, i);
-		Piano::keyboard->AssignFinger(*note, fingers.at(trackNo).at(ind - 1).at(i).c_str(), leftHand);
-	}
 }
 bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 {
 	auto result(false);
 
 	UpdateTime(dwTime);
-	if (accumulate(Piano::tracks.cbegin(), Piano::tracks.cend(), 0,
-		[dwTime](int val, size_t track)
+	if (accumulate(Piano::tracks.cbegin(), Piano::tracks.cend(), 0, [dwTime](int val, size_t track)
 		{
 			return val + PlayTrack(track, dwTime);
 		}
-		) > 0)
+		) > 0)	// std::any_of() and std::all_of() return as soon as result is found,
+				// but we need to play all tracks anyway
 	{
-		if (Piano::leftTrack)	AssignFinger(Piano::fingersLeft, *Piano::leftTrack, true);
-		if (Piano::rightTrack)	AssignFinger(Piano::fingersRight, *Piano::rightTrack);
+//		if (Piano::leftTrack)	AssignFinger(Piano::fingersLeft, *Piano::leftTrack, true);
+//		if (Piano::rightTrack)	AssignFinger(Piano::fingersRight, *Piano::rightTrack);
 		InvalidateRect(hWnd, nullptr, false);
 		try
 		{
@@ -226,21 +227,22 @@ void Controls::UpdateScrollBar(int pos)
 }
 void Controls::NextChord()
 {
-	while (!Piano::tracks.empty())
+	if (Piano::tracks.empty())
+		MessageBox(hDlgControls, TEXT("No tracks are chosen, nothing to play yet"),
+			TEXT("Choose tracks"), MB_ICONASTERISK);
+	else for (;;)
 	{
 		const auto track(*min_element(Piano::tracks.cbegin(), Piano::tracks.cend(),
 			[](size_t left, size_t right)
 			{
-				return Piano::indexes.at(left) >= Piano::milliSeconds.at(left).size()
-					? false
-					: Piano::indexes.at(right) >= Piano::milliSeconds.at(right).size()
-					? true
+				return Piano::indexes.at(left) >= Piano::milliSeconds.at(left).size()	? false
+					: Piano::indexes.at(right) >= Piano::milliSeconds.at(right).size()	? true
 					: Piano::milliSeconds.at(left).at(Piano::indexes.at(left)).first
 						< Piano::milliSeconds.at(right).at(Piano::indexes.at(right)).first;
 			}));
 		if (Piano::indexes.at(track) >= Piano::milliSeconds.at(track).size()
 				|| OnTimer(GetParent(hDlgControls), start_ + Piano::milliSeconds
-					.at(track).at(Piano::indexes.at(track)).second + Piano::timerTick))
+					.at(track).at(Piano::indexes.at(track)).second))
 			break;
 	}
 }
@@ -285,14 +287,14 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int
 {
 	switch (code)
 	{
-	case SB_LEFT:		UpdateScrollBar(INT_MIN);		break;
-	case SB_RIGHT:		UpdateScrollBar(INT_MAX);		break;
+	case SB_LEFT:		UpdateScrollBar(INT_MIN);	if (!isPlaying_) NextChord();	break;
+	case SB_RIGHT:		UpdateScrollBar(INT_MAX);	if (!isPlaying_) PrevChord();	break;
 
-	case SB_LINELEFT:	if (!isPlaying_) PrevChord();	break;
-	case SB_LINERIGHT:	if (!isPlaying_) NextChord();	break;
+	case SB_LINELEFT:								if (!isPlaying_) PrevChord();	break;
+	case SB_LINERIGHT:								if (!isPlaying_) NextChord();	break;
 
-	case SB_PAGELEFT:	UpdateScrollBar(-10'000);		break;
-	case SB_PAGERIGHT:	UpdateScrollBar(10'000);		break;
+	case SB_PAGELEFT:	UpdateScrollBar(-10'000);	if (!isPlaying_) PrevChord();	break;
+	case SB_PAGERIGHT:	UpdateScrollBar(10'000);	if (!isPlaying_) NextChord();	break;
 
 	case SB_THUMBTRACK: case SB_THUMBPOSITION:
 	{

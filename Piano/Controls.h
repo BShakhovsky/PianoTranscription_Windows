@@ -22,7 +22,6 @@ private:
 	static bool OnTimer(HWND, DWORD);
 	static void CALLBACK OnTimer(HWND, UINT, UINT_PTR, DWORD);
 
-	static void RewindHands();
 	static void RewindTracks(int);
 	static void UpdateScrollBar(int);
 	static void NextChord();
