@@ -1,12 +1,12 @@
 #pragma once
 
-class Canvas : private boost::noncopyable
+class Canvas : boost::noncopyable
 {
 	Canvas() = delete;
 public:
 	explicit Canvas(HWND hWnd)
 		: hWnd_(hWnd),
-		hdc_(BeginPaint(hWnd_, &ps_))
+		hDC_(BeginPaint(hWnd_, &ps_))
 	{}
 	~Canvas()
 	{
@@ -15,10 +15,10 @@ public:
 
 	operator HDC () const
 	{
-		return hdc_;
+		return hDC_;
 	}
 private:
+	const HWND hWnd_;
 	PAINTSTRUCT ps_;
-	HWND hWnd_;
-	HDC hdc_;
+	const HDC hDC_;
 };

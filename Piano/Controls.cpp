@@ -43,7 +43,6 @@ void Controls::Reset()
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
 	hDlgControls	= hDlg;
-	InitSound();
 
 	scrollBar		= GetDlgItem(hDlg, IDC_SCROLLBAR);
 
@@ -71,30 +70,6 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 	ComboBox_SetCurSel(rightHand, 0);
 
 	return true;
-}
-
-void Controls::InitSound()
-{
-	try
-	{
-		Piano::sound->Init(hDlgControls);
-		PressSustain();
-	}
-	catch (const SoundError& e)
-	{
-		OnSoundError(string(e.what()) + "\nFailed to initialize DirectSound class");
-	}
-}
-void Controls::PressSustain()
-{
-	Piano::sound->PressSustain(IsDlgButtonChecked(hDlgControls, IDC_PEDAL) == BST_CHECKED);
-}
-void Controls::OnSoundError(const string& err)
-{
-	Piano::sound->Mute();
-	MessageBox(hDlgControls, (lexical_cast<String>(err.c_str())
-		+ TEXT("\nSound will be mute until you click \"Play\" button again")).c_str(),
-		TEXT("DirectSound error"), MB_ICONHAND | MB_OK);
 }
 
 inline void Controls::StopPlaying()
@@ -137,15 +112,8 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 				AssignFinger(Piano::fingersLeft, trackNo, true);
 			if (Piano::rightTrack && *Piano::rightTrack == trackNo)
 				AssignFinger(Piano::fingersRight, trackNo);
-			try
-			{
-				Piano::sound->AddNote(note);
-			}
-			catch (const SoundError& e)
-			{
-				StopPlaying();
-				OnSoundError(string(e.what()) + "\nFailed to add note");
-			}
+			
+			if (Piano::sound) Piano::sound->AddNote(note);
 		}
 		result = 1;
 	}
@@ -169,15 +137,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 				// but we need to play all tracks anyway
 	{
 		InvalidateRect(hWnd, nullptr, false);
-		try
-		{
-			Piano::sound->Play();
-		}
-		catch (const SoundError& e)
-		{
-			StopPlaying();
-			OnSoundError(string(e.what()) + "\nFailed to play chords");
-		}
+		if (Piano::sound) Piano::sound->Play();
 		result = true;
 	}
 
@@ -296,15 +256,11 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int
 
 	case SB_THUMBTRACK: case SB_THUMBPOSITION:
 	{
-		Piano::sound->PressSustain(false);
 		SCROLLINFO scrollInfo{ sizeof scrollInfo, SIF_POS | SIF_TRACKPOS };
 		GetScrollInfo(hCtl, SB_CTL, &scrollInfo);
 		UpdateScrollBar(scrollInfo.nTrackPos - scrollInfo.nPos);
 		if (scrollInfo.nTrackPos) NextChord();
-	}													break;
-	case SB_ENDSCROLL: PressSustain();					break;
-
-	default: assert(!"Unhandled scroll bar message");
+	}
 	}
 }
 
@@ -330,7 +286,6 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					TEXT("Choose tracks"), MB_ICONASTERISK);
 			else
 			{
-				InitSound();
 				start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
 				SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
 				Button_SetText(hCtrl, TEXT("Pause"));
@@ -445,9 +400,6 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
-		break;
-
-	case IDC_PEDAL: PressSustain(); break;
 	}
 }
 

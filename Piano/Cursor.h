@@ -1,6 +1,6 @@
 #pragma once
 
-class Cursor : private boost::noncopyable
+class Cursor : boost::noncopyable
 {
 public:
 	Cursor() :
@@ -11,5 +11,5 @@ public:
 		SetCursor(hCursorOld_);
 	}
 private:
-	HCURSOR hCursorOld_;
+	const HCURSOR hCursorOld_;
 };

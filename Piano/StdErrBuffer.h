@@ -1,11 +1,10 @@
 #pragma once
 
-class StdErrBuffer : private boost::noncopyable
+class StdErrBuffer : boost::noncopyable
 {
 public:
 	StdErrBuffer()
-		: errStream_(),
-		oldBuf_(std::cerr.rdbuf(errStream_.rdbuf()))
+		: oldBuf_(std::cerr.rdbuf(errStream_.rdbuf()))
 	{}
 	~StdErrBuffer()
 	{
@@ -19,5 +18,5 @@ public:
 private:
 	std::stringstream errStream_;
 	std::streambuf* oldBuf_;
-	const BYTE unused_[4] = { 0 };	// padding bytes
+	const BYTE unusedPadding_[4] = { 0 };
 };

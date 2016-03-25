@@ -24,12 +24,22 @@ int MainWindow::dlgWidth_ = 0;
 
 BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
 {
+	try
+	{
+		Piano::sound = make_shared<Sound_Facade>();
+	}
+	catch (const SoundError& e)
+	{
+		MessageBoxA(hWnd, e.what(), "Sound error", MB_ICONHAND | MB_OK);
+	}
+
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
 	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
 	ShowWindow(Controls::hDlgControls, SW_SHOWNORMAL);
 	RECT rect{ 0 };
 	GetWindowRect(Controls::hDlgControls, &rect);
 	dlgWidth_ = rect.right - rect.left;
+
 	return true;
 }
 

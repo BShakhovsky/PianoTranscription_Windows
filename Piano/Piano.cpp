@@ -19,13 +19,13 @@ vector<vector<set<int16_t>>> Piano::notes = vector<vector<set<int16_t>>>();
 vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
 	= vector<vector<pair<unsigned, unsigned>>>();
 
-unique_ptr<Keyboard> Piano::keyboard = make_unique<Keyboard>();
-unique_ptr<Sound_Facade> Piano::sound = make_unique<Sound_Facade>();
+shared_ptr<Keyboard> Piano::keyboard = make_shared<Keyboard>();
+shared_ptr<Sound_Facade> Piano::sound = nullptr;
 
 vector<size_t> Piano::indexes = vector<size_t>();
 vector<size_t> Piano::tracks = vector<size_t>();
-unique_ptr<size_t> Piano::leftTrack = nullptr;
-unique_ptr<size_t> Piano::rightTrack = nullptr;
+shared_ptr<size_t> Piano::leftTrack = nullptr;
+shared_ptr<size_t> Piano::rightTrack = nullptr;
 
 vector<vector<vector<string>>> Piano::fingersLeft = vector<vector<vector<string>>>();
 vector<vector<vector<string>>> Piano::fingersRight = vector<vector<vector<string>>>();

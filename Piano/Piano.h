@@ -16,11 +16,11 @@ public:
 	static std::vector<std::vector<std::set<int16_t>>> notes;
 	static std::vector<std::vector<std::pair<unsigned, unsigned>>> milliSeconds;
 
-	static std::unique_ptr<class Keyboard> keyboard;
-	static std::unique_ptr<class Sound_Facade> sound;
+	static std::shared_ptr<class Keyboard> keyboard;
+	static std::shared_ptr<class Sound_Facade> sound;
 
 	static std::vector<size_t> indexes, tracks;
-	static std::unique_ptr<size_t> leftTrack, rightTrack;
+	static std::shared_ptr<size_t> leftTrack, rightTrack;
 	static std::vector<std::vector<std::vector<std::string>>> fingersLeft, fingersRight;
 
 	static constexpr UINT timerTick = USER_TIMER_MINIMUM;
