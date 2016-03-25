@@ -6,6 +6,7 @@
 #include "Piano.h"
 #include "Canvas.h"
 #include "StdErrBuffer.h"
+#include "ResourceLoader.h"
 
 #include "MidiParser\MidiParser_Facade.h"
 #include "MidiParser\MidiError.h"
@@ -165,8 +166,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	}
 	catch (const MidiError& e)
 	{
-		MessageBox(hWnd, lexical_cast<String>(e.what()).c_str(),
-			TEXT("Midi file error"), MB_ICONHAND | MB_OK);
+		MessageBox(hWnd, (lexical_cast<String>(e.what()) + TEXT("\nProbably, it is not a MIDI-file.")
+			).c_str(), TEXT("Midi file error"), MB_ICONHAND | MB_OK);
 		Edit_SetText(Controls::midiLog,
 			lexical_cast<String>(regex_replace("Error opening MIDI file:\n"
 				+ string(e.what()) + '\n' + errBuf.Get(), regex{ "\n" }, "\r\n").c_str()).c_str());
@@ -195,6 +196,12 @@ void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
 		fileName.nMaxFile = sizeof buf / sizeof *buf;
 		fileName.Flags = OFN_FILEMUSTEXIST;
 		if (GetOpenFileName(&fileName)) OpenMidiFile(hWnd, fileName.lpstrFile);
+	}
+	break;
+	case IDM_USERGUIDE:
+	{
+		ResourceLoader resource(IDR_README, TEXT("Text"));
+		MessageBoxA(hWnd, static_cast<const char*>(resource.Data()), "User Guide", MB_OK | MB_ICONASTERISK);
 	}
 	break;
 	case IDM_ABOUT:
