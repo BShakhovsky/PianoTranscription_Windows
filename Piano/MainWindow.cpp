@@ -4,12 +4,12 @@
 #include "About.h"
 
 #include "Piano.h"
-#include "Canvas.h"
-#include "StdErrBuffer.h"
+#include "CanvasGdi.h"
+//#include "StdErrBuffer.h"
 #include "ResourceLoader.h"
 
-#include "MidiParser\MidiParser_Facade.h"
-#include "MidiParser\MidiError.h"
+#include "MidiParser_Juce\MidiParser_Juce.h"
+#include "MidiParser_Juce\MidiError.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
 #	include "PianoKeyboard\Keyboard.h"
@@ -84,10 +84,10 @@ inline void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
 void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 {
 	Controls::Reset();
-	StdErrBuffer errBuf;
+//	StdErrBuffer errBuf;
 	try
 	{
-		const MidiParser_Facade midi(fileName);
+		const MidiParser_Juce midi(fileName);
 		const auto numTracks(midi.GetNotes().size());
 		Piano::notes.assign(numTracks, vector<set<int16_t>>());
 		Piano::milliSeconds.assign(numTracks, vector<pair<unsigned, unsigned>>());
@@ -126,8 +126,8 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 		}
 
 		Edit_SetText(Controls::midiLog, lexical_cast<String>(regex_replace(
-			midi.GetLog() + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get()),
-				regex{ "\n" }, "\r\n").c_str()).c_str());
+			midi.GetLog()	// + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get())
+			, regex{ "\n" }, "\r\n").c_str()).c_str());
 
 		for (size_t i(0); i < midi.GetTrackNames().size(); ++i)
 			if (!Piano::notes.at(i).empty())
@@ -166,11 +166,11 @@ void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
 	}
 	catch (const MidiError& e)
 	{
-		MessageBox(hWnd, (lexical_cast<String>(e.what()) + TEXT("\nProbably, it is not a MIDI-file.")
-			).c_str(), TEXT("Midi file error"), MB_ICONHAND | MB_OK);
+		MessageBoxA(hWnd, e.what(), "Midi file error", MB_ICONHAND | MB_OK);
 		Edit_SetText(Controls::midiLog,
 			lexical_cast<String>(regex_replace("Error opening MIDI file:\n"
-				+ string(e.what()) + '\n' + errBuf.Get(), regex{ "\n" }, "\r\n").c_str()).c_str());
+				+ string(e.what())	// + '\n' + errBuf.Get()
+				, regex{ "\n" }, "\r\n").c_str()).c_str());
 		Button_Enable(Controls::playButton, false);
 	}
 }
@@ -214,7 +214,7 @@ void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
 
 void MainWindow::OnPaint(const HWND hWnd)
 {
-	Canvas canvas(hWnd);
+	CanvasGdi canvas(hWnd);
 	Piano::keyboard->Draw(canvas);
 	Piano::keyboard->ReleaseWhiteKeys();
 }

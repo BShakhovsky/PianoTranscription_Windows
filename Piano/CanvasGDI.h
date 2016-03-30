@@ -1,14 +1,14 @@
 #pragma once
 
-class Canvas : boost::noncopyable
+class CanvasGdi : boost::noncopyable
 {
-	Canvas() = delete;
+	CanvasGdi() = delete;
 public:
-	explicit Canvas(HWND hWnd)
+	explicit CanvasGdi(HWND hWnd)
 		: hWnd_(hWnd),
 		hDC_(BeginPaint(hWnd_, &ps_))
 	{}
-	~Canvas()
+	~CanvasGdi()
 	{
 		EndPaint(hWnd_, &ps_);
 	}

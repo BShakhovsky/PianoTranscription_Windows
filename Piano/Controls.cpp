@@ -4,7 +4,7 @@
 #include "Piano.h"
 #include "Cursor.h"
 
-#include "MidiParser\MidiParser_Facade.h"
+#include "MidiParser_Juce\MidiParser_Juce.h"
 #include "PianoFingering\TrellisGraph_Facade.h"
 #pragma warning(push)
 #pragma warning(disable:4711)

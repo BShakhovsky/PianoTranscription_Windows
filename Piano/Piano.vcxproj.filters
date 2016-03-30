@@ -42,9 +42,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Canvas.h">
-      <Filter>Header Files\MainWindow</Filter>
-    </ClInclude>
     <ClInclude Include="MainWindow.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
@@ -67,6 +64,9 @@
       <Filter>Header Files\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="ResourceLoader.h">
+      <Filter>Header Files\MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="CanvasGDI.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
   </ItemGroup>
