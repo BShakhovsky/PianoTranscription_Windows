@@ -3,8 +3,6 @@
 #include "MainWindow.h"
 #include "Piano.h"
 #include "Cursor.h"
-
-#include "MidiParser_Juce\MidiParser_Juce.h"
 #include "PianoFingering\TrellisGraph_Facade.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
@@ -14,7 +12,7 @@
 #include "PianoSound\SoundError.h"
 
 using namespace std;
-using boost::lexical_cast;
+using namespace boost;
 
 HWND Controls::hDlgControls		= nullptr;
 
@@ -83,7 +81,7 @@ void Controls::UpdateTime(const DWORD dwTime)
 	ScrollBar_SetPos(scrollBar, static_cast<int>(currTime), true);
 
 	const auto seconds(currTime / 1'000), milliSec(currTime % 1'000);
-	Edit_SetText(time_, (Format{ TEXT("Time %u:%02u:%02u") } %
+	Edit_SetText(time_, (wformat{ TEXT("Time %u:%02u:%02u") } %
 		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
 }
 void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo, bool leftHand = false)
@@ -350,17 +348,16 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				}
 				catch (const bad_alloc& e)
 				{
-					const String trackName(static_cast<size_t>(
+					const wstring trackName(static_cast<size_t>(
 						ComboBox_GetLBTextLen(hCtrl, listIndex)), '\0');
 					ComboBox_GetLBText(hCtrl, listIndex, trackName.data());
-					if (MessageBox(hCtrl, (String(
-						TEXT("Cannot finish fingering calculation: insufficient memory.\n"))
-								+ TEXT("Probably, track \"") + trackName
-								+ TEXT("\" consists of too many notes.\n")
-								+ TEXT("The program may behave inadequately")
-								+ TEXT(" and bullshit may be played until you restart it.")
-								+ TEXT(" Do you want to close the program now?")
-							).c_str(), lexical_cast<String>(e.what()).c_str(), MB_ICONHAND | MB_YESNO
+					if (MessageBoxA(hCtrl, ("Cannot finish fingering calculation: insufficient memory.\n"
+								"Probably, track \"" + string(trackName.cbegin(), trackName.cend()) +
+								"\" consists of too many notes.\n"
+								"The program may behave inadequately"
+								" and bullshit may be played until you restart it."
+								" Do you want to close the program now?"
+							).c_str(), e.what(), MB_ICONHAND | MB_YESNO
 						) == IDYES) FORWARD_WM_DESTROY(MainWindow::hWndMain, SendMessage);
 
 					ComboBox_SetCurSel(hCtrl, 0);

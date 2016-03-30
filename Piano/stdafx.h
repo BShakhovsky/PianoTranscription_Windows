@@ -1,5 +1,4 @@
 #pragma once
-
 #include "targetver.h"
 
 #pragma warning(disable:4514)
@@ -19,8 +18,13 @@
 #pragma warning(disable:4711)
 #	include <boost\lexical_cast.hpp>
 #	include <boost\format.hpp>
-#	include <boost\regex.hpp>
 #pragma warning(pop)
+
+#pragma warning(push, 3)
+#pragma warning(disable:4711)
+#	include <Juce\JuceHeader.h>
+#pragma warning(pop)
+#pragma comment(lib, "Juce.lib")
 
 #include <iostream>
 #include <numeric>

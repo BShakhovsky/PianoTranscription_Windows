@@ -2,14 +2,9 @@
 #include "MainWindow.h"
 #include "Controls.h"
 #include "About.h"
-
 #include "Piano.h"
 #include "CanvasGdi.h"
-//#include "StdErrBuffer.h"
 #include "ResourceLoader.h"
-
-#include "MidiParser_Juce\MidiParser_Juce.h"
-#include "MidiParser_Juce\MidiError.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
 #	include "PianoKeyboard\Keyboard.h"
@@ -23,7 +18,7 @@ using namespace boost;
 HWND MainWindow::hWndMain = nullptr;
 int MainWindow::dlgWidth_ = 0;
 
-BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
+BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 {
 	try
 	{
@@ -44,7 +39,7 @@ BOOL MainWindow::OnCreate(const HWND hWnd, LPCREATESTRUCT)
 	return true;
 }
 
-BOOL MainWindow::OnWindowPosChanging(HWND hWnd, LPWINDOWPOS pos)
+BOOL MainWindow::OnWindowPosChanging(const HWND hWnd, const LPWINDOWPOS pos)
 {
 	RECT rect{ 0 };
 	GetWindowRect(hWnd, &rect);
@@ -55,7 +50,7 @@ BOOL MainWindow::OnWindowPosChanging(HWND hWnd, LPWINDOWPOS pos)
 
 	return false;
 }
-void MainWindow::OnMove(const HWND hWnd, int, int)
+void MainWindow::OnMove(const HWND hWnd, const int, const int)
 {
 	RECT rect{ 0 };
 
@@ -70,118 +65,151 @@ void MainWindow::OnMove(const HWND hWnd, int, int)
 	SetWindowPos(Controls::hDlgControls, HWND_TOP, left, bottom
 		+ rect.bottom - rect.top - height - 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
-inline void MainWindow::OnSize(const HWND hWnd, UINT, const int cx, const int cy)
+inline void MainWindow::OnSize(const HWND hWnd, const UINT, const int cx, const int cy)
 {
 	Piano::keyboard->UpdateSize(hWnd, cx, cy);
 	Piano::keyboard->ReleaseWhiteKeys();
 }
 
-inline void MainWindow_OnKey(HWND, UINT vk, BOOL, int, UINT)
+inline void MainWindow_OnKey(const HWND, const UINT vk, const BOOL, const int, const UINT)
 {
 	if (vk == VK_TAB) SetFocus(Controls::hDlgControls);
 }
 
-void MainWindow::OpenMidiFile(const HWND hWnd, const LPCTSTR fileName)
+void MainWindow::OnMidiError(LPCTSTR msg)
+{
+	MessageBox(hWndMain, msg, TEXT("MIDI file error"), MB_OK | MB_ICONHAND);
+	Edit_SetText(Controls::midiLog, msg);
+	Button_Enable(Controls::playButton, false);
+}
+void MainWindow::OpenMidiFile(LPCTSTR fileName)
 {
 	Controls::Reset();
-//	StdErrBuffer errBuf;
-	try
+
+	FileInputStream inputFile(
+		File::getCurrentWorkingDirectory().getChildFile(String(fileName)).getFullPathName());
+	if (inputFile.failedToOpen())
 	{
-		const MidiParser_Juce midi(fileName);
-		const auto numTracks(midi.GetNotes().size());
-		Piano::notes.assign(numTracks, vector<set<int16_t>>());
-		Piano::milliSeconds.assign(numTracks, vector<pair<unsigned, unsigned>>());
-		for (size_t i(0); i < numTracks; ++i)
+		OnMidiError((wstring(TEXT("Could not open file:\r\n")) + fileName).c_str());
+		return;
+	}
+	MidiFile midi;
+	if (!midi.readFrom(inputFile))
+	{
+		OnMidiError((wstring(TEXT("Not a MIDI-file:\r\n")) + fileName).c_str());
+		return;
+	}
+
+	midi.convertTimestampTicksToSeconds();
+	Piano::notes.assign(static_cast<size_t>(midi.getNumTracks()),
+		vector<set<int16_t>>());
+	Piano::milliSeconds.assign(static_cast<size_t>(midi.getNumTracks()),
+		vector<pair<unsigned, unsigned>>());
+	vector<wstring> trackNames(static_cast<size_t>(midi.getNumTracks()));
+	wstring log;
+	for (auto i(0); i < midi.getNumTracks(); ++i)
+	{
+		unsigned lastTime(0);
+		const auto track(midi.getTrack(i));
+		for (auto j(0); j < track->getNumEvents(); ++j)
 		{
-			const auto numNotes(midi.GetNotes().at(i).size());
-			Piano::notes.at(i).reserve(numNotes);
-			Piano::milliSeconds.at(i).reserve(numNotes);
-			if (!midi.GetNotes().at(i).empty())
+			const auto message(track->getEventPointer(j)->message);
+			const auto milliSeconds(static_cast<unsigned>(message.getTimeStamp() * 1'000));
+
+			if (message.isTextMetaEvent())
+				if (message.isTrackNameEvent()) trackNames.at(static_cast<size_t>(i))
+					= message.getTextFromTextMetaEvent().toWideCharPointer();
+				else log.append(wstring(TEXT("\t"))
+					+ message.getTextFromTextMetaEvent().toWideCharPointer() + TEXT("\r\n"));
+			else if (message.isTempoMetaEvent())
+				log.append((wformat{ TEXT("Time %02d:%02d:%02d Tempo %d BPM\r\n") } %
+					(milliSeconds / 1'000 / 60) % (milliSeconds / 1'000 % 60) % (milliSeconds % 1'000 / 10)
+					% static_cast<int>(60 / message.getTempoSecondsPerQuarterNote() + 0.5)).str());
+			else if (message.isKeySignatureMetaEvent())
 			{
-				vector<set<int16_t>> chords({ { midi.GetNotes().at(i).front() } });
-				vector<pair<unsigned, unsigned>> timeIntervals({ make_pair(
-					midi.GetMilliSeconds().at(i).front(), midi.GetMilliSeconds().at(i).front()) });
-				auto lastTime(midi.GetMilliSeconds().at(i).front());
-				for (auto note(midi.GetNotes().at(i).cbegin() + 1); note != midi.GetNotes().at(i).cend(); ++note)
+				log.append(TEXT("Key signature: "));
+				const auto nSharpsOrFlats(message.getKeySignatureNumberOfSharpsOrFlats());
+				switch (nSharpsOrFlats)
 				{
-					const auto newTime(midi.GetMilliSeconds().at(i).at(
-						static_cast<size_t>(note - midi.GetNotes().at(i).cbegin())));
-					if (newTime - lastTime < Piano::timerTick)
-					{
-						chords.back().insert(*note);
-						timeIntervals.back().second = newTime;
-					}
-					else
-					{
-						chords.push_back({ *note });
-						timeIntervals.emplace_back(make_pair(newTime, newTime));
-					}
-					lastTime = newTime;
+				case 0:	log.append(TEXT("Natural key signature, "));						break;
+				case -7: case -6: case -5: case -4: case -3: case -2: case -1:
+					log.append(lexical_cast<wstring>(-nSharpsOrFlats) + TEXT(" flats, "));	break;
+				case 7: case 6: case 5: case 4: case 3: case 2: case 1:
+					log.append(lexical_cast<wstring>(nSharpsOrFlats) + TEXT(" sharps, "));	break;
+				default: assert("Wrong key signature");
 				}
-				Piano::notes.at(i) = chords;
-				Piano::milliSeconds.at(i) = timeIntervals;
+				log.append(message.isKeySignatureMajorKey()
+					? nSharpsOrFlats ? TEXT("Major key\r\n") : TEXT("C-Major\r\n")
+					: nSharpsOrFlats ? TEXT("Minor key\r\n") : TEXT("A-Minor\r\n"));
 			}
-			Piano::notes.at(i).shrink_to_fit();
-			Piano::milliSeconds.at(i).shrink_to_fit();
+			else if (message.isNoteOn())
+			{
+				if (milliSeconds - lastTime < Piano::timerTick
+					&& !Piano::notes.at(static_cast<size_t>(i)).empty())
+				{
+					Piano::notes.at(static_cast<size_t>(i)).back().insert(
+						static_cast<int16_t>(message.getNoteNumber()));
+					Piano::milliSeconds.at(static_cast<size_t>(i)).back().second = milliSeconds;
+				}
+				else
+				{
+					Piano::notes.at(static_cast<size_t>(i)).push_back({
+						static_cast<int16_t>(message.getNoteNumber()) });
+					Piano::milliSeconds.at(static_cast<size_t>(i)).emplace_back(
+						make_pair(milliSeconds, milliSeconds));
+				}
+				lastTime = milliSeconds;
+			}
 		}
-
-		Edit_SetText(Controls::midiLog, lexical_cast<String>(regex_replace(
-			midi.GetLog()	// + "\nERRORS:\n" + (errBuf.Get().empty() ? "None" : errBuf.Get())
-			, regex{ "\n" }, "\r\n").c_str()).c_str());
-
-		for (size_t i(0); i < midi.GetTrackNames().size(); ++i)
-			if (!Piano::notes.at(i).empty())
-			{
-				const auto aName(midi.GetTrackNames().at(i));
-				String wName((Format{ TEXT("%d ") } % i).str()
-					+ String(aName.cbegin(), aName.cend()));
-				ComboBox_AddString(Controls::leftHand, wName.c_str());
-				ComboBox_AddString(Controls::rightHand, wName.c_str());
-				ListBox_AddString(Controls::trackList, wName.c_str());
-
-				ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
-				ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
-				ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
-			}
-		SendMessage(Controls::progressLeft, PBM_SETPOS, 0, 0);
-		SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
-
-		Piano::tracks.clear();
-		Piano::indexes.assign(Piano::notes.size(), 0);
-		Piano::leftTrack.reset();
-		Piano::rightTrack.reset();
-		Piano::fingersLeft.assign(Piano::notes.size(), vector<vector<string>>());
-		Piano::fingersRight.assign(Piano::notes.size(), vector<vector<string>>());
-		const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
-			[](const vector<pair<unsigned, unsigned>>& left,
-				const vector<pair<unsigned, unsigned>>& right)
-			{
-				return right.empty() ? false : left.empty() ? true
-					: left.back().second < right.back().second;
-			}));
-		if (maxElement->empty()) throw MidiError("Midi file does not contain any time data");
-		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
-		ScrollBar_SetPos(Controls::scrollBar, 0, true);
-		Button_Enable(Controls::playButton, true);
 	}
-	catch (const MidiError& e)
+
+	Edit_SetText(Controls::midiLog, log.c_str());
+
+	for (size_t i(0); i < trackNames.size(); ++i)
+		if (!Piano::notes.at(i).empty())
+		{
+			trackNames.at(i).insert(0, lexical_cast<wstring>(i) + TEXT(' '));
+			ComboBox_AddString(Controls::leftHand, trackNames.at(i).c_str());
+			ComboBox_AddString(Controls::rightHand, trackNames.at(i).c_str());
+			ListBox_AddString(Controls::trackList, trackNames.at(i).c_str());
+
+			ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
+			ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
+			ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
+		}
+	SendMessage(Controls::progressLeft, PBM_SETPOS, 0, 0);
+	SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
+
+	Piano::tracks.clear();
+	Piano::indexes.assign(Piano::notes.size(), 0);
+	Piano::leftTrack.reset();
+	Piano::rightTrack.reset();
+	Piano::fingersLeft.assign(Piano::notes.size(), vector<vector<string>>());
+	Piano::fingersRight.assign(Piano::notes.size(), vector<vector<string>>());
+	const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
+		[](const vector<pair<unsigned, unsigned>>& left,
+			const vector<pair<unsigned, unsigned>>& right)
+		{
+			return right.empty() ? false : left.empty() ? true
+				: left.back().second < right.back().second;
+		}));
+	if (maxElement->empty())
 	{
-		MessageBoxA(hWnd, e.what(), "Midi file error", MB_ICONHAND | MB_OK);
-		Edit_SetText(Controls::midiLog,
-			lexical_cast<String>(regex_replace("Error opening MIDI file:\n"
-				+ string(e.what())	// + '\n' + errBuf.Get()
-				, regex{ "\n" }, "\r\n").c_str()).c_str());
-		Button_Enable(Controls::playButton, false);
+		OnMidiError(TEXT("Midi file does not contain any time data"));
+		return;
 	}
+	ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
+	ScrollBar_SetPos(Controls::scrollBar, 0, true);
+	Button_Enable(Controls::playButton, true);
 }
-void MainWindow::OnDropFiles(HWND hWnd, HDROP hDrop)
+void MainWindow::OnDropFiles(const HWND, const HDROP hDrop)
 {
 	TCHAR fileName[MAX_PATH] = TEXT("");
 	DragQueryFile(hDrop, 0, fileName, sizeof fileName / sizeof *fileName);
-	OpenMidiFile(hWnd, fileName);
+	OpenMidiFile(fileName);
 	DragFinish(hDrop);
 }
-void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
+void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT)
 {
 	switch (id)
 	{
@@ -195,7 +223,7 @@ void MainWindow::OnCommand(HWND hWnd, int id, HWND, UINT)
 		fileName.lpstrFile = buf;
 		fileName.nMaxFile = sizeof buf / sizeof *buf;
 		fileName.Flags = OFN_FILEMUSTEXIST;
-		if (GetOpenFileName(&fileName)) OpenMidiFile(hWnd, fileName.lpstrFile);
+		if (GetOpenFileName(&fileName)) OpenMidiFile(fileName.lpstrFile);
 	}
 	break;
 	case IDM_USERGUIDE:

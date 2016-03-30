@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "Piano.h"
-
 #include "MainWindow.h"
 #include "Controls.h"
-
-#include "MidiParser\MidiParser_Facade.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
 #	include "PianoKeyboard\Keyboard.h"

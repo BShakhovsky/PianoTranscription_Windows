@@ -45,9 +45,6 @@
     <ClInclude Include="MainWindow.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
-    <ClInclude Include="StdErrBuffer.h">
-      <Filter>Header Files\MainWindow</Filter>
-    </ClInclude>
     <ClInclude Include="About.h">
       <Filter>Header Files\Dialogs</Filter>
     </ClInclude>
