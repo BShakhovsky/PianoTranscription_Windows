@@ -4,10 +4,8 @@
 #include "Controls.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
-#	include "PianoKeyboard\Keyboard.h"
+#	include "PianoKeyboard\IKeyboard.h"
 #pragma warning(pop)
-#include "PianoSound\Sound_Facade.h"
-
 #include <vld.h>
 
 using namespace std;
@@ -16,8 +14,7 @@ vector<vector<set<int16_t>>> Piano::notes = vector<vector<set<int16_t>>>();
 vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
 	= vector<vector<pair<unsigned, unsigned>>>();
 
-shared_ptr<Keyboard> Piano::keyboard = make_shared<Keyboard>();
-shared_ptr<Sound_Facade> Piano::sound = nullptr;
+shared_ptr<IKeyboard> Piano::keyboard = nullptr;
 
 vector<size_t> Piano::indexes = vector<size_t>();
 vector<size_t> Piano::tracks = vector<size_t>();
@@ -28,27 +25,27 @@ vector<vector<vector<string>>> Piano::fingersLeft = vector<vector<vector<string>
 vector<vector<vector<string>>> Piano::fingersRight = vector<vector<vector<string>>>();
 
 
-ATOM Piano::MyRegisterClass(const HINSTANCE hInstance)
+ATOM Piano::MyRegisterClass()
 {
 	WNDCLASSEXW wcex{ sizeof wcex };
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = MainWindow::WndProc;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LARGE));
+	wcex.hInstance = MainWindow::hInstance;
+	wcex.hIcon = LoadIcon(MainWindow::hInstance, MAKEINTRESOURCE(IDI_LARGE));
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MENU);
+	wcex.lpszMenuName = MAKEINTRESOURCE(IDC_MENU);
 	wcex.lpszClassName = szWindowClass_;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	
 	return RegisterClassEx(&wcex);
 }
 
-inline BOOL Piano::InitInstance(const HINSTANCE hInstance, const int nCmdShow)
+inline BOOL Piano::InitInstance(const int nCmdShow)
 {
 	MainWindow::hWndMain = CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass_, TEXT("Piano Fingers"),
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
-		HWND_DESKTOP, nullptr, hInstance, nullptr);
+		HWND_DESKTOP, nullptr, MainWindow::hInstance, nullptr);
 		if (!MainWindow::hWndMain) return FALSE;
 
 		ShowWindow(MainWindow::hWndMain, SW_SHOWMAXIMIZED);
@@ -62,12 +59,12 @@ inline BOOL Piano::InitInstance(const HINSTANCE hInstance, const int nCmdShow)
 		return TRUE;
 }
 
-int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
+int Piano::Main(const int nCmdShow)
 {
-	Piano::MyRegisterClass(hInstance);
-	if (!Piano::InitInstance(hInstance, nCmdShow)) return FALSE;
+	Piano::MyRegisterClass();
+	if (!Piano::InitInstance(nCmdShow)) return FALSE;
 
-    const auto hAccelTable(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MENU)));
+    const auto hAccelTable(LoadAccelerators(MainWindow::hInstance, MAKEINTRESOURCE(IDC_MENU)));
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
@@ -83,5 +80,6 @@ int Piano::Main(const HINSTANCE hInstance, const int nCmdShow)
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int nCmdShow)
 {
-	return Piano::Main(hInstance, nCmdShow);
+	MainWindow::hInstance = hInstance;
+	return Piano::Main(nCmdShow);
 }

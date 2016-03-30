@@ -7,27 +7,33 @@
 #include "ResourceLoader.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
-#	include "PianoKeyboard\Keyboard.h"
+#	include "PianoKeyboard\Keyboard2D.h"
+#	include "PianoKeyboard\Keyboard3D.h"
 #pragma warning(pop)
-#include "PianoSound\Sound_Facade.h"
-#include "PianoSound\SoundError.h"
 
 using namespace std;
 using namespace boost;
 
+HINSTANCE MainWindow::hInstance = nullptr;
 HWND MainWindow::hWndMain = nullptr;
-int MainWindow::dlgWidth_ = 0;
+int MainWindow::dlgWidth_ = 0, MainWindow::width_ = 0, MainWindow::height_ = 0;
+wstring MainWindow::path_ = TEXT("");
 
 BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 {
-	try
-	{
-		Piano::sound = make_shared<Sound_Facade>();
-	}
-	catch (const SoundError& e)
-	{
-		MessageBoxA(hWnd, e.what(), "Sound error", MB_ICONHAND | MB_OK);
-	}
+	TCHAR buffer[MAX_PATH];
+	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
+	path_ = buffer;
+
+//	try
+//	{
+		Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
+//	}
+//	catch (const DxError& e)
+//	{
+//		MessageBoxA(hWnd, e.what(), "DirectX Error", MB_ICONHAND | MB_OK);
+//	}
+	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
 	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
@@ -65,9 +71,11 @@ void MainWindow::OnMove(const HWND hWnd, const int, const int)
 	SetWindowPos(Controls::hDlgControls, HWND_TOP, left, bottom
 		+ rect.bottom - rect.top - height - 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
-inline void MainWindow::OnSize(const HWND hWnd, const UINT, const int cx, const int cy)
+void MainWindow::OnSize(const HWND hWnd, const UINT, const int cx, const int cy)
 {
-	Piano::keyboard->UpdateSize(hWnd, cx, cy);
+	width_ = cx;
+	height_ = cy;
+	Piano::keyboard->UpdateSize(hWnd, static_cast<UINT>(width_), static_cast<UINT>(height_));
 	Piano::keyboard->ReleaseWhiteKeys();
 }
 
@@ -226,6 +234,24 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		if (GetOpenFileName(&fileName)) OpenMidiFile(fileName.lpstrFile);
 	}
 	break;
+	case IDM_2D:
+		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path_.c_str());
+		OnSize(hWnd, 0, width_, height_);
+		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
+		InvalidateRect(hWnd, nullptr, false);
+		break;
+	case IDM_3D:
+//		try
+//		{
+			Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
+//		}
+//		catch (const DxError& e)
+//		{
+//			MessageBoxA(hWnd, e.what(), "DirectX Error", MB_ICONHAND | MB_OK);
+//		}
+		OnSize(hWnd, 0, width_, height_);
+		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
+		break;
 	case IDM_USERGUIDE:
 	{
 		ResourceLoader resource(IDR_README, TEXT("Text"));
@@ -243,7 +269,7 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 void MainWindow::OnPaint(const HWND hWnd)
 {
 	CanvasGdi canvas(hWnd);
-	Piano::keyboard->Draw(canvas);
+	Piano::keyboard->Update(canvas);
 	Piano::keyboard->ReleaseWhiteKeys();
 }
 

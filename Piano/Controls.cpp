@@ -6,10 +6,8 @@
 #include "PianoFingering\TrellisGraph_Facade.h"
 #pragma warning(push)
 #pragma warning(disable:4711)
-#	include "PianoKeyboard\Keyboard.h"
+#	include "PianoKeyboard\IKeyboard.h"
 #pragma warning(pop)
-#include "PianoSound\Sound_Facade.h"
-#include "PianoSound\SoundError.h"
 
 using namespace std;
 using namespace boost;
@@ -110,8 +108,6 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 				AssignFinger(Piano::fingersLeft, trackNo, true);
 			if (Piano::rightTrack && *Piano::rightTrack == trackNo)
 				AssignFinger(Piano::fingersRight, trackNo);
-			
-			if (Piano::sound) Piano::sound->AddNote(note);
 		}
 		result = 1;
 	}
@@ -135,7 +131,6 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 				// but we need to play all tracks anyway
 	{
 		InvalidateRect(hWnd, nullptr, false);
-		if (Piano::sound) Piano::sound->Play();
 		result = true;
 	}
 

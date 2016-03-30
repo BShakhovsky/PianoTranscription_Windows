@@ -3,6 +3,7 @@
 class MainWindow abstract
 {
 public:
+	static HINSTANCE hInstance;
 	static HWND hWndMain;
 
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -24,5 +25,6 @@ private:
 
 	static void OnPaint(HWND);
 private:
-	static int dlgWidth_;
+	static int dlgWidth_, width_, height_;
+	static std::wstring path_;
 };
