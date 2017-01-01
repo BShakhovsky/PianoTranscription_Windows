@@ -5,11 +5,7 @@
 #include "Piano.h"
 #include "CanvasGdi.h"
 #include "ResourceLoader.h"
-#pragma warning(push)
-#pragma warning(disable:4711)
-#	include "PianoKeyboard\Keyboard2D.h"
-#	include "PianoKeyboard\Keyboard3D.h"
-#pragma warning(pop)
+#include "PianoKeyboard\IKeyboard.h"
 
 using namespace std;
 using namespace boost;
@@ -17,6 +13,7 @@ using namespace boost;
 HINSTANCE MainWindow::hInstance = nullptr;
 HWND MainWindow::hWndMain = nullptr;
 int MainWindow::dlgWidth_ = 0, MainWindow::width_ = 0, MainWindow::height_ = 0;
+const float MainWindow::cameraX_ = 26.0f, MainWindow::cameraY_ = 18.0f, MainWindow::cameraZ_ = 19.0f;
 wstring MainWindow::path_ = TEXT("");
 
 BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
@@ -25,14 +22,7 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
 	path_ = buffer;
 
-//	try
-//	{
-		Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
-//	}
-//	catch (const DxError& e)
-//	{
-//		MessageBoxA(hWnd, e.what(), "DirectX Error", MB_ICONHAND | MB_OK);
-//	}
+	Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str());
 	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
@@ -45,14 +35,28 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	return true;
 }
 
+void MainWindow::CorrectAspectRatio()
+{
+	RECT rect{ 0 };
+	GetWindowRect(hWndMain, &rect);
+	SetWindowPos(hWndMain, HWND_TOP, 0, 0, rect.right - rect.left, height_, SWP_NOMOVE | SWP_NOZORDER);
+	OnMove(hWndMain, 0, 0);
+}
 BOOL MainWindow::OnWindowPosChanging(const HWND hWnd, const LPWINDOWPOS pos)
 {
+	float aspectRatio(0);
+	if (typeid(*Piano::keyboard) == typeid(Keyboard2D))
+		aspectRatio = 8;
+	else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))
+		aspectRatio = 3.5f;
+	else assert(!"Wrong keyboard class");
+
 	RECT rect{ 0 };
 	GetWindowRect(hWnd, &rect);
 	const auto height(rect.bottom - rect.top);
 
 	GetClientRect(hWnd, &rect);
-	pos->cy = pos->cx / 8 + height + rect.top - rect.bottom;
+	height_ = pos->cy = static_cast<int>(pos->cx / aspectRatio) + height + rect.top - rect.bottom;
 
 	return false;
 }
@@ -76,7 +80,9 @@ void MainWindow::OnSize(const HWND hWnd, const UINT, const int cx, const int cy)
 	width_ = cx;
 	height_ = cy;
 	Piano::keyboard->UpdateSize(hWnd, static_cast<UINT>(width_), static_cast<UINT>(height_));
-	Piano::keyboard->ReleaseWhiteKeys();
+	if (typeid(*Piano::keyboard) == typeid(Keyboard2D))			Piano::keyboard->ReleaseKeys();
+	else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))	Piano::keyboard->Update();
+	else assert(!"Wrong keyboard class");
 }
 
 inline void MainWindow_OnKey(const HWND, const UINT vk, const BOOL, const int, const UINT)
@@ -236,21 +242,15 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 	break;
 	case IDM_2D:
 		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path_.c_str());
-		OnSize(hWnd, 0, width_, height_);
+		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
 		InvalidateRect(hWnd, nullptr, false);
 		break;
 	case IDM_3D:
-//		try
-//		{
-			Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
-//		}
-//		catch (const DxError& e)
-//		{
-//			MessageBoxA(hWnd, e.what(), "DirectX Error", MB_ICONHAND | MB_OK);
-//		}
-		OnSize(hWnd, 0, width_, height_);
+		Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str());
+		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
+		Piano::keyboard->Update();
 		break;
 	case IDM_USERGUIDE:
 	{
@@ -270,7 +270,9 @@ void MainWindow::OnPaint(const HWND hWnd)
 {
 	CanvasGdi canvas(hWnd);
 	Piano::keyboard->Update(canvas);
-	Piano::keyboard->ReleaseWhiteKeys();
+
+	if (typeid(*Piano::keyboard) == typeid(Keyboard2D)) Piano::keyboard->ReleaseKeys();
+	else assert("Wrong keyboard class" && typeid(*Piano::keyboard) == typeid(Keyboard3D));
 }
 
 LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,
@@ -283,7 +285,7 @@ LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,
 
 		HANDLE_MSG(hWnd, WM_WINDOWPOSCHANGING,	OnWindowPosChanging);
 		HANDLE_MSG(hWnd, WM_MOVE,				OnMove);
-	case WM_SIZING:								OnMove(hWnd, 0, 0); return FALSE; break;
+	case WM_SIZING:								OnMove(hWnd, 0, 0); return FALSE;
 		HANDLE_MSG(hWnd, WM_SIZE,				OnSize);
 
 		HANDLE_MSG(hWnd, WM_KEYDOWN,			MainWindow_OnKey);

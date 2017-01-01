@@ -4,29 +4,27 @@
 #include "Piano.h"
 #include "Cursor.h"
 #include "PianoFingering\TrellisGraph_Facade.h"
-#pragma warning(push)
-#pragma warning(disable:4711)
-#	include "PianoKeyboard\IKeyboard.h"
-#pragma warning(pop)
+#include "PianoKeyboard\IKeyboard.h"
 
 using namespace std;
 using namespace boost;
 
-HWND Controls::hDlgControls		= nullptr;
+HWND
+Controls::hDlgControls	= nullptr,
 
-HWND Controls::midiLog			= nullptr;
-HWND Controls::leftHand			= nullptr;
-HWND Controls::rightHand		= nullptr;
-HWND Controls::progressLeft		= nullptr;
-HWND Controls::progressRight	= nullptr;
-HWND Controls::trackList		= nullptr;
+Controls::midiLog		= nullptr,
+Controls::leftHand		= nullptr,
+Controls::rightHand		= nullptr,
+Controls::progressLeft	= nullptr,
+Controls::progressRight	= nullptr,
+Controls::trackList		= nullptr,
 
-HWND Controls::scrollBar		= nullptr;
-HWND Controls::playButton		= nullptr;
+Controls::scrollBar		= nullptr,
+Controls::playButton	= nullptr,
 
-HWND Controls::time_			= nullptr;
-bool Controls::isPlaying_		= false;
-DWORD Controls::start_			= 0;
+Controls::time_			= nullptr;
+bool Controls::isPlaying_	= false;
+DWORD Controls::start_		= 0;
 
 void Controls::Reset()
 {
@@ -34,7 +32,21 @@ void Controls::Reset()
 	ComboBox_ResetContent(leftHand);
 	ComboBox_ResetContent(rightHand);
 	ListBox_ResetContent(trackList);
-	OnInitDialog(hDlgControls, nullptr, 0);
+	CheckDlgButton(hDlgControls, IDC_CHECK_ALL, BST_UNCHECKED);
+	InitDialog();
+}
+void Controls::InitDialog()
+{
+	Edit_SetText(midiLog, TEXT("MIDI info and errors if any"));
+
+	Edit_SetText(time_, TEXT("Time 0:00:00"));
+
+	ComboBox_AddString(leftHand, TEXT("None"));
+	ComboBox_AddString(rightHand, TEXT("None"));
+	ComboBox_SetItemData(leftHand, 0, -1);
+	ComboBox_SetItemData(rightHand, 0, -1);
+	ComboBox_SetCurSel(leftHand, 0);
+	ComboBox_SetCurSel(rightHand, 0);
 }
 BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
@@ -54,16 +66,7 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 	
 	trackList		= GetDlgItem(hDlg, IDC_TRACKS);
 
-	Edit_SetText(midiLog, TEXT("MIDI info and errors if any"));
-
-	Edit_SetText(time_, TEXT("Time 0:00:00"));
-
-	ComboBox_AddString(leftHand, TEXT("None"));
-	ComboBox_AddString(rightHand, TEXT("None"));
-	ComboBox_SetItemData(leftHand, 0, -1);
-	ComboBox_SetItemData(rightHand, 0, -1);
-	ComboBox_SetCurSel(leftHand, 0);
-	ComboBox_SetCurSel(rightHand, 0);
+	InitDialog();
 
 	return true;
 }
@@ -123,6 +126,10 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 	auto result(false);
 
 	UpdateTime(dwTime);
+	
+	if (typeid(*Piano::keyboard) == typeid(Keyboard3D)) Piano::keyboard->ReleaseKeys();
+	else assert("Wrong keyboard class" && typeid(*Piano::keyboard) == typeid(Keyboard2D));
+
 	if (accumulate(Piano::tracks.cbegin(), Piano::tracks.cend(), 0, [dwTime](int val, size_t track)
 		{
 			return val + PlayTrack(track, dwTime);
@@ -371,8 +378,11 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 				else					Piano::rightTrack = nullptr;
 				SendMessage(progressBar, PBM_SETPOS, 0, 0);
 			}
+
+			FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
 		}
-//		no break;
+		break;
+
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
@@ -392,6 +402,12 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
+		break;
+
+	case IDC_CHECK_ALL:
+		ListBox_SelItemRange(trackList, IsDlgButtonChecked(hDlg, id) == BST_CHECKED,
+			0, ListBox_GetCount(trackList) - 1);
+		FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
 	}
 }
 

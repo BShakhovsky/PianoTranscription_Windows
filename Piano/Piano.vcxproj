@@ -94,8 +94,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\..\Libs\DirectXTK\$(Configuration); $(SolutionDir)..\..\Libs\Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\..\Libs\DirectXTK\$(Configuration); $(SolutionDir)..\..\Libs\DirectXMesh\$(Configuration); $(SolutionDir)..\..\Libs\Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -139,8 +139,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\..\Libs\DirectXTK\$(Configuration); $(SolutionDir)..\..\Libs\Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\..\Libs\DirectXTK\$(Configuration); $(SolutionDir)..\..\Libs\DirectXMesh\$(Configuration); $(SolutionDir)..\..\Libs\Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers\Piano Fingers.exe"</Command>

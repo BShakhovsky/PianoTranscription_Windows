@@ -14,6 +14,7 @@ private:
 		PostQuitMessage(0);
 	}
 
+	static void CorrectAspectRatio();
 	static BOOL OnWindowPosChanging(HWND, LPWINDOWPOS);
 	static void OnMove(HWND, int, int);
 	static void OnSize(HWND, UINT, int, int);
@@ -26,5 +27,6 @@ private:
 	static void OnPaint(HWND);
 private:
 	static int dlgWidth_, width_, height_;
+	const static float cameraX_, cameraY_, cameraZ_;
 	static std::wstring path_;
 };

@@ -2,10 +2,7 @@
 #include "Piano.h"
 #include "MainWindow.h"
 #include "Controls.h"
-#pragma warning(push)
-#pragma warning(disable:4711)
-#	include "PianoKeyboard\IKeyboard.h"
-#pragma warning(pop)
+#include "PianoKeyboard\IKeyboard.h"
 #include <vld.h>
 
 using namespace std;
@@ -61,11 +58,16 @@ inline BOOL Piano::InitInstance(const int nCmdShow)
 
 int Piano::Main(const int nCmdShow)
 {
-	Piano::MyRegisterClass();
-	if (!Piano::InitInstance(nCmdShow)) return FALSE;
+	MyRegisterClass();
+	if (!InitInstance(nCmdShow)) return FALSE;
 
     const auto hAccelTable(LoadAccelerators(MainWindow::hInstance, MAKEINTRESOURCE(IDC_MENU)));
 	MSG msg;
+
+#ifdef _DEBUG
+	const auto before(VLDGetLeaksCount());
+#endif
+
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		if (!TranslateAccelerator(MainWindow::hWndMain, hAccelTable, &msg) &&
@@ -74,7 +76,15 @@ int Piano::Main(const int nCmdShow)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		else if (typeid(*keyboard) == typeid(Keyboard3D)) keyboard->Update();
+		else assert("Wrong keyboard class" && typeid(*keyboard) == typeid(Keyboard2D));
 	}
+
+#ifdef _DEBUG
+	const auto after(VLDGetLeaksCount());
+#endif
+//	assert("Memory leaks detected" && before == after);
+
 	return static_cast<int>(msg.wParam);
 }
 

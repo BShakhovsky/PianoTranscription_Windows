@@ -16,6 +16,6 @@ Steps:
 
 5. Or if you want just to play the song in real time, press "Play" button.
 
-6. Use left mouse button to rotate, right - to move, wheel - to zoom.
+6. (Not working yet): Use left mouse button to rotate, right - to move, wheel - to zoom.
 
 7. Enjoy :)
