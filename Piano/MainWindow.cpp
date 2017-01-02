@@ -45,11 +45,13 @@ void MainWindow::CorrectAspectRatio()
 BOOL MainWindow::OnWindowPosChanging(const HWND hWnd, const LPWINDOWPOS pos)
 {
 	float aspectRatio(0);
-	if (typeid(*Piano::keyboard) == typeid(Keyboard2D))
-		aspectRatio = 8;
-	else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))
-		aspectRatio = 3.5f;
-	else assert(!"Wrong keyboard class");
+
+	if (Piano::keyboard)
+		if (typeid(*Piano::keyboard) == typeid(Keyboard2D))
+			aspectRatio = 8;
+		else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))
+			aspectRatio = 3.5f;
+		else assert(!"Wrong keyboard class");
 
 	RECT rect{ 0 };
 	GetWindowRect(hWnd, &rect);
