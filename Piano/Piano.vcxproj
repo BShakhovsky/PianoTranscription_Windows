@@ -143,7 +143,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\..\Libs\DirectXTK\$(Configuration); $(SolutionDir)..\..\Libs\DirectXMesh\$(Configuration); $(SolutionDir)..\..\Libs\Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers\Piano Fingers.exe"</Command>
+      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy Release .exe</Message>
