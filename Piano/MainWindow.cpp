@@ -244,7 +244,7 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 				case 7: log.append(message.isKeySignatureMajorKey()
 					? TEXT(") -> C#-Major tone\r\n") : TEXT(") -> A#-Minor tone\r\n"));	break;
 
-				default: assert("Wrong key signature");
+				default: assert(!"Wrong key signature");
 				}
 			}
 			else if (message.isNoteOn())
