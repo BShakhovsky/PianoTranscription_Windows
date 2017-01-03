@@ -138,25 +138,114 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 				else log.append(wstring(TEXT("\t"))
 					+ message.getTextFromTextMetaEvent().toWideCharPointer() + TEXT("\r\n"));
 			else if (message.isTempoMetaEvent())
-				log.append((wformat{ TEXT("Time %02d:%02d:%02d Tempo %d BPM\r\n") } %
-					(milliSeconds / 1'000 / 60) % (milliSeconds / 1'000 % 60) % (milliSeconds % 1'000 / 10)
+				log.append((wformat{ TEXT("Time %02d:%02d:%02d Tempo %d BPM\r\n") }
+					% (milliSeconds / 1'000 / 60) % (milliSeconds / 1'000 % 60) % (milliSeconds % 1'000 / 10)
 					% static_cast<int>(60 / message.getTempoSecondsPerQuarterNote() + 0.5)).str());
 			else if (message.isKeySignatureMetaEvent())
 			{
 				log.append(TEXT("Key signature: "));
+
 				const auto nSharpsOrFlats(message.getKeySignatureNumberOfSharpsOrFlats());
+				log.append(nSharpsOrFlats ? lexical_cast<wstring>(abs(nSharpsOrFlats))
+					+ (nSharpsOrFlats > 0 ? TEXT(" sharps (") : TEXT(" flats ("))
+					: TEXT("probably, natural "));
+
+				if (nSharpsOrFlats >= 1)
+				{
+					log.append(TEXT("F"));
+					if (nSharpsOrFlats >= 2)
+					{
+						log.append(TEXT(", C"));
+						if (nSharpsOrFlats >= 3)
+						{
+							log.append(TEXT(", G"));
+							if (nSharpsOrFlats >= 4)
+							{
+								log.append(TEXT(", D"));
+								if (nSharpsOrFlats >= 5)
+								{
+									log.append(TEXT(", A"));
+									if (nSharpsOrFlats >= 6)
+									{
+										log.append(TEXT(", E"));
+										if (nSharpsOrFlats >= 7)
+										{
+											assert("Wrong key signature" && nSharpsOrFlats == 7);
+											log.append(TEXT(", H"));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				else if (nSharpsOrFlats <= -1)
+				{
+					log.append(TEXT("H"));
+					if (nSharpsOrFlats <= -2)
+					{
+						log.append(TEXT(", E"));
+						if (nSharpsOrFlats <= -3)
+						{
+							log.append(TEXT(", A"));
+							if (nSharpsOrFlats <= -4)
+							{
+								log.append(TEXT(", D"));
+								if (nSharpsOrFlats <= -5)
+								{
+									log.append(TEXT(", G"));
+									if (nSharpsOrFlats <= -6)
+									{
+										log.append(TEXT(", C"));
+										if (nSharpsOrFlats <= -7)
+										{
+											assert("Wrong key signature" && nSharpsOrFlats == -7);
+											log.append(TEXT(", F"));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
 				switch (nSharpsOrFlats)
 				{
-				case 0:	log.append(TEXT("Natural key signature, "));						break;
-				case -7: case -6: case -5: case -4: case -3: case -2: case -1:
-					log.append(lexical_cast<wstring>(-nSharpsOrFlats) + TEXT(" flats, "));	break;
-				case 7: case 6: case 5: case 4: case 3: case 2: case 1:
-					log.append(lexical_cast<wstring>(nSharpsOrFlats) + TEXT(" sharps, "));	break;
+				case -7: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Cb-Major tone\r\n") : TEXT(") -> Ab-Minor tone\r\n"));	break;
+				case -6: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Gb-Major tone\r\n") : TEXT(") -> Eb-Minor tone\r\n"));	break;
+				case -5: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Db-Major tone\r\n") : TEXT(") -> Bb-Minor tone\r\n"));	break;
+				case -4: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Ab-Major tone\r\n") : TEXT(") -> F-Minor tone\r\n"));	break;
+				case -3: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Eb-Major tone\r\n") : TEXT(") -> C-Minor tone\r\n"));	break;
+				case -2: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> Bb-Major tone\r\n") : TEXT(") -> G-Minor tone\r\n"));	break;
+				case -1: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> F-Major tone\r\n") : TEXT(") -> D-Minor tone\r\n"));	break;
+				
+				case 0: log.append(message.isKeySignatureMajorKey()
+					? TEXT("C-Major tone\r\n") : TEXT("A-Minor tone\r\n"));				break;
+				
+				case 1: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> G-Major tone\r\n") : TEXT(") -> E-Minor tone\r\n"));	break;
+				case 2: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> D-Major tone\r\n") : TEXT(") -> H-Minor tone\r\n"));	break;
+				case 3: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> A#-Major tone\r\n") : TEXT(") -> F#-Minor tone\r\n"));	break;
+				case 4: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> E-Major tone\r\n") : TEXT(") -> C#-Minor tone\r\n"));	break;
+				case 5: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> H-Major tone\r\n") : TEXT(") -> G#-Minor tone\r\n"));	break;
+				case 6: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> F#-Major tone\r\n") : TEXT(") -> D#-Minor tone\r\n"));	break;
+				case 7: log.append(message.isKeySignatureMajorKey()
+					? TEXT(") -> C#-Major tone\r\n") : TEXT(") -> A#-Minor tone\r\n"));	break;
+
 				default: assert("Wrong key signature");
 				}
-				log.append(message.isKeySignatureMajorKey()
-					? nSharpsOrFlats ? TEXT("Major key\r\n") : TEXT("C-Major\r\n")
-					: nSharpsOrFlats ? TEXT("Minor key\r\n") : TEXT("A-Minor\r\n"));
 			}
 			else if (message.isNoteOn())
 			{
