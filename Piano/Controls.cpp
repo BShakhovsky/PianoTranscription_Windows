@@ -91,7 +91,7 @@ void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo,
 	{
 		auto note(Piano::notes.at(trackNo).at(Piano::indexes.at(trackNo)).cbegin());
 		advance(note, i);
-		Piano::keyboard->AssignFinger(*note, fingers.at(trackNo)
+		Piano::keyboard->AssignFinger(note->first, fingers.at(trackNo)
 			.at(Piano::indexes.at(trackNo)).at(i).c_str(), leftHand);
 	}
 }
@@ -310,7 +310,16 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					: Piano::fingersRight.at(track).empty())
 				try
 				{
-					TrellisGraph graph(Piano::notes.at(track), hCtrl == leftHand);
+					vector<set<int16_t>> notes(Piano::notes.at(track).size(), set<int16_t>());
+					transform(Piano::notes.at(track).cbegin(), Piano::notes.at(track).cend(),
+						notes.begin(), [](const map<int16_t, float> input)
+					{
+						set<int16_t> result;
+						for (const auto& note_volume : input) result.insert(note_volume.first);
+						return result;
+					});
+
+					TrellisGraph graph(notes, hCtrl == leftHand);
 					Cursor cursorWait;
 					auto toFinish(true);
 					auto timeStart(GetTickCount());
@@ -408,6 +417,8 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 		ListBox_SelItemRange(trackList, IsDlgButtonChecked(hDlg, id) == BST_CHECKED,
 			0, ListBox_GetCount(trackList) - 1);
 		FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
+		break;
+	case IDC_NORM_VOL: Piano::keyboard->NormalizeVolume(IsDlgButtonChecked(hDlg, id) == BST_CHECKED);
 	}
 }
 

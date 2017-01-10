@@ -118,7 +118,7 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 
 	midi.convertTimestampTicksToSeconds();
 	Piano::notes.assign(static_cast<size_t>(midi.getNumTracks()),
-		vector<set<int16_t>>());
+		vector<map<int16_t, float>>());
 	Piano::milliSeconds.assign(static_cast<size_t>(midi.getNumTracks()),
 		vector<pair<unsigned, unsigned>>());
 	vector<wstring> trackNames(static_cast<size_t>(midi.getNumTracks()));
@@ -252,14 +252,14 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 				if (milliSeconds - lastTime < Piano::timerTick
 					&& !Piano::notes.at(static_cast<size_t>(i)).empty())
 				{
-					Piano::notes.at(static_cast<size_t>(i)).back().insert(
-						static_cast<int16_t>(message.getNoteNumber()));
+					Piano::notes.at(static_cast<size_t>(i)).back().insert(make_pair(
+						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()));
 					Piano::milliSeconds.at(static_cast<size_t>(i)).back().second = milliSeconds;
 				}
 				else
 				{
-					Piano::notes.at(static_cast<size_t>(i)).push_back({
-						static_cast<int16_t>(message.getNoteNumber()) });
+					Piano::notes.at(static_cast<size_t>(i)).push_back({ make_pair(
+						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()) });
 					Piano::milliSeconds.at(static_cast<size_t>(i)).emplace_back(
 						make_pair(milliSeconds, milliSeconds));
 				}
@@ -332,13 +332,15 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 	}
 	break;
 	case IDM_2D:
-		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path_.c_str());
+		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path_.c_str(),
+			IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
 		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
 		InvalidateRect(hWnd, nullptr, false);
 		break;
 	case IDM_3D:
-		Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str());
+		Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str(),
+			IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
 		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
 		Piano::keyboard->Update();

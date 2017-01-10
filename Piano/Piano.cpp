@@ -7,7 +7,7 @@
 
 using namespace std;
 
-vector<vector<set<int16_t>>> Piano::notes = vector<vector<set<int16_t>>>();
+vector<vector<map<int16_t, float>>> Piano::notes = vector<vector<map<int16_t, float>>>();
 vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
 	= vector<vector<pair<unsigned, unsigned>>>();
 

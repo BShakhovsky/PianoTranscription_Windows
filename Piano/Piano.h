@@ -4,7 +4,7 @@
 class Piano abstract
 {
 public:
-	static std::vector<std::vector<std::set<int16_t>>> notes;
+	static std::vector<std::vector<std::map<int16_t, float>>> notes;
 	static std::vector<std::vector<std::pair<unsigned, unsigned>>> milliSeconds;
 
 	static std::shared_ptr<class IKeyboard> keyboard;
