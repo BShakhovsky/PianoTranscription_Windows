@@ -36,9 +36,11 @@ HOW TO USE:
 1. It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet). Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
 
 2. Select appropriate track for left hand, and another track for right hand.  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  If you are not interested in finger numbers, you can skip this step.
+
    (!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
 
 3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.
+
    Do not choose percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) if you want a clearer sound.
 
 4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
