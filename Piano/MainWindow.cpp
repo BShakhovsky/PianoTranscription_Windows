@@ -4,7 +4,6 @@
 #include "About.h"
 #include "Piano.h"
 #include "CanvasGdi.h"
-#include "ResourceLoader.h"
 #include "PianoKeyboard\IKeyboard.h"
 
 using namespace std;
@@ -345,11 +344,29 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
 		Piano::keyboard->Update();
 		break;
-	case IDM_USERGUIDE:
-	{
-		ResourceLoader resource(IDR_README, TEXT("Text"));
-		MessageBoxA(hWnd, static_cast<const char*>(resource.Data()), "User Guide", MB_OK | MB_ICONASTERISK);
-	}
+	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(How to use:
+
+1. It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet). Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
+
+2. Select appropriate track for left hand, and another track for right hand.  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  If you are not interested in finger numbers, you can skip this step.
+(!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
+
+3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.
+Do not choose percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) if you want a clearer sound.
+
+4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
+
+5. Or if you want just to play the song in real time, press "Play" button.
+
+6. By default each note is being played with different volume (note-volumes are also imported from MIDI-file).  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
+
+7. Enjoy :))"), (
+#ifdef UNICODE
+	wstring
+#else
+	string
+#endif
+	(TEXT("\"")) + Piano::windowTitle + TEXT("\" - User Guide")).c_str(), MB_OK | MB_ICONASTERISK);
 	break;
 	case IDM_ABOUT:
 		DialogBox(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);

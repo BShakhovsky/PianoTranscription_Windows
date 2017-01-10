@@ -89,13 +89,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CppLibs)Boost; $(CppLibs)Juce; $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost); $(Juce); $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(CppLibs)DirectXTK\$(Configuration); $(CppLibs)DirectXMesh\$(Configuration); $(CppLibs)Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(DirectXTK)$(Configuration); $(DirectXMesh)$(Configuration); $(Juce)$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -131,7 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CppLibs)Boost; $(CppLibs)Juce; $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost); $(Juce); $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(CppLibs)DirectXTK\$(Configuration); $(CppLibs)DirectXMesh\$(Configuration); $(CppLibs)Juce\$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(DirectXTK)$(Configuration); $(DirectXMesh)$(Configuration); $(Juce)$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"</Command>
@@ -181,7 +181,6 @@
     <ClInclude Include="CanvasGDI.h" />
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Cursor.h" />
-    <ClInclude Include="ResourceLoader.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

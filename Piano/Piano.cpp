@@ -40,7 +40,7 @@ ATOM Piano::MyRegisterClass()
 
 inline BOOL Piano::InitInstance(const int nCmdShow)
 {
-	MainWindow::hWndMain = CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass_, TEXT("Piano Fingers"),
+	MainWindow::hWndMain = CreateWindowEx(WS_EX_ACCEPTFILES, szWindowClass_, windowTitle,
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
 		HWND_DESKTOP, nullptr, MainWindow::hInstance, nullptr);
 		if (!MainWindow::hWndMain) return FALSE;

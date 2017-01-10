@@ -60,9 +60,6 @@
     <ClInclude Include="Cursor.h">
       <Filter>Header Files\Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLoader.h">
-      <Filter>Header Files\MainWindow</Filter>
-    </ClInclude>
     <ClInclude Include="CanvasGDI.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
@@ -98,8 +95,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\README.md">
-      <Filter>Resource Files</Filter>
-    </None>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>
