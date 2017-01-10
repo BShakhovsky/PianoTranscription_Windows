@@ -4,6 +4,7 @@ Ordinary virtual 3D-piano, with an EXPERIMENTAL option of advising on which fing
 (!) Finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
 
 It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet).
+
 MIDI-files usually consist of several tracks, including percussion.  You probably would not want to play percussion-tracks on piano, because their "MIDI-notes" do not overload correctly on piano-notes.  So, in the most cases, you may choose any kind of tracks, but do not choose "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.
 
 
