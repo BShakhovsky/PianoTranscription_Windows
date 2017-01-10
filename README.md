@@ -1,25 +1,34 @@
 DESCRIPTION:
-	Ordinary virtual 3D-piano, with an EXPERIMENTAL option of advising on which fingers to use to press each piano key.
-	(!) Finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
 
-	It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet).
-	MIDI-files usually consist of several tracks, including percussion.  You probably would not want to play percussion-tracks on piano, because their "MIDI-notes" do not overload correctly on piano-notes.  So, in the most cases, you may choose any kind of tracks, but do not choose "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.
-	
+Ordinary virtual 3D-piano, with an EXPERIMENTAL option of advising on which fingers to use to press each piano key.
+(!) Finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
+
+It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet).
+MIDI-files usually consist of several tracks, including percussion.  You probably would not want to play percussion-tracks on piano, because their "MIDI-notes" do not overload correctly on piano-notes.  So, in the most cases, you may choose any kind of tracks, but do not choose "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.
+
+
 ADDITIONAL FILES:
-	There are several example MIDI-files provided with this package in the "MIDI" folder.  It is written in their file-name, which tracks are percussion.  Do not play those tracks if you want a clearer sound.
+
+There are several example MIDI-files provided with this package in the "MIDI" folder.  It is written in their file-name, which tracks are percussion.  Do not play those tracks if you want a clearer sound.
+
 
 SYSTEM REQUIREMENTS:
-	Windows 7 or later.
+
+Windows 7 or later.
+
 
 HOW TO INSTALL:
-	No installation is required, just open file "Piano Fingers 3D.exe".
 
-	If you encounter errors about missing DLL's, try to install the following Windows Updates:
-	The latest possible DirectX:
-	https://www.microsoft.com/en-us/download/details.aspx?id=35
-	If some DLL is still missing, then try to install "Visual C++ Redistributable":
-	https://www.microsoft.com/en-us/download/details.aspx?id=53840
-	If there is still some error, then sorry, you are screwed :(
+No installation is required, just open file "Piano Fingers 3D.exe".
+
+If you encounter errors about missing DLL's, try to install the following Windows Updates:
+
+The latest possible DirectX: https://www.microsoft.com/en-us/download/details.aspx?id=35
+
+If some DLL is still missing, then try to install "Visual C++ Redistributable": https://www.microsoft.com/en-us/download/details.aspx?id=53840
+
+If there is still some error, then sorry, you are screwed :(
+
 
 HOW TO USE:
 

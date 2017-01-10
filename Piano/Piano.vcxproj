@@ -143,10 +143,11 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(DirectXTK)$(Configuration); $(DirectXMesh)$(Configuration); $(Juce)$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"</Command>
+      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"
+copy /Y "$(SolutionDir)README.md" "$(SolutionDir)..\Publish\Piano Fingers 3D\ReadMe.txt"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy Release .exe</Message>
+      <Message>Copy Release.exe &amp; ReadMe.md</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
