@@ -22,7 +22,7 @@ HOW TO INSTALL:
 
 No installation is required, just open file "Piano Fingers 3D.exe".
 
-If you encounter errors about missing DLL's, try to install the following Windows Updates:
+If you encounter errors about missing DLL's, try to reinstall the following Windows Updates (even if you already have them):
 
 The latest possible DirectX: https://www.microsoft.com/en-us/download/details.aspx?id=35
 
