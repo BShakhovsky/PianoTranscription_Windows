@@ -21,7 +21,13 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
 	path_ = buffer;
 
-	Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str());
+	Piano::keyboard = make_shared<
+#ifdef _DEBUG
+		Keyboard2D>(hWnd
+#else
+		Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_
+#endif
+			, path_.c_str());
 	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
@@ -32,6 +38,10 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	dlgWidth_ = rect.right - rect.left;
 
 	return true;
+}
+inline void OnDestroy(HWND)
+{
+	PostQuitMessage(0);
 }
 
 void MainWindow::CorrectAspectRatio()
@@ -116,23 +126,23 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 	}
 
 	midi.convertTimestampTicksToSeconds();
-	Piano::notes.assign(static_cast<size_t>(midi.getNumTracks()),
-		vector<map<int16_t, float>>());
-	Piano::milliSeconds.assign(static_cast<size_t>(midi.getNumTracks()),
-		vector<pair<unsigned, unsigned>>());
-	vector<wstring> trackNames(static_cast<size_t>(midi.getNumTracks()));
+	const auto nTracks(static_cast<size_t>(midi.getNumTracks()));
+	Piano::notes.assign(nTracks, vector<map<int16_t, float>>());
+	Piano::milliSeconds.assign(nTracks, vector<pair<unsigned, unsigned>>());
+	Piano::percussions.assign(nTracks, false);
+	vector<wstring> trackNames(nTracks);
 	wstring log;
-	for (auto i(0); i < midi.getNumTracks(); ++i)
+	for (size_t i(0); i < nTracks; ++i)
 	{
 		unsigned lastTime(0);
-		const auto track(midi.getTrack(i));
+		const auto track(midi.getTrack(static_cast<int>(i)));
 		for (auto j(0); j < track->getNumEvents(); ++j)
 		{
 			const auto message(track->getEventPointer(j)->message);
 			const auto milliSeconds(static_cast<unsigned>(message.getTimeStamp() * 1'000));
 
 			if (message.isTextMetaEvent())
-				if (message.isTrackNameEvent()) trackNames.at(static_cast<size_t>(i))
+				if (message.isTrackNameEvent()) trackNames.at(i)
 					= message.getTextFromTextMetaEvent().toWideCharPointer();
 				else log.append(wstring(TEXT("\t"))
 					+ message.getTextFromTextMetaEvent().toWideCharPointer() + TEXT("\r\n"));
@@ -248,21 +258,26 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 			}
 			else if (message.isNoteOn())
 			{
-				if (milliSeconds - lastTime < Piano::timerTick
-					&& !Piano::notes.at(static_cast<size_t>(i)).empty())
+				if (milliSeconds - lastTime < Piano::timerTick && !Piano::notes.at(i).empty())
 				{
-					Piano::notes.at(static_cast<size_t>(i)).back().insert(make_pair(
+					Piano::notes.at(i).back().insert(make_pair(
 						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()));
-					Piano::milliSeconds.at(static_cast<size_t>(i)).back().second = milliSeconds;
+					Piano::milliSeconds.at(i).back().second = milliSeconds;
 				}
 				else
 				{
-					Piano::notes.at(static_cast<size_t>(i)).push_back({ make_pair(
+					Piano::notes.at(i).push_back({ make_pair(
 						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()) });
-					Piano::milliSeconds.at(static_cast<size_t>(i)).emplace_back(
-						make_pair(milliSeconds, milliSeconds));
+					Piano::milliSeconds.at(i).emplace_back(make_pair(milliSeconds, milliSeconds));
 				}
 				lastTime = milliSeconds;
+
+				// do not check earlier, otherwise empty data-tracks will be also shown in track-list
+				if (message.getChannel() == 10 && nTracks > 1)
+				{
+					Piano::percussions.at(i) = true;
+					continue;
+				}
 			}
 		}
 	}
@@ -273,14 +288,27 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 		if (!Piano::notes.at(i).empty())
 		{
 			trackNames.at(i).insert(0, lexical_cast<wstring>(i) + TEXT(' '));
-			ComboBox_AddString(Controls::leftHand, trackNames.at(i).c_str());
-			ComboBox_AddString(Controls::rightHand, trackNames.at(i).c_str());
 			ListBox_AddString(Controls::trackList, trackNames.at(i).c_str());
-
-			ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
-			ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
 			ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
+			if (!Piano::percussions.at(i))
+			{
+				ComboBox_AddString(Controls::leftHand, trackNames.at(i).c_str());
+				ComboBox_AddString(Controls::rightHand, trackNames.at(i).c_str());
+				ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
+				ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
+			}
+			else
+			{
+				Piano::notes.at(i).clear();
+				Piano::milliSeconds.at(i).clear();
+			}
 		}
+	assert("There must appear the same tracks for both hands"
+		&& ComboBox_GetCount(Controls::leftHand) == ComboBox_GetCount(Controls::rightHand));
+	if (!ComboBox_GetCount(Controls::leftHand)) MessageBox(hWndMain,
+		TEXT("This MIDI-file does not contain any non-percussion track.\nNothing to play on piano."),
+		TEXT("Midi info"), MB_OK | MB_ICONASTERISK);
+
 	SendMessage(Controls::progressLeft, PBM_SETPOS, 0, 0);
 	SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
 
@@ -352,11 +380,12 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 (!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
 
 3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.
-Do not choose percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) if you want a clearer sound.
+Percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) will be disabled.
 
 4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
 
 5. Or if you want just to play the song in real time, press "Play" button.
+(!) During playing in 3D-mode, try not to move mouse over the window with controls (small window below the piano), otherwise 3D-animation will become very slow for some reason.
 
 6. By default each note is being played with different volume (note-volumes are also imported from MIDI-file).  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 

@@ -13,14 +13,18 @@ vector<vector<pair<unsigned, unsigned>>> Piano::milliSeconds
 
 shared_ptr<IKeyboard> Piano::keyboard = nullptr;
 
-vector<size_t> Piano::indexes = vector<size_t>();
-vector<size_t> Piano::tracks = vector<size_t>();
-shared_ptr<size_t> Piano::leftTrack = nullptr;
-shared_ptr<size_t> Piano::rightTrack = nullptr;
+vector<size_t>
+Piano::indexes = vector<size_t>(),
+Piano::tracks = vector<size_t>();
 
-vector<vector<vector<string>>> Piano::fingersLeft = vector<vector<vector<string>>>();
-vector<vector<vector<string>>> Piano::fingersRight = vector<vector<vector<string>>>();
+shared_ptr<size_t>
+Piano::leftTrack = nullptr,
+Piano::rightTrack = nullptr;
 
+vector<vector<vector<string>>>
+Piano::fingersLeft = vector<vector<vector<string>>>(),
+Piano::fingersRight = vector<vector<vector<string>>>();
+vector<bool> Piano::percussions = vector<bool>();
 
 ATOM Piano::MyRegisterClass()
 {

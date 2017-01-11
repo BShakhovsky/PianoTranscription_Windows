@@ -14,6 +14,7 @@ public:
 	static std::vector<size_t> indexes, tracks;
 	static std::shared_ptr<size_t> leftTrack, rightTrack;
 	static std::vector<std::vector<std::vector<std::string>>> fingersLeft, fingersRight;
+	static std::vector<bool> percussions;
 
 	static constexpr UINT timerTick = USER_TIMER_MINIMUM;
 

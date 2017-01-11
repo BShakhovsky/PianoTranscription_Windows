@@ -20,9 +20,12 @@ Controls::progressRight	= nullptr,
 Controls::trackList		= nullptr,
 
 Controls::scrollBar		= nullptr,
-Controls::playButton	= nullptr,
+Controls::playButton	= nullptr;
 
-Controls::time_			= nullptr;
+bool Controls::isPercussionTrack_			= false;
+const HBRUSH Controls::trackListBoxBrush_	= CreateSolidBrush(RGB(0xFF, 0xFF, 0xFF));
+
+HWND Controls::time_		= nullptr;
 bool Controls::isPlaying_	= false;
 DWORD Controls::start_		= 0;
 
@@ -69,6 +72,10 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 	InitDialog();
 
 	return true;
+}
+inline void Controls::OnDestroyDialog(const HWND)
+{
+	DeleteBrush(trackListBoxBrush_);
 }
 
 inline void Controls::StopPlaying()
@@ -395,31 +402,57 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 	case IDC_TRACKS:
 		if (notifyCode == LBN_SELCHANGE)
 		{
-			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(trackList)), 0);
-			ListBox_GetSelItems(trackList, items.size(), items.data());
+			for (auto i(0); i < ListBox_GetCount(hCtrl); ++i) if (ListBox_GetSel(hCtrl, i)
+				&& Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(hCtrl, i))))
+			{
+				isPercussionTrack_ = true;
+				ListBox_SetSel(hCtrl, false, i);
+			}
+
+			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(hCtrl)), 0);
+			ListBox_GetSelItems(hCtrl, items.size(), items.data());
+
 			Piano::tracks.clear();
 			Piano::tracks.reserve(items.size());
 			for (const auto& item : items)
-				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(trackList, item)));
+				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
 
 			if (Piano::leftTrack
 				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
-					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
+				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
 			if (Piano::rightTrack
 				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
-					== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
+				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
 
 			RewindTracks(ScrollBar_GetPos(scrollBar));
 		}
 		break;
 
 	case IDC_CHECK_ALL:
-		ListBox_SelItemRange(trackList, IsDlgButtonChecked(hDlg, id) == BST_CHECKED,
-			0, ListBox_GetCount(trackList) - 1);
+		if (IsDlgButtonChecked(hDlg, id) == BST_CHECKED)
+		{
+			for (auto i(0); i < ListBox_GetCount(trackList); ++i)
+				if (!Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(trackList, i))))
+					ListBox_SetSel(trackList, true, i);
+		}
+		else ListBox_SelItemRange(trackList, false, 0, ListBox_GetCount(trackList) - 1);
+
 		FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
 		break;
+
 	case IDC_NORM_VOL: Piano::keyboard->NormalizeVolume(IsDlgButtonChecked(hDlg, id) == BST_CHECKED);
 	}
+}
+
+inline HBRUSH Controls::OnCtlColorListBox(const HWND, const HDC hDC, const HWND, const int type)
+{
+	assert("Only ListBox should be colored" && type == CTLCOLOR_LISTBOX);
+#ifdef NDEBUG
+	UNREFERENCED_PARAMETER(type);
+#endif
+	SetTextColor(hDC, isPercussionTrack_ ? RGB(0xAF, 0xAF, 0xAF) : RGB(0, 0, 0));
+	isPercussionTrack_ = false;
+	return trackListBoxBrush_;
 }
 
 INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
@@ -427,9 +460,11 @@ INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
 {
 	switch (message)
 	{
-		HANDLE_MSG(hDlg, WM_INITDIALOG,	OnInitDialog);
-		HANDLE_MSG(hDlg, WM_HSCROLL,	OnHScroll);
-		HANDLE_MSG(hDlg, WM_COMMAND,	OnCommand);
+		HANDLE_MSG(hDlg, WM_INITDIALOG,			OnInitDialog);
+		HANDLE_MSG(hDlg, WM_DESTROY,			OnDestroyDialog);
+		HANDLE_MSG(hDlg, WM_HSCROLL,			OnHScroll);
+		HANDLE_MSG(hDlg, WM_COMMAND,			OnCommand);
+		HANDLE_MSG(hDlg, WM_CTLCOLORLISTBOX,	OnCtlColorListBox);
 	default: return false;
 	}
 }

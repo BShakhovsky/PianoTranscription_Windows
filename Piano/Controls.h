@@ -11,6 +11,7 @@ public:
 private:
 	static void InitDialog();
 	static BOOL OnInitDialog(HWND, HWND, LPARAM);
+	static void OnDestroyDialog(HWND);
 	
 	static void StopPlaying();
 	static void UpdateTime(DWORD);
@@ -24,6 +25,11 @@ private:
 	static void PrevChord();
 	static void OnHScroll(HWND, HWND, UINT, int);
 	static void OnCommand(HWND, int, HWND, UINT);
+
+	static HBRUSH OnCtlColorListBox(HWND hDlg, HDC, HWND hListBox, int type);
+
+	static bool isPercussionTrack_;
+	static const HBRUSH trackListBoxBrush_;
 
 	static HWND time_;
 	static bool isPlaying_;
