@@ -273,182 +273,193 @@ void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int
 	}
 }
 
+void Controls::OnPlay()
+{
+	if (isPlaying_)
+	{
+		KillTimer(MainWindow::hWndMain, 0);
+		start_ = 0;
+		Button_SetText(playButton, TEXT("Play"));
+		ComboBox_Enable(leftHand, true);
+		ComboBox_Enable(rightHand, true);
+		isPlaying_ = false;
+	}
+	else
+	{
+		if (Piano::tracks.empty())
+			MessageBox(hDlgControls, TEXT("No tracks are chosen, nothing to play yet"),
+				TEXT("Choose tracks"), MB_ICONASTERISK);
+		else
+		{
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
+			start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
+			SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
+			Button_SetText(playButton, TEXT("Pause"));
+			ComboBox_Enable(leftHand, false);
+			ComboBox_Enable(rightHand, false);
+			isPlaying_ = true;
+		}
+	}
+}
+void Controls::OnBadHandAlloc(const HWND hand, const HWND progressBar, const char* errMsg)
+{
+	const auto listIndex(ComboBox_GetCurSel(hand));
+	const wstring trackName(static_cast<size_t>(
+		ComboBox_GetLBTextLen(hand, listIndex)), '\0');
+	ComboBox_GetLBText(hand, listIndex, trackName.data());
+	if (MessageBoxA(hand, ("Cannot finish fingering calculation: insufficient memory.\n"
+		"Probably, track \"" + string(trackName.cbegin(), trackName.cend()) +
+		"\" consists of too many notes.\n"
+		"The program may behave inadequately"
+		" and bullshit may be played until you restart it."
+		" Do you want to close the program now?"
+		).c_str(), errMsg, MB_ICONHAND | MB_YESNO
+	) == IDYES) FORWARD_WM_DESTROY(MainWindow::hWndMain, SendMessage);
+
+	ComboBox_SetCurSel(hand, 0);
+	SendMessage(progressBar, PBM_SETPOS, 0, 0);
+}
+bool Controls::CalcFingers(const HWND hand, const HWND progressBar, const size_t trackNo, TrellisGraph& graph)
+{
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
+	auto timeStart(GetTickCount());
+	for (size_t i(1); i; i = graph.NextStep())
+	{
+		SendMessage(progressBar, PBM_SETPOS, i * 95 / Piano::notes.at(trackNo).size(), 0);
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
+		if (static_cast<int>(GetTickCount()) - static_cast<int>(timeStart) > 10'000)
+			if (MessageBox(hDlgControls,
+				TEXT("It seems that fingering calculation might take a while.\n")
+				TEXT("Press OK if you want to continue waiting."),
+				TEXT("Lots of fingering combinations"),
+				MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
+			{
+				const auto prevSelection(hand == leftHand ? Piano::leftTrack : Piano::rightTrack);
+				if (!prevSelection) ComboBox_SetCurSel(hand, 0);
+				else for (auto j(0); j < ComboBox_GetCount(hand); ++j)
+					if (*prevSelection == static_cast<size_t>(ComboBox_GetItemData(hand, j)))
+					{
+						ComboBox_SetCurSel(hand, j);
+						break;
+					}
+				SendMessage(progressBar, PBM_SETPOS, 0, 0);
+				return false;
+			}
+			else timeStart = USER_TIMER_MAXIMUM;
+	}
+	return true;
+}
+void Controls::UpdateFingers(const HWND hand, const HWND progressBar, const size_t trackNo)
+{
+	vector<set<int16_t>> notes(Piano::notes.at(trackNo).size(), set<int16_t>());
+	transform(Piano::notes.at(trackNo).cbegin(), Piano::notes.at(trackNo).cend(),
+		notes.begin(), [](const map<int16_t, float> input)
+	{
+		set<int16_t> result;
+		for (const auto& note_volume : input) result.insert(note_volume.first);
+		return result;
+	});
+
+	TrellisGraph graph(notes, hand == leftHand);
+	Cursor cursorWait;
+	if (CalcFingers(hand, progressBar, trackNo, graph))
+	{
+		graph.Finish();
+		(hand == leftHand ? Piano::fingersLeft.at(trackNo) : Piano::fingersRight.at(trackNo))
+			= graph.GetResult();
+		(hand == leftHand ? Piano::leftTrack : Piano::rightTrack)
+			= make_unique<size_t>(trackNo);
+		SendMessage(progressBar, PBM_SETPOS, 100, 0);
+	}
+}
+void Controls::OnLeftRightHand(const HWND hand)
+{
+	const auto progressBar(hand == leftHand ? progressLeft : progressRight);
+	const auto trackNo(ComboBox_GetItemData(hand, ComboBox_GetCurSel(hand)));
+	if (trackNo > -1)
+	{
+		const auto track(static_cast<size_t>(trackNo));
+		if (hand == leftHand ? Piano::fingersLeft.at(track).empty() : Piano::fingersRight.at(track).empty())
+			try
+		{
+			UpdateFingers(hand, progressBar, track);
+		}
+		catch (const bad_alloc& e)
+		{
+			OnBadHandAlloc(hand, progressBar, e.what());
+		}
+		else
+		{
+			(hand == leftHand ? Piano::leftTrack : Piano::rightTrack) = make_unique<size_t>(track);
+			SendMessage(progressBar, PBM_SETPOS, 100, 0);
+		}
+	}
+	else
+	{
+		(hand == leftHand ? Piano::leftTrack : Piano::rightTrack) = nullptr;
+		SendMessage(progressBar, PBM_SETPOS, 0, 0);
+	}
+
+	FORWARD_WM_COMMAND(hDlgControls, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
+}
+void Controls::OnTrackList()
+{
+	for (auto i(0); i < ListBox_GetCount(trackList); ++i) if (ListBox_GetSel(trackList, i)
+		&& Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(trackList, i))))
+	{
+		isPercussionTrack_ = true;
+		ListBox_SetSel(trackList, false, i);
+	}
+
+	vector<int> items(static_cast<size_t>(ListBox_GetSelCount(trackList)), 0);
+	ListBox_GetSelItems(trackList, items.size(), items.data());
+
+	Piano::tracks.clear();
+	Piano::tracks.reserve(items.size());
+	for (const auto& item : items)
+		Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(trackList, item)));
+
+	if (Piano::leftTrack
+		&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
+		== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
+	if (Piano::rightTrack
+		&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
+		== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
+
+	RewindTracks(ScrollBar_GetPos(scrollBar));
+}
+void Controls::OnCheckAll()
+{
+	if (IsDlgButtonChecked(hDlgControls, IDC_CHECK_ALL) == BST_CHECKED)
+	{
+		for (auto i(0); i < ListBox_GetCount(trackList); ++i)
+			if (!Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(trackList, i))))
+				ListBox_SetSel(trackList, true, i);
+	}
+	else ListBox_SelItemRange(trackList, false, 0, ListBox_GetCount(trackList) - 1);
+
+	FORWARD_WM_COMMAND(hDlgControls, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
+}
 void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const UINT notifyCode)
 {
 	switch (id)
 	{
-	case IDB_PLAY:
-	{
-		if (isPlaying_)
-		{
-			KillTimer(MainWindow::hWndMain, 0);
-			start_ = 0;
-			Button_SetText(hCtrl, TEXT("Play"));
-			ComboBox_Enable(leftHand, true);
-			ComboBox_Enable(rightHand, true);
-			isPlaying_ = false;
-		}
-		else
-		{
-			if (Piano::tracks.empty())
-				MessageBox(hDlg, TEXT("No tracks are chosen, nothing to play yet"),
-					TEXT("Choose tracks"), MB_ICONASTERISK);
-			else
-			{
-// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
-#pragma warning(suppress:28159)
-				start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
-				SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
-				Button_SetText(hCtrl, TEXT("Pause"));
-				ComboBox_Enable(leftHand, false);
-				ComboBox_Enable(rightHand, false);
-				isPlaying_ = true;
-			}
-		}
-	}
-	break;
-
+	case IDB_PLAY: OnPlay();
+		break;
 	case IDC_LEFT_HAND: case IDC_RIGHT_HAND:
-		if (notifyCode == CBN_SELCHANGE)
-		{
-			const auto progressBar(hCtrl == leftHand ? progressLeft : progressRight);
-			const auto listIndex(ComboBox_GetCurSel(hCtrl));
-			const auto trackNo(ComboBox_GetItemData(hCtrl, listIndex));
-			if (trackNo > -1)
-			{
-				const auto track(static_cast<size_t>(trackNo));
-				if (hCtrl == leftHand ? Piano::fingersLeft.at(track).empty()
-					: Piano::fingersRight.at(track).empty())
-				try
-				{
-					vector<set<int16_t>> notes(Piano::notes.at(track).size(), set<int16_t>());
-					transform(Piano::notes.at(track).cbegin(), Piano::notes.at(track).cend(),
-						notes.begin(), [](const map<int16_t, float> input)
-					{
-						set<int16_t> result;
-						for (const auto& note_volume : input) result.insert(note_volume.first);
-						return result;
-					});
-
-					TrellisGraph graph(notes, hCtrl == leftHand);
-					Cursor cursorWait;
-					auto toFinish(true);
-// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
-#pragma warning(suppress:28159)
-					auto timeStart(GetTickCount());
-					for (size_t i(1); i; i = graph.NextStep())
-					{
-						SendMessage(progressBar, PBM_SETPOS,
-							i * 95 / Piano::notes.at(track).size(), 0);
-// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
-#pragma warning(suppress:28159)
-						if (static_cast<int>(GetTickCount()) - static_cast<int>(timeStart) > 10'000)
-							if (MessageBox(hDlg,
-									TEXT("It seems that fingering calculation might take a while.\n")
-									TEXT("Press OK if you want to continue waiting."),
-									TEXT("Lots of fingering combinations"),
-								MB_ICONQUESTION | MB_OKCANCEL | MB_DEFBUTTON2) == IDCANCEL)
-							{
-								ComboBox_SetCurSel(hCtrl, 0);
-								SendMessage(progressBar, PBM_SETPOS, 0, 0);
-								toFinish = false;
-								break;
-							}
-							else timeStart = USER_TIMER_MAXIMUM;
-					}
-					if (toFinish)
-					{
-						graph.Finish();
-						if (hCtrl == leftHand)
-						{
-							Piano::fingersLeft.at(track) = graph.GetResult();
-							Piano::leftTrack = make_unique<size_t>(track);
-						}
-						else
-						{
-							Piano::fingersRight.at(track) = graph.GetResult();
-							Piano::rightTrack = make_unique<size_t>(track);
-						}
-						SendMessage(progressBar, PBM_SETPOS, 100, 0);
-					}
-				}
-				catch (const bad_alloc& e)
-				{
-					const wstring trackName(static_cast<size_t>(
-						ComboBox_GetLBTextLen(hCtrl, listIndex)), '\0');
-					ComboBox_GetLBText(hCtrl, listIndex, trackName.data());
-					if (MessageBoxA(hCtrl, ("Cannot finish fingering calculation: insufficient memory.\n"
-								"Probably, track \"" + string(trackName.cbegin(), trackName.cend()) +
-								"\" consists of too many notes.\n"
-								"The program may behave inadequately"
-								" and bullshit may be played until you restart it."
-								" Do you want to close the program now?"
-							).c_str(), e.what(), MB_ICONHAND | MB_YESNO
-						) == IDYES) FORWARD_WM_DESTROY(MainWindow::hWndMain, SendMessage);
-
-					ComboBox_SetCurSel(hCtrl, 0);
-					SendMessage(progressBar, PBM_SETPOS, 0, 0);
-				}
-				else
-				{
-					if (hCtrl == leftHand)	Piano::leftTrack = make_unique<size_t>(track);
-					else					Piano::rightTrack = make_unique<size_t>(track);
-					SendMessage(progressBar, PBM_SETPOS, 100, 0);
-				}
-			}
-			else
-			{
-				if (hCtrl == leftHand)	Piano::leftTrack = nullptr;
-				else					Piano::rightTrack = nullptr;
-				SendMessage(progressBar, PBM_SETPOS, 0, 0);
-			}
-
-			FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
-		}
+		if (notifyCode == CBN_SELCHANGE) OnLeftRightHand(hCtrl);
 		break;
-
 	case IDC_TRACKS:
-		if (notifyCode == LBN_SELCHANGE)
-		{
-			for (auto i(0); i < ListBox_GetCount(hCtrl); ++i) if (ListBox_GetSel(hCtrl, i)
-				&& Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(hCtrl, i))))
-			{
-				isPercussionTrack_ = true;
-				ListBox_SetSel(hCtrl, false, i);
-			}
-
-			vector<int> items(static_cast<size_t>(ListBox_GetSelCount(hCtrl)), 0);
-			ListBox_GetSelItems(hCtrl, items.size(), items.data());
-
-			Piano::tracks.clear();
-			Piano::tracks.reserve(items.size());
-			for (const auto& item : items)
-				Piano::tracks.push_back(static_cast<size_t>(ListBox_GetItemData(hCtrl, item)));
-
-			if (Piano::leftTrack
-				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::leftTrack)
-				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::leftTrack);
-			if (Piano::rightTrack
-				&& find(Piano::tracks.cbegin(), Piano::tracks.cend(), *Piano::rightTrack)
-				== Piano::tracks.cend()) Piano::tracks.push_back(*Piano::rightTrack);
-
-			RewindTracks(ScrollBar_GetPos(scrollBar));
-		}
+		if (notifyCode == LBN_SELCHANGE) OnTrackList();
 		break;
-
 	case IDC_CHECK_ALL:
-		if (IsDlgButtonChecked(hDlg, id) == BST_CHECKED)
-		{
-			for (auto i(0); i < ListBox_GetCount(trackList); ++i)
-				if (!Piano::percussions.at(static_cast<size_t>(ListBox_GetItemData(trackList, i))))
-					ListBox_SetSel(trackList, true, i);
-		}
-		else ListBox_SelItemRange(trackList, false, 0, ListBox_GetCount(trackList) - 1);
-
-		FORWARD_WM_COMMAND(hDlg, IDC_TRACKS, trackList, LBN_SELCHANGE, SendMessage);
+		OnCheckAll();
 		break;
-
-	case IDC_NORM_VOL: Piano::keyboard->NormalizeVolume(IsDlgButtonChecked(hDlg, id) == BST_CHECKED);
+	case IDC_NORM_VOL:
+		Piano::keyboard->NormalizeVolume(IsDlgButtonChecked(hDlg, id) == BST_CHECKED);
 	}
 }
 

@@ -24,6 +24,14 @@ private:
 	static void NextChord();
 	static void PrevChord();
 	static void OnHScroll(HWND, HWND, UINT, int);
+
+	static void OnPlay();
+	static void OnBadHandAlloc(HWND hand, HWND progressBar, const char* errMsg);
+	static bool CalcFingers(HWND hand, HWND progressBar, size_t trackNo, class TrellisGraph&);
+	static void UpdateFingers(HWND hand, HWND progressBar, size_t trackNo);
+	static void OnLeftRightHand(HWND hand);
+	static void OnTrackList();
+	static void OnCheckAll();
 	static void OnCommand(HWND, int, HWND, UINT);
 
 	static HBRUSH OnCtlColorListBox(HWND hDlg, HDC, HWND hListBox, int type);
