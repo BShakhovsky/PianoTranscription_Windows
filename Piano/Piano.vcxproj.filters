@@ -63,6 +63,12 @@
     <ClInclude Include="CanvasGDI.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
+    <ClInclude Include="MidiParser.h">
+      <Filter>Header Files\MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="MidiError.h">
+      <Filter>Header Files\MainWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -79,6 +85,9 @@
     </ClCompile>
     <ClCompile Include="Piano.cpp">
       <Filter>Source Files\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="MidiParser.cpp">
+      <Filter>Source Files\MainWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

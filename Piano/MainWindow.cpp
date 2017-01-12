@@ -3,6 +3,8 @@
 #include "Controls.h"
 #include "About.h"
 #include "Piano.h"
+#include "MidiParser.h"
+#include "MidiError.h"
 #include "CanvasGdi.h"
 #include "PianoKeyboard\IKeyboard.h"
 
@@ -107,208 +109,8 @@ void MainWindow::OnMidiError(LPCTSTR msg)
 	Edit_SetText(Controls::midiLog, msg);
 	Button_Enable(Controls::playButton, false);
 }
-void MainWindow::OpenMidiFile(LPCTSTR fileName)
+void MainWindow::OnMidiSuccess()
 {
-	Controls::Reset();
-
-	FileInputStream inputFile(
-		File::getCurrentWorkingDirectory().getChildFile(String(fileName)).getFullPathName());
-	if (inputFile.failedToOpen())
-	{
-		OnMidiError((wstring(TEXT("Could not open file:\r\n")) + fileName).c_str());
-		return;
-	}
-	MidiFile midi;
-	if (!midi.readFrom(inputFile))
-	{
-		OnMidiError((wstring(TEXT("Not a MIDI-file:\r\n")) + fileName).c_str());
-		return;
-	}
-
-	midi.convertTimestampTicksToSeconds();
-	const auto nTracks(static_cast<size_t>(midi.getNumTracks()));
-	Piano::notes.assign(nTracks, vector<map<int16_t, float>>());
-	Piano::milliSeconds.assign(nTracks, vector<pair<unsigned, unsigned>>());
-	Piano::percussions.assign(nTracks, false);
-	vector<wstring> trackNames(nTracks);
-	wstring log;
-	for (size_t i(0); i < nTracks; ++i)
-	{
-		unsigned lastTime(0);
-		const auto track(midi.getTrack(static_cast<int>(i)));
-		for (auto j(0); j < track->getNumEvents(); ++j)
-		{
-			const auto message(track->getEventPointer(j)->message);
-			const auto milliSeconds(static_cast<unsigned>(message.getTimeStamp() * 1'000));
-
-			if (message.isTextMetaEvent())
-				if (message.isTrackNameEvent()) trackNames.at(i)
-					= message.getTextFromTextMetaEvent().toWideCharPointer();
-				else log.append(wstring(TEXT("\t"))
-					+ message.getTextFromTextMetaEvent().toWideCharPointer() + TEXT("\r\n"));
-			else if (message.isTempoMetaEvent())
-				log.append((wformat{ TEXT("Time %02d:%02d:%02d Tempo %d BPM\r\n") }
-					% (milliSeconds / 1'000 / 60) % (milliSeconds / 1'000 % 60) % (milliSeconds % 1'000 / 10)
-					% static_cast<int>(60 / message.getTempoSecondsPerQuarterNote() + 0.5)).str());
-			else if (message.isKeySignatureMetaEvent())
-			{
-				log.append(TEXT("Key signature: "));
-
-				const auto nSharpsOrFlats(message.getKeySignatureNumberOfSharpsOrFlats());
-				log.append(nSharpsOrFlats ? lexical_cast<wstring>(abs(nSharpsOrFlats))
-					+ (nSharpsOrFlats > 0 ? TEXT(" sharps (") : TEXT(" flats ("))
-					: TEXT("probably, natural "));
-
-				if (nSharpsOrFlats >= 1)
-				{
-					log.append(TEXT("F"));
-					if (nSharpsOrFlats >= 2)
-					{
-						log.append(TEXT(", C"));
-						if (nSharpsOrFlats >= 3)
-						{
-							log.append(TEXT(", G"));
-							if (nSharpsOrFlats >= 4)
-							{
-								log.append(TEXT(", D"));
-								if (nSharpsOrFlats >= 5)
-								{
-									log.append(TEXT(", A"));
-									if (nSharpsOrFlats >= 6)
-									{
-										log.append(TEXT(", E"));
-										if (nSharpsOrFlats >= 7)
-										{
-											assert("Wrong key signature" && nSharpsOrFlats == 7);
-											log.append(TEXT(", H"));
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else if (nSharpsOrFlats <= -1)
-				{
-					log.append(TEXT("H"));
-					if (nSharpsOrFlats <= -2)
-					{
-						log.append(TEXT(", E"));
-						if (nSharpsOrFlats <= -3)
-						{
-							log.append(TEXT(", A"));
-							if (nSharpsOrFlats <= -4)
-							{
-								log.append(TEXT(", D"));
-								if (nSharpsOrFlats <= -5)
-								{
-									log.append(TEXT(", G"));
-									if (nSharpsOrFlats <= -6)
-									{
-										log.append(TEXT(", C"));
-										if (nSharpsOrFlats <= -7)
-										{
-											assert("Wrong key signature" && nSharpsOrFlats == -7);
-											log.append(TEXT(", F"));
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-
-				switch (nSharpsOrFlats)
-				{
-				case -7: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Cb-Major tone\r\n") : TEXT(") -> Ab-Minor tone\r\n"));	break;
-				case -6: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Gb-Major tone\r\n") : TEXT(") -> Eb-Minor tone\r\n"));	break;
-				case -5: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Db-Major tone\r\n") : TEXT(") -> Bb-Minor tone\r\n"));	break;
-				case -4: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Ab-Major tone\r\n") : TEXT(") -> F-Minor tone\r\n"));	break;
-				case -3: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Eb-Major tone\r\n") : TEXT(") -> C-Minor tone\r\n"));	break;
-				case -2: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> Bb-Major tone\r\n") : TEXT(") -> G-Minor tone\r\n"));	break;
-				case -1: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> F-Major tone\r\n") : TEXT(") -> D-Minor tone\r\n"));	break;
-				
-				case 0: log.append(message.isKeySignatureMajorKey()
-					? TEXT("C-Major tone\r\n") : TEXT("A-Minor tone\r\n"));				break;
-				
-				case 1: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> G-Major tone\r\n") : TEXT(") -> E-Minor tone\r\n"));	break;
-				case 2: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> D-Major tone\r\n") : TEXT(") -> H-Minor tone\r\n"));	break;
-				case 3: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> A#-Major tone\r\n") : TEXT(") -> F#-Minor tone\r\n"));	break;
-				case 4: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> E-Major tone\r\n") : TEXT(") -> C#-Minor tone\r\n"));	break;
-				case 5: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> H-Major tone\r\n") : TEXT(") -> G#-Minor tone\r\n"));	break;
-				case 6: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> F#-Major tone\r\n") : TEXT(") -> D#-Minor tone\r\n"));	break;
-				case 7: log.append(message.isKeySignatureMajorKey()
-					? TEXT(") -> C#-Major tone\r\n") : TEXT(") -> A#-Minor tone\r\n"));	break;
-
-				default: assert(!"Wrong key signature");
-				}
-			}
-			else if (message.isNoteOn())
-			{
-				if (milliSeconds - lastTime < Piano::timerTick && !Piano::notes.at(i).empty())
-				{
-					Piano::notes.at(i).back().insert(make_pair(
-						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()));
-					Piano::milliSeconds.at(i).back().second = milliSeconds;
-				}
-				else
-				{
-					Piano::notes.at(i).push_back({ make_pair(
-						static_cast<int16_t>(message.getNoteNumber()), message.getFloatVelocity()) });
-					Piano::milliSeconds.at(i).emplace_back(make_pair(milliSeconds, milliSeconds));
-				}
-				lastTime = milliSeconds;
-
-				// do not check earlier, otherwise empty data-tracks will be also shown in track-list
-				if (message.getChannel() == 10 && nTracks > 1)
-				{
-					Piano::percussions.at(i) = true;
-					continue;
-				}
-			}
-		}
-	}
-
-	Edit_SetText(Controls::midiLog, log.c_str());
-
-	for (size_t i(0); i < trackNames.size(); ++i)
-		if (!Piano::notes.at(i).empty())
-		{
-			trackNames.at(i).insert(0, lexical_cast<wstring>(i) + TEXT(' '));
-			ListBox_AddString(Controls::trackList, trackNames.at(i).c_str());
-			ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
-			if (!Piano::percussions.at(i))
-			{
-				ComboBox_AddString(Controls::leftHand, trackNames.at(i).c_str());
-				ComboBox_AddString(Controls::rightHand, trackNames.at(i).c_str());
-				ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
-				ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
-			}
-			else
-			{
-				Piano::notes.at(i).clear();
-				Piano::milliSeconds.at(i).clear();
-			}
-		}
-	assert("There must appear the same tracks for both hands"
-		&& ComboBox_GetCount(Controls::leftHand) == ComboBox_GetCount(Controls::rightHand));
-	if (!ComboBox_GetCount(Controls::leftHand)) MessageBox(hWndMain,
-		TEXT("This MIDI-file does not contain any non-percussion track.\nNothing to play on piano."),
-		TEXT("Midi info"), MB_OK | MB_ICONASTERISK);
-
 	SendMessage(Controls::progressLeft, PBM_SETPOS, 0, 0);
 	SendMessage(Controls::progressRight, PBM_SETPOS, 0, 0);
 
@@ -321,18 +123,59 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 	const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
 		[](const vector<pair<unsigned, unsigned>>& left,
 			const vector<pair<unsigned, unsigned>>& right)
-		{
-			return right.empty() ? false : left.empty() ? true
-				: left.back().second < right.back().second;
-		}));
-	if (maxElement->empty())
 	{
-		OnMidiError(TEXT("Midi file does not contain any time data"));
-		return;
+		return right.empty() ? false : left.empty() ? true
+			: left.back().second < right.back().second;
+	}));
+	if (maxElement->empty()) OnMidiError(TEXT("Midi file does not contain any time data"));
+	else
+	{
+		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
+		ScrollBar_SetPos(Controls::scrollBar, 0, true);
+		Button_Enable(Controls::playButton, true);
 	}
-	ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
-	ScrollBar_SetPos(Controls::scrollBar, 0, true);
-	Button_Enable(Controls::playButton, true);
+}
+void MainWindow::OpenMidiFile(LPCTSTR fileName)
+{
+	Controls::Reset();
+	try
+	{
+		MidiParser midi(fileName);
+
+		Edit_SetText(Controls::midiLog, midi.GetLog());
+
+		auto trackNames(midi.GetTrackNames());
+		for (size_t i(0); i < trackNames.size(); ++i)
+			if (!Piano::notes.at(i).empty())
+			{
+				trackNames.at(i).insert(0, lexical_cast<wstring>(i) + TEXT(' '));
+				ListBox_AddString(Controls::trackList, trackNames.at(i).c_str());
+				ListBox_SetItemData(Controls::trackList, ListBox_GetCount(Controls::trackList) - 1, i);
+				if (!Piano::percussions.at(i))
+				{
+					ComboBox_AddString(Controls::leftHand, trackNames.at(i).c_str());
+					ComboBox_AddString(Controls::rightHand, trackNames.at(i).c_str());
+					ComboBox_SetItemData(Controls::leftHand, ComboBox_GetCount(Controls::leftHand) - 1, i);
+					ComboBox_SetItemData(Controls::rightHand, ComboBox_GetCount(Controls::rightHand) - 1, i);
+				}
+				else
+				{
+					Piano::notes.at(i).clear();
+					Piano::milliSeconds.at(i).clear();
+				}
+			}
+		assert("There must appear the same tracks for both hands"
+			&& ComboBox_GetCount(Controls::leftHand) == ComboBox_GetCount(Controls::rightHand));
+		if (!ComboBox_GetCount(Controls::leftHand)) MessageBox(hWndMain,
+			TEXT("This MIDI-file does not contain any non-percussion track.\nNothing to play on piano."),
+			TEXT("Midi info"), MB_OK | MB_ICONASTERISK);
+
+		OnMidiSuccess();
+	}
+	catch (const MidiError& e)
+	{
+		OnMidiError(e.RusWhat());
+	}
 }
 void MainWindow::OnDropFiles(const HWND, const HDROP hDrop)
 {

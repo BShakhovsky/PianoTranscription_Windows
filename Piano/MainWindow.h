@@ -16,6 +16,7 @@ private:
 	static void OnSize(HWND, UINT, int, int);
 
 	static void OnMidiError(LPCTSTR);
+	static void OnMidiSuccess();
 	static void OpenMidiFile(LPCTSTR);
 	static void OnDropFiles(HWND, HDROP);
 	static void OnCommand(HWND, int, HWND, UINT);

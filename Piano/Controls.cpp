@@ -182,8 +182,10 @@ void Controls::UpdateScrollBar(int pos)
 	pos += ScrollBar_GetPos(scrollBar);
 
 	if (pos < 0) pos = 0;
-	auto maxPos(0);
-	ScrollBar_GetRange(scrollBar, nullptr, &maxPos);
+	auto minPos_unused(0),	// otherwise PreFast warning C6387:
+							// '_Param_(3)' could be '0' for the function 'GetScrollRange'
+		maxPos(0);
+	ScrollBar_GetRange(scrollBar, &minPos_unused, &maxPos);
 	if (pos > maxPos) pos = maxPos;
 
 	RewindTracks(pos);
@@ -293,6 +295,8 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					TEXT("Choose tracks"), MB_ICONASTERISK);
 			else
 			{
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
 				start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
 				SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
 				Button_SetText(hCtrl, TEXT("Pause"));
@@ -329,11 +333,15 @@ void Controls::OnCommand(const HWND hDlg, const int id, const HWND hCtrl, const 
 					TrellisGraph graph(notes, hCtrl == leftHand);
 					Cursor cursorWait;
 					auto toFinish(true);
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
 					auto timeStart(GetTickCount());
 					for (size_t i(1); i; i = graph.NextStep())
 					{
 						SendMessage(progressBar, PBM_SETPOS,
 							i * 95 / Piano::notes.at(track).size(), 0);
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
 						if (static_cast<int>(GetTickCount()) - static_cast<int>(timeStart) > 10'000)
 							if (MessageBox(hDlg,
 									TEXT("It seems that fingering calculation might take a while.\n")
