@@ -17,7 +17,9 @@ Controls::leftHand		= nullptr,
 Controls::rightHand		= nullptr,
 Controls::progressLeft	= nullptr,
 Controls::progressRight	= nullptr,
+
 Controls::trackList		= nullptr,
+Controls::checkAll		= nullptr,
 
 Controls::scrollBar		= nullptr,
 Controls::playButton	= nullptr;
@@ -68,6 +70,7 @@ BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 	progressRight	= GetDlgItem(hDlg, IDC_PROGRESS_RIGHT);
 	
 	trackList		= GetDlgItem(hDlg, IDC_TRACKS);
+	checkAll		= GetDlgItem(hDlg, IDC_CHECK_ALL);
 
 	InitDialog();
 

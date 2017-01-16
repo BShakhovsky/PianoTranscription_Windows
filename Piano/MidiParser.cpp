@@ -127,6 +127,11 @@ void MidiParser::ParseKeySignatureMetaEvent()
 
 bool MidiParser::ParseNoteOn(const size_t trackNo)
 {
+	// if it is midi-file with all instruments in a single track, do not add percussions:
+	if (midi_.getNumTracks() == 1 && message_.getChannel() == 10) return false;
+
+	// if there are several tracks, we add percussions, but just once
+	// (then check again and remove them later)
 	if (milliSeconds_ - lastTime_ < Piano::timerTick && !Piano::notes.at(trackNo).empty())
 	{
 		Piano::notes.at(trackNo).back().insert(make_pair(

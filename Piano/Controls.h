@@ -4,7 +4,7 @@ class Controls abstract
 public:
 	static HWND hDlgControls, midiLog,
 		leftHand, rightHand, progressLeft, progressRight,
-		trackList, scrollBar, playButton;
+		trackList, checkAll, scrollBar, playButton;
 
 	static void Reset();
 	static INT_PTR CALLBACK Main(HWND, UINT, WPARAM, LPARAM);

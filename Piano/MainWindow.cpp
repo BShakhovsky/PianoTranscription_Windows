@@ -120,19 +120,33 @@ void MainWindow::OnMidiSuccess()
 	Piano::rightTrack.reset();
 	Piano::fingersLeft.assign(Piano::notes.size(), vector<vector<string>>());
 	Piano::fingersRight.assign(Piano::notes.size(), vector<vector<string>>());
-	const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
-		[](const vector<pair<unsigned, unsigned>>& left,
-			const vector<pair<unsigned, unsigned>>& right)
-	{
-		return right.empty() ? false : left.empty() ? true
-			: left.back().second < right.back().second;
-	}));
-	if (maxElement->empty()) OnMidiError(TEXT("Midi file does not contain any time data"));
+
+	Button_Enable(Controls::checkAll, false);
+
+	assert("There must appear the same tracks for both hands"
+		&& ComboBox_GetCount(Controls::leftHand) == ComboBox_GetCount(Controls::rightHand)
+		&& ComboBox_GetCount(Controls::leftHand) >= 1);
+	if (ComboBox_GetCount(Controls::leftHand) == 1) MessageBox(hWndMain,
+		TEXT("This MIDI-file does not contain any non-percussion notes.\nNothing to play on piano."),
+		TEXT("Midi info"), MB_OK | MB_ICONASTERISK);
 	else
 	{
-		ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
-		ScrollBar_SetPos(Controls::scrollBar, 0, true);
-		Button_Enable(Controls::playButton, true);
+		const auto maxElement(max_element(Piano::milliSeconds.cbegin(), Piano::milliSeconds.cend(),
+			[](const vector<pair<unsigned, unsigned>>& left,
+				const vector<pair<unsigned, unsigned>>& right)
+		{
+			return right.empty() ? false : left.empty() ? true
+				: left.back().second < right.back().second;
+		}));
+		if (maxElement->empty())
+			OnMidiError(TEXT("This MIDI-file does not contain any time data.\nCannot play it :("));
+		else
+		{
+			ScrollBar_SetRange(Controls::scrollBar, 0, static_cast<int>(maxElement->back().second), false);
+			ScrollBar_SetPos(Controls::scrollBar, 0, true);
+			Button_Enable(Controls::playButton, true);
+			Button_Enable(Controls::checkAll, true);
+		}
 	}
 }
 void MainWindow::OpenMidiFile(LPCTSTR fileName)
@@ -164,11 +178,6 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 					Piano::milliSeconds.at(i).clear();
 				}
 			}
-		assert("There must appear the same tracks for both hands"
-			&& ComboBox_GetCount(Controls::leftHand) == ComboBox_GetCount(Controls::rightHand));
-		if (!ComboBox_GetCount(Controls::leftHand)) MessageBox(hWndMain,
-			TEXT("This MIDI-file does not contain any non-percussion track.\nNothing to play on piano."),
-			TEXT("Midi info"), MB_OK | MB_ICONASTERISK);
 
 		OnMidiSuccess();
 	}
