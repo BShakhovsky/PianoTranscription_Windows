@@ -38,16 +38,12 @@ HOW TO USE:
 
    (!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly believe them.
 
-3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.
+3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) will be disabled.
 
-   Percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) will be disabled.
+4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.
 
-4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
+5. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
-5. Or if you want just to play the song in real time, press "Play" button.  During playing in 3D-mode, try not to move mouse over the window with controls (small window below the piano), otherwise 3D-animation will become very slow for some reason.  However, you may use your mouse in the main window to change the piano 3D-position.
+6. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
 
-6. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
-
-7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
-
-8. Enjoy :)
+7. Enjoy :)

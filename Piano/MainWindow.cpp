@@ -16,6 +16,7 @@ HWND MainWindow::hWndMain = nullptr;
 HMENU MainWindow::hContextMenu_ = nullptr, MainWindow::hContextSubMenu_ = nullptr;
 int MainWindow::dlgWidth_ = 0, MainWindow::width_ = 0, MainWindow::height_ = 0;
 wstring MainWindow::path_ = TEXT("");
+bool MainWindow::toRotate_ = false;
 
 BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 {
@@ -26,13 +27,7 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
 	path_ = buffer;
 
-	Piano::keyboard = make_shared<
-#ifdef _DEBUG
-		Keyboard2D
-#else
-		Keyboard3D
-#endif
-			>(hWnd, path_.c_str());
+	Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
 	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
@@ -212,6 +207,8 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		fileName.nMaxFile = sizeof buf / sizeof *buf;
 		fileName.Flags = OFN_FILEMUSTEXIST;
 		if (GetOpenFileName(&fileName)) OpenMidiFile(fileName.lpstrFile);
+
+		toRotate_ = false;
 	}
 	break;
 	case IDM_2D:
@@ -241,15 +238,13 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 
 3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks will be disabled.
 
-4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
+4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.
 
-5. Or if you want just to play the song in real time, press "Play" button.  During playing in 3D-mode, try not to move mouse over the window with controls (small window below the piano), otherwise 3D-animation will become very slow.
+5. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
-6. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
+6. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
 
-7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
-
-8. Enjoy :))"), (
+7. Enjoy :))"), (
 #ifdef UNICODE
 	wstring
 #else
@@ -290,9 +285,11 @@ void OnLButtonDown(HWND, BOOL, int x, int y, UINT)
 {
 	Piano::keyboard->Rotate3DStart(x, y);
 }
-void OnMouseMove(HWND, int x, int y, UINT keyFlags)
+void MainWindow::OnMouseMove(const HWND, const int x, const int y, const UINT keyFlags)
 {
-	Piano::keyboard->On3DMouseMove(x, y, (keyFlags & MK_MBUTTON) != 0, (keyFlags & MK_LBUTTON) != 0);
+	Piano::keyboard->On3DMouseMove(x, y, (keyFlags & MK_MBUTTON) != 0,
+		(keyFlags & MK_LBUTTON) && toRotate_);
+	if (!toRotate_) toRotate_ = true;
 }
 void MainWindow::OnContextMenu(const HWND hWnd, const HWND, const int xPos, const int yPos)
 {

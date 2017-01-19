@@ -24,9 +24,11 @@ private:
 
 	static void OnPaint(HWND);
 
+	static void OnMouseMove(HWND, int, int, UINT);
 	static void OnContextMenu(HWND, HWND, int, int);
 private:
 	static HMENU hContextMenu_, hContextSubMenu_;
 	static int dlgWidth_, width_, height_;
 	static std::wstring path_;
+	static bool toRotate_;
 };
