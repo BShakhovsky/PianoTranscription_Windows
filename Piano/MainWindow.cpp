@@ -13,23 +13,26 @@ using namespace boost;
 
 HINSTANCE MainWindow::hInstance = nullptr;
 HWND MainWindow::hWndMain = nullptr;
+HMENU MainWindow::hContextMenu_ = nullptr, MainWindow::hContextSubMenu_ = nullptr;
 int MainWindow::dlgWidth_ = 0, MainWindow::width_ = 0, MainWindow::height_ = 0;
-const float MainWindow::cameraX_ = 26.0f, MainWindow::cameraY_ = 18.0f, MainWindow::cameraZ_ = 19.0f;
 wstring MainWindow::path_ = TEXT("");
 
 BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 {
+	hContextMenu_ = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
+	hContextSubMenu_ = GetSubMenu(hContextMenu_, 0);
+
 	TCHAR buffer[MAX_PATH];
 	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
 	path_ = buffer;
 
 	Piano::keyboard = make_shared<
 #ifdef _DEBUG
-		Keyboard2D>(hWnd
+		Keyboard2D
 #else
-		Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_
+		Keyboard3D
 #endif
-			, path_.c_str());
+			>(hWnd, path_.c_str());
 	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
@@ -41,8 +44,9 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 
 	return true;
 }
-inline void OnDestroy(HWND)
+void MainWindow::OnDestroy(HWND)
 {
+	DestroyMenu(hContextMenu_);
 	PostQuitMessage(0);
 }
 
@@ -88,11 +92,11 @@ void MainWindow::OnMove(const HWND hWnd, const int, const int)
 	SetWindowPos(Controls::hDlgControls, HWND_TOP, left, bottom
 		+ rect.bottom - rect.top - height - 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
-void MainWindow::OnSize(const HWND hWnd, const UINT, const int cx, const int cy)
+void MainWindow::OnSize(const HWND, const UINT, const int cx, const int cy)
 {
 	width_ = cx;
 	height_ = cy;
-	Piano::keyboard->UpdateSize(hWnd, static_cast<UINT>(width_), static_cast<UINT>(height_));
+	Piano::keyboard->UpdateSize(static_cast<UINT>(width_), static_cast<UINT>(height_));
 	if (typeid(*Piano::keyboard) == typeid(Keyboard2D))			Piano::keyboard->ReleaseKeys();
 	else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))	Piano::keyboard->Update();
 	else assert(!"Wrong keyboard class");
@@ -215,33 +219,37 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 			IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
 		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
+		EnableMenuItem(hContextSubMenu_, IDM_DEFAULT_3D_POS, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 		InvalidateRect(hWnd, nullptr, false);
 		break;
 	case IDM_3D:
-		Piano::keyboard = make_shared<Keyboard3D>(hWnd, cameraX_, cameraY_, cameraZ_, path_.c_str(),
-			IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
-		CorrectAspectRatio();
-		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
-		Piano::keyboard->Update();
+		if (typeid(*Piano::keyboard) == typeid(Keyboard3D)) Piano::keyboard->Restore3DPosition();
+		else
+		{
+			Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str(),
+				IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
+			CorrectAspectRatio();
+			CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
+			EnableMenuItem(hContextSubMenu_, IDM_DEFAULT_3D_POS, MF_BYCOMMAND | MF_ENABLED);
+			Piano::keyboard->Update();
+		}
 		break;
-	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(How to use:
-
-1. It is not possible to play on this piano using mouse nor keyboard.  It only plays *.mid (MIDI) or *.kar (Karaoke) files (you can find plenty of them over the internet). Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
+	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(1. Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
 
 2. Select appropriate track for left hand, and another track for right hand.  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  If you are not interested in finger numbers, you can skip this step.
-(!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly beleive them.
+(!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly believe them.
 
-3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.
-Percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) will be disabled.
+3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks will be disabled.
 
 4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.
 
-5. Or if you want just to play the song in real time, press "Play" button.
-(!) During playing in 3D-mode, try not to move mouse over the window with controls (small window below the piano), otherwise 3D-animation will become very slow for some reason.
+5. Or if you want just to play the song in real time, press "Play" button.  During playing in 3D-mode, try not to move mouse over the window with controls (small window below the piano), otherwise 3D-animation will become very slow.
 
-6. By default each note is being played with different volume (note-volumes are also imported from MIDI-file).  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
+6. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
-7. Enjoy :))"), (
+7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
+
+8. Enjoy :))"), (
 #ifdef UNICODE
 	wstring
 #else
@@ -266,6 +274,32 @@ void MainWindow::OnPaint(const HWND hWnd)
 	else assert("Wrong keyboard class" && typeid(*Piano::keyboard) == typeid(Keyboard3D));
 }
 
+void OnMouseWheel(HWND, int, int, int delta, UINT)
+{
+	Piano::keyboard->Zoom3D(delta / WHEEL_DELTA);
+}
+void OnMButtonDblClick(HWND, BOOL, int, int, UINT)
+{
+	Piano::keyboard->Fit3DToWindow();
+}
+void OnMButtonDown(HWND, BOOL, int x, int y, UINT)
+{
+	Piano::keyboard->Move3DStart(x, y);
+}
+void OnLButtonDown(HWND, BOOL, int x, int y, UINT)
+{
+	Piano::keyboard->Rotate3DStart(x, y);
+}
+void OnMouseMove(HWND, int x, int y, UINT keyFlags)
+{
+	Piano::keyboard->On3DMouseMove(x, y, (keyFlags & MK_MBUTTON) != 0, (keyFlags & MK_LBUTTON) != 0);
+}
+void MainWindow::OnContextMenu(const HWND hWnd, const HWND, const int xPos, const int yPos)
+{
+	if (TrackPopupMenu(hContextSubMenu_, TPM_CENTERALIGN | TPM_VCENTERALIGN | TPM_RETURNCMD,
+		xPos, yPos, 0, hWnd, nullptr) == IDM_DEFAULT_3D_POS) Piano::keyboard->Restore3DPosition();
+}
+
 LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,
 	const WPARAM wParam, const LPARAM lParam)
 {
@@ -285,6 +319,16 @@ LRESULT CALLBACK MainWindow::WndProc(const HWND hWnd, const UINT message,
 		HANDLE_MSG(hWnd, WM_COMMAND,			OnCommand);
 
 		HANDLE_MSG(hWnd, WM_PAINT,				OnPaint);
+
+
+		HANDLE_MSG(hWnd, WM_MOUSEWHEEL,			OnMouseWheel);
+		HANDLE_MSG(hWnd, WM_MBUTTONDBLCLK,		OnMButtonDblClick);
+
+		HANDLE_MSG(hWnd, WM_MBUTTONDOWN,		OnMButtonDown);
+		HANDLE_MSG(hWnd, WM_LBUTTONDOWN,		OnLButtonDown);
+		HANDLE_MSG(hWnd, WM_MOUSEMOVE,			OnMouseMove);
+
+		HANDLE_MSG(hWnd, WM_CONTEXTMENU,		OnContextMenu);
 
 	default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}

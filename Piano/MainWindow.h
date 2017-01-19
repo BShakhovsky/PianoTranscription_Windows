@@ -9,6 +9,7 @@ public:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 private:
 	static BOOL OnCreate(HWND, LPCREATESTRUCT);
+	static void OnDestroy(HWND);
 
 	static void CorrectAspectRatio();
 	static BOOL OnWindowPosChanging(HWND, LPWINDOWPOS);
@@ -22,8 +23,10 @@ private:
 	static void OnCommand(HWND, int, HWND, UINT);
 
 	static void OnPaint(HWND);
+
+	static void OnContextMenu(HWND, HWND, int, int);
 private:
+	static HMENU hContextMenu_, hContextSubMenu_;
 	static int dlgWidth_, width_, height_;
-	const static float cameraX_, cameraY_, cameraZ_;
 	static std::wstring path_;
 };

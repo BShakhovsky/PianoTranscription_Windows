@@ -29,7 +29,7 @@ vector<bool> Piano::percussions = vector<bool>();
 ATOM Piano::MyRegisterClass()
 {
 	WNDCLASSEXW wcex{ sizeof wcex };
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	wcex.lpfnWndProc = MainWindow::WndProc;
 	wcex.hInstance = MainWindow::hInstance;
 	wcex.hIcon = LoadIcon(MainWindow::hInstance, MAKEINTRESOURCE(IDI_LARGE));
@@ -80,7 +80,7 @@ int Piano::Main(const int nCmdShow)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else if (typeid(*keyboard) == typeid(Keyboard3D)) keyboard->Update();
+		if (typeid(*keyboard) == typeid(Keyboard3D)) keyboard->Update();
 		else assert("Wrong keyboard class" && typeid(*keyboard) == typeid(Keyboard2D));
 	}
 
