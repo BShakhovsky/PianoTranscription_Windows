@@ -95,6 +95,8 @@ void MainWindow::OnSize(const HWND, const UINT, const int cx, const int cy)
 	if (typeid(*Piano::keyboard) == typeid(Keyboard2D))			Piano::keyboard->ReleaseKeys();
 	else if (typeid(*Piano::keyboard) == typeid(Keyboard3D))	Piano::keyboard->Update();
 	else assert(!"Wrong keyboard class");
+
+	toRotate_ = false;
 }
 
 inline void MainWindow_OnKey(const HWND, const UINT vk, const BOOL, const int, const UINT)
