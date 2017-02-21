@@ -8,6 +8,7 @@ public:
 
 	static void Reset();
 	static INT_PTR CALLBACK Main(HWND, UINT, WPARAM, LPARAM);
+	static void OnMouseMove(HWND, int, int, UINT);
 private:
 	static void InitDialog();
 	static BOOL OnInitDialog(HWND, HWND, LPARAM);

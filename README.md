@@ -21,11 +21,9 @@ HOW TO INSTALL:
 
 No installation is required, just open file "Piano Fingers 3D.exe".
 
-If you encounter errors about missing DLL's, try to reinstall the following Windows Updates (even if you already have them):
+If you encounter errors about missing DLL's, try to reinstall the latest possible DirectX (even if you already have it):
 
-The latest possible DirectX: https://www.microsoft.com/en-us/download/details.aspx?id=35
-
-If some DLL is still missing, then try to install "Visual C++ Redistributable": https://www.microsoft.com/en-us/download/details.aspx?id=53840
+https://www.microsoft.com/en-us/download/details.aspx?id=35
 
 If there is still some error, then sorry, you are screwed :(
 
@@ -40,7 +38,7 @@ HOW TO USE:
 
 3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks (like "Drums", "Rythms", "Hit", "Blow", "Strike", "Clash", etc.) will be disabled.
 
-4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.
+4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.  For smoother performance, try not to move mouse over the program while playing in 3D-mode.
 
 5. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 

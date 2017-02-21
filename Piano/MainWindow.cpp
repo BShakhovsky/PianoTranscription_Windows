@@ -240,7 +240,7 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 
 3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks will be disabled.
 
-4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.
+4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.  For smoother performance, try not to move mouse over the program while playing in 3D-mode.
 
 5. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
@@ -292,6 +292,9 @@ void MainWindow::OnMouseMove(const HWND, const int x, const int y, const UINT ke
 	Piano::keyboard->On3DMouseMove(x, y, (keyFlags & MK_MBUTTON) != 0,
 		(keyFlags & MK_LBUTTON) && toRotate_);
 	if (!toRotate_) toRotate_ = true;
+
+	// Do not freeze 3D-Piano while moving the mouse
+	Controls::OnMouseMove(Controls::hDlgControls, x, y, keyFlags);
 }
 void MainWindow::OnContextMenu(const HWND hWnd, const HWND, const int xPos, const int yPos)
 {

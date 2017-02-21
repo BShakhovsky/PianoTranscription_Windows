@@ -124,6 +124,11 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 		}
 		result = 1;
 	}
+
+	// If next note starts very soon (almost immediately), then do not play current chord yet,
+	// but wait for the next note and append it to the current chord and play them simalteniously
+	// (this way it would probably be more convenient to watch chords with finger numbers while on "Pause".
+	// However, this works only in 2D-mode:
 	if (Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size() && (result &&
 		static_cast<time_t>(dwTime) - static_cast<time_t>(start_
 			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0))
@@ -131,15 +136,15 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 
 	return result;
 }
-bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
+bool Controls::OnTimer(const HWND hWndMain, const DWORD dwTime)
 {
 	auto result(false);
 
 	UpdateTime(dwTime);
-	
+
 	if (typeid(*Piano::keyboard) == typeid(Keyboard3D)) Piano::keyboard->ReleaseKeys();
 	else assert("Wrong keyboard class" && typeid(*Piano::keyboard) == typeid(Keyboard2D));
-
+	
 	if (accumulate(Piano::tracks.cbegin(), Piano::tracks.cend(), 0, [dwTime](int val, size_t track)
 		{
 			return val + PlayTrack(track, dwTime);
@@ -147,7 +152,7 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 		) > 0)	// std::any_of() and std::all_of() return as soon as result is found,
 				// but we need to play all tracks anyway
 	{
-		InvalidateRect(hWnd, nullptr, false);
+		InvalidateRect(hWndMain, nullptr, false);
 		result = true;
 	}
 
@@ -163,9 +168,9 @@ bool Controls::OnTimer(const HWND hWnd, const DWORD dwTime)
 
 	return result;
 }
-void CALLBACK Controls::OnTimer(const HWND hWnd, UINT, UINT_PTR, const DWORD dwTime)
+void CALLBACK Controls::OnTimer(const HWND hWndMain, UINT, UINT_PTR, const DWORD dwTime)
 {
-	OnTimer(hWnd, dwTime);
+	OnTimer(hWndMain, dwTime);
 }
 
 
@@ -477,6 +482,18 @@ inline HBRUSH Controls::OnCtlColorListBox(const HWND, const HDC hDC, const HWND,
 	return trackListBoxBrush_;
 }
 
+void Controls::OnMouseMove(const HWND, const int, const int, const UINT)
+{
+	// Do not freeze 3D-Piano while moving the mouse
+	if (typeid(*Piano::keyboard) == typeid(Keyboard3D))
+	{
+// Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
+#pragma warning(suppress:28159)
+		if (isPlaying_) OnTimer(MainWindow::hWndMain, GetTickCount());
+	}
+	else assert("Wrong keyboard class" && typeid(*Piano::keyboard) == typeid(Keyboard2D));
+}
+
 INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
 	const WPARAM wParam, const LPARAM lParam)
 {
@@ -487,6 +504,7 @@ INT_PTR CALLBACK Controls::Main(const HWND hDlg, const UINT message,
 		HANDLE_MSG(hDlg, WM_HSCROLL,			OnHScroll);
 		HANDLE_MSG(hDlg, WM_COMMAND,			OnCommand);
 		HANDLE_MSG(hDlg, WM_CTLCOLORLISTBOX,	OnCtlColorListBox);
+		HANDLE_MSG(hDlg, WM_MOUSEMOVE,			OnMouseMove);
 	default: return false;
 	}
 }
