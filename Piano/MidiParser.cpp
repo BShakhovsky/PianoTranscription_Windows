@@ -111,7 +111,7 @@ void MidiParser::ParseKeySignatureMetaEvent()
 	case 2: log_.append(message_.isKeySignatureMajorKey()
 		? TEXT(") -> D-Major tone\r\n") : TEXT(") -> H-Minor tone\r\n"));	break;
 	case 3: log_.append(message_.isKeySignatureMajorKey()
-		? TEXT(") -> A#-Major tone\r\n") : TEXT(") -> F#-Minor tone\r\n"));	break;
+		? TEXT(") -> A-Major tone\r\n") : TEXT(") -> F#-Minor tone\r\n"));	break;
 	case 4: log_.append(message_.isKeySignatureMajorKey()
 		? TEXT(") -> E-Major tone\r\n") : TEXT(") -> C#-Minor tone\r\n"));	break;
 	case 5: log_.append(message_.isKeySignatureMajorKey()
