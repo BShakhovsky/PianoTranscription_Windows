@@ -53,7 +53,7 @@ void Controls::InitDialog()
 	ComboBox_SetCurSel(leftHand, 0);
 	ComboBox_SetCurSel(rightHand, 0);
 }
-BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
+inline BOOL Controls::OnInitDialog(const HWND hDlg, HWND, LPARAM)
 {
 	hDlgControls	= hDlg;
 
@@ -95,12 +95,14 @@ void Controls::UpdateTime(const DWORD dwTime)
 	Edit_SetText(time_, (wformat{ TEXT("Time %u:%02u:%02u") } %
 		(seconds / 60) % (seconds % 60) % (milliSec / 10)).str().c_str());
 }
+#pragma warning(push)
+#pragma warning(disable:5045) // Compiler will insert Spectre mitigation for memory load
 void AssignFinger(const vector<vector<vector<string>>>& fingers, size_t trackNo, bool leftHand = false)
 {
 	for (size_t i(0); i < fingers.at(trackNo).at(Piano::indexes.at(trackNo)).size(); ++i)
 	{
 		auto note(Piano::notes.at(trackNo).at(Piano::indexes.at(trackNo)).cbegin());
-		advance(note, i);
+		std::advance(note, i);
 		Piano::keyboard->AssignFinger(note->first, fingers.at(trackNo)
 			.at(Piano::indexes.at(trackNo)).at(i).c_str(), leftHand);
 	}
@@ -110,7 +112,7 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 	auto result(0);
 
 	for (; Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size()
-		&& static_cast<time_t>(dwTime) - static_cast<time_t>(start_
+		&& static_cast<time_t>(dwTime) - (static_cast<time_t>(start_)
 			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0;
 		++Piano::indexes.at(trackNo))
 	{
@@ -130,12 +132,13 @@ int Controls::PlayTrack(const size_t trackNo, const DWORD dwTime)
 	// (this way it would probably be more convenient to watch chords with finger numbers while on "Pause".
 	// However, this works only in 2D-mode:
 	if (Piano::indexes.at(trackNo) < Piano::notes.at(trackNo).size() && (result &&
-		static_cast<time_t>(dwTime) - static_cast<time_t>(start_
+		static_cast<time_t>(dwTime) - (static_cast<time_t>(start_)
 			+ Piano::milliSeconds.at(trackNo).at(Piano::indexes.at(trackNo)).first) >= 0))
 		result = INT16_MIN;
 
 	return result;
 }
+#pragma warning(pop)
 bool Controls::OnTimer(const HWND hWndMain, const DWORD dwTime)
 {
 	auto result(false);
@@ -200,6 +203,8 @@ void Controls::UpdateScrollBar(int pos)
 	if (isPlaying_) start_ += ScrollBar_GetPos(scrollBar) - pos;
 	else UpdateTime(static_cast<DWORD>(pos));
 }
+#pragma warning(push)
+#pragma warning(disable:5045) // Compiler will insert Spectre mitigation for memory load
 void Controls::NextChord()
 {
 	if (Piano::tracks.empty())
@@ -257,7 +262,8 @@ void Controls::PrevChord()
 		Piano::indexes = prevIndexes;
 	}
 }
-void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int)
+#pragma warning(pop)
+inline void Controls::OnHScroll(const HWND, const HWND hCtl, const UINT code, const int)
 	// "int pos" parameter is 16 bit, therefore, 32 bit GetScrollInfo() is used instead
 {
 	switch (code)
@@ -302,6 +308,9 @@ void Controls::OnPlay()
 // Consider using 'GetTickCount64' : GetTickCount overflows every 49 days, and code can loop indefinitely
 #pragma warning(suppress:28159)
 			start_ = GetTickCount() - ScrollBar_GetPos(scrollBar);
+			// Potentially throwing function passed to extern C function
+			// Undefined behavior may occur if this function throws
+#pragma warning(suppress:5039)
 			SetTimer(MainWindow::hWndMain, 0, Piano::timerTick, OnTimer);
 			Button_SetText(playButton, TEXT("Pause"));
 			ComboBox_Enable(leftHand, false);

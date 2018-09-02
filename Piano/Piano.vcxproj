@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,35 +22,37 @@
     <ProjectGuid>{44BEE791-5D97-4AA4-B0FE-DEA29C8413C4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Win32</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
     <ProjectName>Piano</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelMKL>Parallel</UseIntelMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelMKL>Parallel</UseIntelMKL>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,19 +74,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,14 +97,16 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(Boost); $(Juce); $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost);$(Juce);$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
+      <LanguageStandard>
+      </LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(DirectXTK)$(Configuration); $(DirectXMesh)$(Configuration); $(Juce)$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoModel\Piano 2 Midi\PianoToMidi\$(Configuration);$(DirectXTK)$(PlatformTarget)\$(Configuration);$(DirectXMesh)$(Platform)\$(Configuration);$(Juce)$(Platform)\$(Configuration);$(Boost)Libs;$(FFmpeg)Libs$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -118,12 +124,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libs\Boost; $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost);$(Juce);$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>
+      </LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\PianoInterface\PianoSound\$(Configuration); $(SolutionDir)..\Libs\Boost\stage\lib; %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoModel\Piano 2 Midi\PianoToMidi\$(Configuration);$(DirectXTK)$(PlatformTarget)\$(Configuration);$(DirectXMesh)$(Platform)\$(Configuration);$(Juce)$(Platform)\$(Configuration);$(Boost)Libs;$(FFmpeg)Libs$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -136,9 +144,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(Boost); $(Juce); $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost);$(Juce);$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnablePREfast>true</EnablePREfast>
+      <LanguageStandard>
+      </LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,14 +156,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)..\PianoInterface\Piano3D\Piano3D\$(Configuration)\Piano3D.res; %(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\; $(SolutionDir)..\PianoInterface\Piano3D\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(DirectXTK)$(Configuration); $(DirectXMesh)$(Configuration); $(Juce)$(Configuration); %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoModel\Piano 2 Midi\PianoToMidi\$(Configuration);$(DirectXTK)$(PlatformTarget)\$(Configuration);$(DirectXMesh)$(Platform)\$(Configuration);$(Juce)$(Platform)\$(Configuration);$(Boost)Libs;$(FFmpeg)Libs$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"
-copy /Y "$(SolutionDir)README.md" "$(SolutionDir)..\Publish\Piano Fingers 3D\ReadMe.txt"</Command>
+      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy Release.exe &amp; ReadMe.md</Message>
+      <Message>Copy Release.exe</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,33 +175,36 @@ copy /Y "$(SolutionDir)README.md" "$(SolutionDir)..\Publish\Piano Fingers 3D\Rea
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libs\Boost; $(SolutionDir)..\PianoModel; $(SolutionDir)..\PianoInterface; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Boost);$(Juce);$(SolutionDir)..\PianoModel;$(SolutionDir)..\PianoInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>
+      </LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\PianoModel\MidiParser\$(Configuration); $(SolutionDir)..\PianoModel\PianoFingering\$(Configuration); $(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration); $(SolutionDir)..\PianoInterface\PianoSound\$(Configuration); $(SolutionDir)..\Libs\Boost\stage\lib; %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(SolutionDir)..\PianoInterface\Piano3D\$(Configuration);$(SolutionDir)..\PianoInterface\PianoKeyboard\$(Configuration);$(SolutionDir)..\PianoModel\PianoFingering\$(Configuration);$(SolutionDir)..\PianoModel\Piano 2 Midi\PianoToMidi\$(Configuration);$(DirectXTK)$(PlatformTarget)\$(Configuration);$(DirectXMesh)$(Platform)\$(Configuration);$(Juce)$(Platform)\$(Configuration);$(Boost)Libs;$(FFmpeg)Libs$(PlatformArchitecture);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers\Piano Fingers.exe"</Command>
+      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\Publish\Piano Fingers 3D\Piano Fingers 3D.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy Release .exe</Message>
+      <Message>Copy Release.exe</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="About.h" />
-    <ClInclude Include="CanvasGDI.h" />
+    <ClInclude Include="CanvasGDI_Keyboard.h" />
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="MidiError.h" />
     <ClInclude Include="MidiParser.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Spectrogram.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Piano.h" />
@@ -201,6 +214,7 @@ copy /Y "$(SolutionDir)README.md" "$(SolutionDir)..\Publish\Piano Fingers 3D\Rea
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MidiParser.cpp" />
+    <ClCompile Include="Spectrogram.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

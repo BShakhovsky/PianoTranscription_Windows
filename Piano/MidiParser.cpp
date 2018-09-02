@@ -6,7 +6,7 @@
 using namespace std;
 using namespace boost;
 
-MidiParser::MidiParser(LPCTSTR fileName)
+MidiParser::MidiParser(LPCTSTR fileName) : lastTime_(0), milliSeconds_(0)
 {
 	FileInputStream inputFile(
 		File::getCurrentWorkingDirectory().getChildFile(String(fileName)).getFullPathName());

@@ -60,13 +60,16 @@
     <ClInclude Include="Cursor.h">
       <Filter>Header Files\Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="CanvasGDI.h">
-      <Filter>Header Files\MainWindow</Filter>
-    </ClInclude>
     <ClInclude Include="MidiParser.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
     <ClInclude Include="MidiError.h">
+      <Filter>Header Files\MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Spectrogram.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CanvasGDI_Keyboard.h">
       <Filter>Header Files\MainWindow</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="MidiParser.cpp">
       <Filter>Source Files\MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Spectrogram.cpp">
+      <Filter>Source Files\Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

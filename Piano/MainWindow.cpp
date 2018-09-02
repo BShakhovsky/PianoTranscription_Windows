@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "MainWindow.h"
 #include "Controls.h"
+#include "Spectrogram.h"
 #include "About.h"
 #include "Piano.h"
 #include "MidiParser.h"
 #include "MidiError.h"
-#include "CanvasGdi.h"
+#include "CanvasGdi_Keyboard.h"
 #include "PianoKeyboard\IKeyboard.h"
 
 using namespace std;
@@ -13,9 +14,10 @@ using namespace boost;
 
 HINSTANCE MainWindow::hInstance = nullptr;
 HWND MainWindow::hWndMain = nullptr;
+TCHAR MainWindow::path[] = TEXT("");
+
 HMENU MainWindow::hContextMenu_ = nullptr, MainWindow::hContextSubMenu_ = nullptr;
 int MainWindow::dlgWidth_ = 0, MainWindow::width_ = 0, MainWindow::height_ = 0;
-wstring MainWindow::path_ = TEXT("");
 bool MainWindow::toRotate_ = false;
 
 BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
@@ -23,13 +25,14 @@ BOOL MainWindow::OnCreate(const HWND hWnd, const LPCREATESTRUCT)
 	hContextMenu_ = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
 	hContextSubMenu_ = GetSubMenu(hContextMenu_, 0);
 
-	TCHAR buffer[MAX_PATH];
-	GetCurrentDirectory(ARRAYSIZE(buffer), buffer);
-	path_ = buffer;
+	GetCurrentDirectory(ARRAYSIZE(path), path);
 
-	Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str());
+	Piano::keyboard = make_shared<Keyboard3D>(hWnd, path);
 	CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, IDM_3D, MF_BYCOMMAND);
 
+	// Potentially throwing function passed to extern C function
+	// Undefined behavior may occur if this function throws
+#pragma warning(suppress:5039)
 	CreateDialog(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_CONTROLS), hWnd, Controls::Main);
 	FORWARD_WM_COMMAND(hWnd, IDM_OPEN, nullptr, 0, SendMessage);
 	ShowWindow(Controls::hDlgControls, SW_SHOWNORMAL);
@@ -150,7 +153,7 @@ void MainWindow::OnMidiSuccess()
 		}
 	}
 }
-void MainWindow::OpenMidiFile(LPCTSTR fileName)
+bool MainWindow::OpenMidiFile(LPCTSTR fileName)
 {
 	Controls::Reset();
 	try
@@ -181,17 +184,32 @@ void MainWindow::OpenMidiFile(LPCTSTR fileName)
 			}
 
 		OnMidiSuccess();
+		return true;
 	}
 	catch (const MidiError& e)
 	{
 		OnMidiError(e.RusWhat());
+		return false;
+	}
+}
+void MainWindow::OpenMediaFile(LPCTSTR fileName)
+{
+	Spectrogram::mediaFile = fileName;
+	// Pointer to potentially throwing function passed to extern C function under -EHc.
+	// Undefined behavior may occur if this function throws
+#pragma warning(suppress:5039)
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_SPECTRUM), hWndMain, Spectrogram::Main);
+	if (!Spectrogram::midiFile.empty())
+	{
+		const wstring midiFileW(Spectrogram::midiFile.cbegin(), Spectrogram::midiFile.cend());
+		OpenMidiFile(midiFileW.c_str());
 	}
 }
 void MainWindow::OnDropFiles(const HWND, const HDROP hDrop)
 {
 	TCHAR fileName[MAX_PATH] = TEXT("");
 	DragQueryFile(hDrop, 0, fileName, sizeof fileName / sizeof *fileName);
-	OpenMidiFile(fileName);
+	if (!OpenMidiFile(fileName)) OpenMediaFile(fileName);
 	DragFinish(hDrop);
 }
 void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT)
@@ -213,8 +231,19 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		toRotate_ = false;
 	}
 	break;
+	case IDM_OPEN_MEDIA:
+	{
+		OPENFILENAME fileName{ sizeof fileName, hWnd };
+		fileName.lpstrFilter = TEXT("All files\0") TEXT("*.*\0");
+		TCHAR buf[MAX_PATH] = TEXT("");
+		fileName.lpstrFile = buf;
+		fileName.nMaxFile = sizeof buf / sizeof *buf;
+		fileName.Flags = OFN_FILEMUSTEXIST;
+		if (GetOpenFileName(&fileName)) OpenMediaFile(fileName.lpstrFile);
+	}
+	break;
 	case IDM_2D:
-		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path_.c_str(),
+		Piano::keyboard = make_shared<Keyboard2D>(hWnd, path,
 			IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
 		CorrectAspectRatio();
 		CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
@@ -225,7 +254,7 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		if (typeid(*Piano::keyboard) == typeid(Keyboard3D)) Piano::keyboard->Restore3DPosition();
 		else
 		{
-			Piano::keyboard = make_shared<Keyboard3D>(hWnd, path_.c_str(),
+			Piano::keyboard = make_shared<Keyboard3D>(hWnd, path,
 				IsDlgButtonChecked(Controls::hDlgControls, IDC_NORM_VOL) == BST_CHECKED);
 			CorrectAspectRatio();
 			CheckMenuRadioItem(GetMenu(hWnd), IDM_2D, IDM_3D, static_cast<UINT>(id), MF_BYCOMMAND);
@@ -235,18 +264,19 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 		break;
 	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(1. Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
 
-2. Select appropriate track for left hand, and another track for right hand.  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  If you are not interested in finger numbers, you can skip this step.
-(!) This option is EXPERIMENTAL, and finger numbers are not correct in 25% of cases!  Keep this in mind and do not blindly believe them.
+2. Or alternatively, most common audio formats are now supported (such as MP3, WAV, etc.).  However, no instrument information is extracted, and all transcibed notes get combined into one part of a MIDI-file.  The accuracy is obviously higher for solo piano pieces.  Accuracy for piano pieces is around 50%.
 
-3. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks will be disabled.
+3. Select appropriate track for left hand, and another track for right hand (not applicable for MIDI generated from audio/video, because there will be just one track).  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  Accuracy of finger numbers is around 75%.  If you are not interested in finger numbers, you can skip this step.
 
-4. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.  For smoother performance, try not to move mouse over the program while playing in 3D-mode.
+4. Select any additional tracks in "Remaining Tracks" list, if you want.  Finger numbers for those additional tracks will not be calculated or drawn.  Percussion-tracks will be disabled.
 
-5. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
+5. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.  For smoother performance, try not to move mouse over the program while playing in 3D-mode.
 
-6. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
+6. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
-7. Enjoy :))"), (
+7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
+
+8. Enjoy :))"), (
 #ifdef UNICODE
 	wstring
 #else
@@ -255,6 +285,9 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 	(TEXT("\"")) + Piano::windowTitle + TEXT("\" - User Guide")).c_str(), MB_OK | MB_ICONASTERISK);
 	break;
 	case IDM_ABOUT:
+		// Potentially throwing function passed to extern C function
+		// Undefined behavior may occur if this function throws
+#pragma warning(suppress:5039)
 		DialogBox(GetWindowInstance(hWnd), MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 		break;
 	case IDM_EXIT:
@@ -264,7 +297,7 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 
 void MainWindow::OnPaint(const HWND hWnd)
 {
-	CanvasGdi canvas(hWnd);
+	CanvasGdi_Keyboard canvas(hWnd);
 	Piano::keyboard->Update(canvas);
 
 	if (typeid(*Piano::keyboard) == typeid(Keyboard2D)) Piano::keyboard->ReleaseKeys();

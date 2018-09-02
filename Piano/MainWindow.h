@@ -5,6 +5,7 @@ class MainWindow abstract
 public:
 	static HINSTANCE hInstance;
 	static HWND hWndMain;
+	static TCHAR path[MAX_PATH];
 
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 private:
@@ -18,7 +19,8 @@ private:
 
 	static void OnMidiError(LPCTSTR);
 	static void OnMidiSuccess();
-	static void OpenMidiFile(LPCTSTR);
+	static bool OpenMidiFile(LPCTSTR);
+	static void OpenMediaFile(LPCTSTR);
 	static void OnDropFiles(HWND, HDROP);
 	static void OnCommand(HWND, int, HWND, UINT);
 
@@ -29,6 +31,5 @@ private:
 private:
 	static HMENU hContextMenu_, hContextSubMenu_;
 	static int dlgWidth_, width_, height_;
-	static std::wstring path_;
 	static bool toRotate_;
 };
