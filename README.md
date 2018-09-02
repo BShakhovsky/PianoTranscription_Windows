@@ -8,7 +8,7 @@ No instrument information is extracted, and all transcibed notes get combined in
 
 The accuracy depends on the complexity of the song, and is obviously higher for solo piano pieces.  Currently, accuracy for piano pieces is sligtly above 50%, but I will try to improve it in the future.
 
-[Also see Troubleshooting](##2.-polyphonic-audio-to-midi-conversion)
+[Also see Troubleshooting](#2-polyphonic-audio-to-midi-conversion)
 
 # Download
 
@@ -68,7 +68,7 @@ For video-files it may work, or it may not :disappointed:  Not all audio/video f
 
 1. Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
 
-2. Or alternatively, most common audio formats are now supported (such as MP3, WAV, etc.).  The program will automatically transcribe audio and save as a MIDI-file.  However, no instrument information is extracted, and all transcibed notes get combined into one part.  The accuracy depends on the complexity of the song, and is obviously higher for solo piano pieces.  Accuracy for piano pieces is around 50%.  [Also see Troubleshooting.](##2.-polyphonic-audio-to-midi-conversion)
+2. Or alternatively, most common audio formats are now supported (such as MP3, WAV, etc.).  The program will automatically transcribe audio and save as a MIDI-file.  However, no instrument information is extracted, and all transcibed notes get combined into one part.  The accuracy depends on the complexity of the song, and is obviously higher for solo piano pieces.  Accuracy for piano pieces is around 50%.  [Also see Troubleshooting](#2-polyphonic-audio-to-midi-conversion)
 
 3. Select appropriate track for left hand, and another track for right hand (not applicable for MIDI generated from audio/video, because there will be just one track).  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  Accuracy of finger numbers is around 75%.  If you are not interested in finger numbers, you can skip this step.
 
