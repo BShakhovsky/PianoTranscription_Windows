@@ -21,11 +21,11 @@ private:
 	void ParseKeySignatureMetaEvent();
 	bool ParseNoteOn(size_t trackNo);	// returns true if it is for percussion-track
 
-	MidiFile midi_;
+	juce::MidiFile midi_;
 #ifdef _DEBUG
 	const BYTE padding1_[4] = { '\0' };
 #endif
-	MidiMessage message_;
+	juce::MidiMessage message_;
 	unsigned lastTime_, milliSeconds_;
 
 	std::vector<std::wstring> trackNames_;

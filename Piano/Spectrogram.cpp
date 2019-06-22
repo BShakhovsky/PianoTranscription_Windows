@@ -2,21 +2,22 @@
 #include "Spectrogram.h"
 #include "MainWindow.h"
 #include "resource.h"
-#include "Piano 2 Midi/PianoToMidi/PianoToMidi_Win.h"
+#include "Mp3 to Midi/PianoToMidi_Win.h"
 
 using namespace std;
 
 LPCTSTR	Spectrogram::mediaFile = nullptr;
 string Spectrogram::midiFile = "";
 
-std::unique_ptr<PianoToMidi_Win> Spectrogram::media = nullptr;
+unique_ptr<PianoToMidi_Win> Spectrogram::media = nullptr;
 
 BOOL Spectrogram::OnInitDialog(const HWND hDlg, const HWND, const LPARAM)
 {
 	assert(mediaFile && "Unknown audio file name");
 	midiFile = "";
 	media = make_unique<PianoToMidi_Win>(hDlg, IDB_CALC_SPECTR, IDL_SPECTR_TITLE,
-		IDB_CONVERT, IDC_CNN_PROG, IDE_SPECTR_LOG, IDP_SPECTR_PIC);
+		IDC_GROUP, IDR_CQT, IDR_MEL,
+		IDB_CONVERT, IDC_RNN_PROG, IDE_SPECTR_LOG, IDP_SPECTR_PIC);
 	ShowWindow(hDlg, SW_SHOWMAXIMIZED);
 	media->FFmpegDecode(mediaFile);
 	return true;
@@ -24,10 +25,7 @@ BOOL Spectrogram::OnInitDialog(const HWND hDlg, const HWND, const LPARAM)
 
 void Spectrogram::OnDestroyDialog(const HWND) { media = nullptr; }
 
-void Spectrogram::OnSize(const HWND, const UINT, const int cx, const int cy)
-{
-	if (media) media->OnSize(cx, cy);
-}
+void Spectrogram::OnSize(const HWND, const UINT, const int cx, const int cy) { if (media) media->OnSize(cx, cy); }
 
 void Spectrogram::OnPaint(const HWND) { if (media) media->OnPaint(); }
 
@@ -36,6 +34,7 @@ void Spectrogram::OnCommand(const HWND hDlg, const int id, const HWND, const UIN
 	switch (id)
 	{
 	case IDOK: case IDCANCEL:	EndDialog(hDlg, id);				break;
+	case IDR_CQT: case IDR_MEL: media->SpecType(id == IDR_CQT);		break;
 	case IDB_CALC_SPECTR:		media->Spectrum(MainWindow::path);	break;
 	case IDB_CONVERT:			midiFile = media->Convert(mediaFile);
 	}

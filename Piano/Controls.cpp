@@ -3,8 +3,8 @@
 #include "MainWindow.h"
 #include "Piano.h"
 #include "Cursor.h"
-#include "PianoFingering\TrellisGraph_Facade.h"
-#include "PianoKeyboard\IKeyboard.h"
+#include "Fingering\TrellisGraph_Facade.h"
+#include "Keyboard\IKeyboard.h"
 
 using namespace std;
 using namespace boost;

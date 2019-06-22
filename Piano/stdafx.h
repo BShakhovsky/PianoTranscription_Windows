@@ -1,6 +1,9 @@
 #pragma once
 #include "targetver.h"
 
+#pragma warning(disable:4710 4711) // Function selected for automatic inline expansion; Function not inlined
+#pragma warning(disable:5045) // Compiler will insert Spectre mitigation for memory load
+
 #pragma warning(push, 3)
 #pragma warning(disable:4514 5039)
 #	include <Windows.h>
@@ -9,7 +12,7 @@
 #pragma warning(pop)
 
 #pragma warning(push)
-#pragma warning(disable:4365 4514 4571 4625 4626 4710 4711 4774 4820 5026 5027)
+#pragma warning(disable:4244 4365 4514 4571 4625 4626 4710 4711 4774 4820 5026 5027)
 #	include <iostream>
 #	include <map>
 #	include <numeric>
@@ -24,8 +27,7 @@
 
 #pragma warning(push, 3)
 #pragma warning(disable:4711 6011 6297 6387 26439 26451 26495 26498 28182)
-#	include <Juce\JuceHeader.h>
+#	include <Juce/AppConfig.h>
+#	include <juce_audio_basics/juce_audio_basics.h>
 #pragma warning(pop)
 #pragma comment(lib, "Juce.lib")
-
-#pragma warning(disable:5045) // Compiler will insert Spectre mitigation for memory load

@@ -8,6 +8,8 @@ using namespace boost;
 
 MidiParser::MidiParser(LPCTSTR fileName) : lastTime_(0), milliSeconds_(0)
 {
+	using namespace juce;
+
 	FileInputStream inputFile(
 		File::getCurrentWorkingDirectory().getChildFile(String(fileName)).getFullPathName());
 	if (inputFile.failedToOpen())

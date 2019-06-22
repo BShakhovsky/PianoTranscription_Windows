@@ -4,7 +4,7 @@
 class Piano abstract
 {
 public:
-	static constexpr auto windowTitle = TEXT("Piano Fingers 3D");
+	static constexpr auto windowTitle = TEXT("Piano Transcription 3D");
 
 	static std::vector<std::vector<std::map<int16_t, float>>> notes;
 	static std::vector<std::vector<std::pair<unsigned, unsigned>>> milliSeconds;

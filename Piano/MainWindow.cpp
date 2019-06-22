@@ -7,7 +7,7 @@
 #include "MidiParser.h"
 #include "MidiError.h"
 #include "CanvasGdi_Keyboard.h"
-#include "PianoKeyboard\IKeyboard.h"
+#include "Keyboard\IKeyboard.h"
 
 using namespace std;
 using namespace boost;
@@ -262,9 +262,9 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 			Piano::keyboard->Update();
 		}
 		break;
-	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(1. Drag-and-drop any MIDI- or Karaoke-file onto the applcation.
+	case IDM_USERGUIDE: MessageBox(hWnd, TEXT(R"(1. Drag-and-drop any MIDI- or Karaoke-file onto the application.
 
-2. Or alternatively, most common audio formats are now supported (such as MP3, WAV, etc.).  However, no instrument information is extracted, and all transcibed notes get combined into one part of a MIDI-file.  The accuracy is obviously higher for solo piano pieces.  Accuracy for piano pieces is around 50%.
+2. Or alternatively, most common audio formats are now supported (such as MP3, WAV, etc.).  However, no instrument information is extracted, and all transcribed notes get combined into one part of a MIDI-file.  The accuracy is obviously higher for solo piano pieces.  Accuracy for piano pieces is around 75%.
 
 3. Select appropriate track for left hand, and another track for right hand (not applicable for MIDI generated from audio/video, because there will be just one track).  Finger numbers for left hand will be drawn with blue color, for right hand - with red.  Accuracy of finger numbers is around 75%.  If you are not interested in finger numbers, you can skip this step.
 
@@ -272,9 +272,9 @@ void MainWindow::OnCommand(const HWND hWnd, const int id, const HWND, const UINT
 
 5. If you want to go forward or backwards chord-by-chord, you can use scroll-bar left or right button.  Or if you want just to play the song in real time, press "Play" button.  For smoother performance, try not to move mouse over the program while playing in 3D-mode.
 
-6. By default each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
+6. By default, each note is being played with different volume.  If you want all notes to be played with the same maximal loudness, check "Normalize volume" box.
 
-7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
+7. Use left mouse button to rotate, middle (or press mouse wheel) to move, scroll mouse wheel to zoom, double-click on mouse wheel to fit the piano inside the window.  Right click --> choose context menu to restore the default 3D-piano position.
 
 8. Enjoy :))"), (
 #ifdef UNICODE

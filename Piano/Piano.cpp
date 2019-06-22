@@ -2,7 +2,7 @@
 #include "Piano.h"
 #include "MainWindow.h"
 #include "Controls.h"
-#include "PianoKeyboard\IKeyboard.h"
+#include "Keyboard\IKeyboard.h"
 #include <vld.h>
 
 using namespace std;
