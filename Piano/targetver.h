@@ -6,7 +6,7 @@
 // set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
 
 
-// The procedure entry point GetOverlappedResultEx
+// The procedure entry points CreateFile2, GetOverlappedResultEx
 // could not be located in  the dynamic link library KERNEL32.dll.
 // Therefore, for Windows 7 support:
 #include <WinSDKVer.h>

@@ -71,7 +71,7 @@ BOOL MainWindow::OnWindowPosChanging(const HWND hWnd, const LPWINDOWPOS pos)
 	const auto height(rect.bottom - rect.top);
 
 	GetClientRect(hWnd, &rect);
-	height_ = pos->cy = static_cast<int>(pos->cx / aspectRatio) + height + rect.top - rect.bottom;
+	height_ = pos->cy = static_cast<int>(static_cast<float>(pos->cx) / aspectRatio) + height + rect.top - rect.bottom;
 
 	return false;
 }
