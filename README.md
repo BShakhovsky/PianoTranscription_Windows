@@ -1,18 +1,27 @@
+# Update (2021 March)
+
+There is also version for Android 8.0 (API level 26) or higher, for it click on the following screenshot:
+[![](https://raw.GitHubUserContent.com/BShakhovsky/BShakhovsky.github.io/master/Android.png 'Android 8.0')](https://GitHub.com/BShakhovsky/PianoTranscription_Android/blob/master/README.md)
+
+or get it on Google Play:
+
+[![](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png 'Get it on Google Play')](https://play.google.com/store/apps/details?id=ru.BShakhovsky.Piano_Transcription)
+
 # Description
 
 3D-piano, with an option of advising on which fingers to use to press each piano key, accuracy of finger numbers is around 75%.
 
-[![](Keyboard.png 'Screenshot')](https://GitHub.com/BShakhovsky/PianoTranscription3D/releases/download/2019-06-22/PianoTranscription3D.zip)
+[![](Keyboard.png 'Screenshot')](https://GitHub.com/BShakhovsky/PianoTranscription_Windows/releases/download/2019-06-22/PianoTranscription3D.zip)
 
 It is not possible to play on this piano using mouse nor keyboard, it only plays audio files (and it can also extract audio-stream of some video formats).  Not only MIDI-files are supported, but also MP3, WAV, etc.  Polyphonic piano transcription feature will generate MIDI from audio/video.
 
-[![](Spectrogram.png 'Screenshot')](https://GitHub.com/BShakhovsky/PianoTranscription3D/releases/download/2019-06-22/PianoTranscription3D.zip)
+[![](Spectrogram.png 'Screenshot')](https://GitHub.com/BShakhovsky/PianoTranscription_Windows/releases/download/2019-06-22/PianoTranscription3D.zip)
 
 No instrument information is extracted, and all transcribed notes get combined into one part.  So, "Fingering" option would not be applicable in this case, as it requires to have 2 separate MIDI-tracks for left and right hands.  The accuracy depends on the complexity of the song, and is obviously higher for solo piano pieces.  Currently, accuracy for piano pieces is around 75%.
 
 # How to Install
 
-[Download the latest zip-archive](https://GitHub.com/BShakhovsky/PianoTranscription3D/releases/download/2019-06-22/PianoTranscription3D.zip)
+[Download the latest zip-archive](https://GitHub.com/BShakhovsky/PianoTranscription_Windows/releases/download/2019-06-22/PianoTranscription3D.zip)
 
 No installation is required, just open file "Piano Transcription 3D.exe".
 
