@@ -8,6 +8,8 @@ or get it on Google Play:
 
 [![](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png 'Get it on Google Play')](https://play.google.com/store/apps/details?id=ru.BShakhovsky.Piano_Transcription)
 
+Android version also has the real-time transcription feature which may help you to learn the MIDI chords on your real piano.  The app will recognize the notes you play and highlight them.  Once you correctly play all the notes of the chord simultaneously, it will proceed to the next MIDI chord, and so on.
+
 # Description
 
 3D-piano, with an option of advising on which fingers to use to press each piano key, accuracy of finger numbers is around 75%.
@@ -22,7 +24,7 @@ No instrument information is extracted, and all transcribed notes get combined i
 
 # How to Install
 
-[Download the latest zip-archive](https://GitHub.com/BShakhovsky/PianoTranscription_Windows/releases/download/2019-06-22/PianoTranscription3D.zip)
+[Download the latest zip-archive](https://GitHub.com/BShakhovsky/PianoTranscription_Windows/releases/download/2019-06-22/PianoTranscription3D.zip)  ![](https://img.shields.io/github/downloads/BShakhovsky/PianoTranscription_Windows/total?logo=visual-studio&style=plastic)
 
 No installation is required, just open file "Piano Transcription 3D.exe".
 

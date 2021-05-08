@@ -14,10 +14,19 @@ MidiParser::MidiParser(LPCTSTR fileName) : lastTime_(0), milliSeconds_(0)
 		File::getCurrentWorkingDirectory().getChildFile(String(fileName)).getFullPathName());
 	if (inputFile.failedToOpen())
 		throw MidiError((wstring(TEXT("Could not open file:\r\n")) + fileName).c_str());
-	if (!midi_.readFrom(inputFile))
-		throw MidiError((wstring(TEXT("Not a MIDI-file:\r\n")) + fileName).c_str());
+	const auto midiIsOk(midi_.readFrom(inputFile));
+	if (!midiIsOk) log_.append(wstring(TEXT("WARNING: This MIDI-file may be corrupted\r\n")));
 
 	Parse();
+	if (!midiIsOk)
+	{
+		if (Piano::notes.empty())
+		{
+			assert(Piano::milliSeconds.empty() && Piano::percussions.empty());
+			throw MidiError((wstring(TEXT("Not a MIDI-file:\r\n")) + fileName).c_str());
+		}
+		assert(!"Corrupted MIDI-file");
+	}
 }
 
 void MidiParser::ParseKeySignatureMetaEvent()
