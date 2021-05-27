@@ -2,7 +2,7 @@
 
 There is also version for Android 4.4 KitKat (API level 19) or higher, for it click on the following screenshot:
 
-[![](https://raw.GitHubUserContent.com/BShakhovsky/BShakhovsky.github.io/master/Android.png 'Android 8.0')](https://GitHub.com/BShakhovsky/PianoTranscription_Android/blob/master/README.md)
+[![](https://raw.GitHubUserContent.com/BShakhovsky/BShakhovsky.github.io/master/Android.png 'Android')](https://GitHub.com/BShakhovsky/PianoTranscription_Android/blob/master/README.md)
 
 or get it on Google Play:
 
